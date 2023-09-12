@@ -1,413 +1,357 @@
-<template>
-  <div>
-    <WidgetsStatsA />
-    <CRow>
-      <CCol :md="12">
-        <CCard class="mb-4">
-          <CCardBody>
-            <CRow>
-              <CCol :sm="5">
-                <h4 id="traffic" class="card-title mb-0">Traffic</h4>
-                <div class="small text-medium-emphasis">January 2021</div>
-              </CCol>
-              <CCol :sm="7" class="d-none d-md-block">
-                <CButton color="primary" class="float-end">
-                  <CIcon icon="cil-cloud-download" />
-                </CButton>
-                <CButtonGroup
-                  class="float-end me-3"
-                  role="group"
-                  aria-label="Basic outlined example"
-                >
-                  <CButton color="secondary" variant="outline">Day</CButton>
-                  <CButton color="secondary" variant="outline" active
-                    >Month</CButton
-                  >
-                  <CButton color="secondary" variant="outline">Year</CButton>
-                </CButtonGroup>
-              </CCol>
-            </CRow>
-            <CRow>
-              <MainChartExample
-                style="height: 300px; max-height: 300px; margin-top: 40px"
-              />
-            </CRow>
-          </CCardBody>
-          <CCardFooter>
-            <CRow :xs="{ cols: 1 }" :md="{ cols: 5 }" class="text-center">
-              <CCol class="mb-sm-2 mb-0">
-                <div class="text-medium-emphasis">Visits</div>
-                <strong>29.703 Users (40%)</strong>
-                <CProgress
-                  class="mt-2"
-                  color="success"
-                  thin
-                  :precision="1"
-                  :value="40"
-                />
-              </CCol>
-              <CCol class="mb-sm-2 mb-0 d-md-down-none">
-                <div class="text-medium-emphasis">Unique</div>
-                <strong>24.093 Users (20%)</strong>
-                <CProgress
-                  class="mt-2"
-                  color="info"
-                  thin
-                  :precision="1"
-                  :value="20"
-                />
-              </CCol>
-              <CCol class="mb-sm-2 mb-0">
-                <div class="text-medium-emphasis">Pageviews</div>
-                <strong>78.706 Views (60%)</strong>
-                <CProgress
-                  class="mt-2"
-                  color="warning"
-                  thin
-                  :precision="1"
-                  :value="60"
-                />
-              </CCol>
-              <CCol class="mb-sm-2 mb-0">
-                <div class="text-medium-emphasis">New Users</div>
-                <strong>22.123 Users (80%)</strong>
-                <CProgress
-                  class="mt-2"
-                  color="danger"
-                  thin
-                  :precision="1"
-                  :value="80"
-                />
-              </CCol>
-              <CCol class="mb-sm-2 mb-0 d-md-down-none">
-                <div class="text-medium-emphasis">Bounce Rate</div>
-                <strong>Average Rate (40.15%)</strong>
-                <CProgress class="mt-2" :value="40" thin :precision="1" />
-              </CCol>
-            </CRow>
-          </CCardFooter>
-        </CCard>
-      </CCol>
-    </CRow>
-    <WidgetsStatsD />
-    <CRow>
-      <CCol :md="12">
-        <CCard class="mb-4">
-          <CCardHeader> Traffic &amp; Sales </CCardHeader>
-          <CCardBody>
-            <CRow>
-              <CCol :sm="12" :lg="6">
-                <CRow>
-                  <CCol :sm="6">
-                    <div
-                      class="border-start border-start-4 border-start-info py-1 px-3 mb-3"
-                    >
-                      <div class="text-medium-emphasis small">New Clients</div>
-                      <div class="fs-5 fw-semibold">9,123</div>
-                    </div>
-                  </CCol>
-                  <CCol :sm="6">
-                    <div
-                      class="border-start border-start-4 border-start-danger py-1 px-3 mb-3"
-                    >
-                      <div class="text-medium-emphasis small">
-                        Recurring Clients
-                      </div>
-                      <div class="fs-5 fw-semibold">22,643</div>
-                    </div>
-                  </CCol>
-                </CRow>
-                <hr class="mt-0" />
-                <div
-                  v-for="item in progressGroupExample1"
-                  :key="item.title"
-                  class="progress-group mb-4"
-                >
-                  <div class="progress-group-prepend">
-                    <span class="text-medium-emphasis small">{{
-                      item.title
-                    }}</span>
-                  </div>
-                  <div class="progress-group-bars">
-                    <CProgress thin color="info" :value="item.value1" />
-                    <CProgress thin color="danger" :value="item.value2" />
-                  </div>
-                </div>
-              </CCol>
-              <CCol :sm="12" :lg="6">
-                <CRow>
-                  <CCol :sm="6">
-                    <div
-                      class="border-start border-start-4 border-start-warning py-1 px-3 mb-3"
-                    >
-                      <div class="text-medium-emphasis small">Pageviews</div>
-                      <div class="fs-5 fw-semibold">78,623</div>
-                    </div>
-                  </CCol>
-                  <CCol :sm="6">
-                    <div
-                      class="border-start border-start-4 border-start-success py-1 px-3 mb-3"
-                    >
-                      <div class="text-medium-emphasis small">Organic</div>
-                      <div class="fs-5 fw-semibold">49,123</div>
-                    </div>
-                  </CCol>
-                </CRow>
-                <hr class="mt-0" />
-                <div
-                  v-for="item in progressGroupExample2"
-                  :key="item.title"
-                  class="progress-group"
-                >
-                  <div class="progress-group-header">
-                    <CIcon :icon="item.icon" class="me-2" size="lg" />
-                    <span class="title">{{ item.title }}</span>
-                    <span class="ms-auto fw-semibold">{{ item.value }}%</span>
-                  </div>
-                  <div class="progress-group-bars">
-                    <CProgress thin :value="item.value" color="warning" />
-                  </div>
-                </div>
+<script setup>
+import { onMounted, reactive, ref, watch } from 'vue';
+import ProductService from '@/service/ProductService';
+import { useLayout } from '@/layout/composables/layout';
 
-                <div class="mb-5"></div>
+const { isDarkTheme } = useLayout();
 
-                <div
-                  v-for="item in progressGroupExample3"
-                  :key="item.title"
-                  class="progress-group"
-                >
-                  <div class="progress-group-header">
-                    <CIcon :icon="item.icon" class="me-2" size="lg" />
-                    <span class="title">Organic Search</span>
-                    <span class="ms-auto fw-semibold">
-                      {{ item.value }}
-                      <span class="text-medium-emphasis small"
-                        >({{ item.percent }}%)</span
-                      >
-                    </span>
-                  </div>
-                  <div class="progress-group-bars">
-                    <CProgress thin :value="item.percent" color="success" />
-                  </div>
-                </div>
-              </CCol>
-            </CRow>
-            <br />
-            <CTable align="middle" class="mb-0 border" hover responsive>
-              <CTableHead color="light">
-                <CTableRow>
-                  <CTableHeaderCell class="text-center">
-                    <CIcon name="cil-people" />
-                  </CTableHeaderCell>
-                  <CTableHeaderCell>User</CTableHeaderCell>
-                  <CTableHeaderCell class="text-center"
-                    >Country</CTableHeaderCell
-                  >
-                  <CTableHeaderCell>Usage</CTableHeaderCell>
-                  <CTableHeaderCell class="text-center"
-                    >Payment Method</CTableHeaderCell
-                  >
-                  <CTableHeaderCell>Activity</CTableHeaderCell>
-                </CTableRow>
-              </CTableHead>
-              <CTableBody>
-                <CTableRow v-for="item in tableExample" :key="item.name">
-                  <CTableDataCell class="text-center">
-                    <CAvatar
-                      size="md"
-                      :src="item.avatar.src"
-                      :status="item.avatar.status"
-                    />
-                  </CTableDataCell>
-                  <CTableDataCell>
-                    <div>{{ item.user.name }}</div>
-                    <div class="small text-medium-emphasis">
-                      <span>{{ item.user.new ? 'New' : 'Recurring' }}</span> |
-                      {{ item.user.registered }}
-                    </div>
-                  </CTableDataCell>
-                  <CTableDataCell class="text-center">
-                    <CIcon
-                      size="xl"
-                      :name="item.country.flag"
-                      :title="item.country.name"
-                    />
-                  </CTableDataCell>
-                  <CTableDataCell>
-                    <div class="clearfix">
-                      <div class="float-start">
-                        <strong>{{ item.usage.value }}%</strong>
-                      </div>
-                      <div class="float-end">
-                        <small class="text-medium-emphasis">
-                          {{ item.usage.period }}
-                        </small>
-                      </div>
-                    </div>
-                    <CProgress
-                      thin
-                      :color="item.usage.color"
-                      :value="item.usage.value"
-                    />
-                  </CTableDataCell>
-                  <CTableDataCell class="text-center">
-                    <CIcon size="xl" :name="item.payment.icon" />
-                  </CTableDataCell>
-                  <CTableDataCell>
-                    <div class="small text-medium-emphasis">Last login</div>
-                    <strong>{{ item.activity }}</strong>
-                  </CTableDataCell>
-                </CTableRow>
-                <CTableRow> </CTableRow>
-              </CTableBody>
-            </CTable>
-          </CCardBody>
-        </CCard>
-      </CCol>
-    </CRow>
-  </div>
-</template>
-
-<script>
-import avatar1 from '@/assets/images/avatars/1.jpg'
-import avatar2 from '@/assets/images/avatars/2.jpg'
-import avatar3 from '@/assets/images/avatars/3.jpg'
-import avatar4 from '@/assets/images/avatars/4.jpg'
-import avatar5 from '@/assets/images/avatars/5.jpg'
-import avatar6 from '@/assets/images/avatars/6.jpg'
-import MainChartExample from './charts/MainChartExample'
-import WidgetsStatsA from './widgets/WidgetsStatsTypeA.vue'
-import WidgetsStatsD from './widgets/WidgetsStatsTypeD.vue'
-
-export default {
-  name: 'Dashboard',
-  components: {
-    MainChartExample,
-    WidgetsStatsA,
-    WidgetsStatsD,
-  },
-  setup() {
-    const progressGroupExample1 = [
-      { title: 'Monday', value1: 34, value2: 78 },
-      { title: 'Tuesday', value1: 56, value2: 94 },
-      { title: 'Wednesday', value1: 12, value2: 67 },
-      { title: 'Thursday', value1: 43, value2: 91 },
-      { title: 'Friday', value1: 22, value2: 73 },
-      { title: 'Saturday', value1: 53, value2: 82 },
-      { title: 'Sunday', value1: 9, value2: 69 },
+const products = ref(null);
+const lineData = reactive({
+    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+    datasets: [
+        {
+            label: 'First Dataset',
+            data: [65, 59, 80, 81, 56, 55, 40],
+            fill: false,
+            backgroundColor: '#2f4860',
+            borderColor: '#2f4860',
+            tension: 0.4
+        },
+        {
+            label: 'Second Dataset',
+            data: [28, 48, 40, 19, 86, 27, 90],
+            fill: false,
+            backgroundColor: '#00bb7e',
+            borderColor: '#00bb7e',
+            tension: 0.4
+        }
     ]
-    const progressGroupExample2 = [
-      { title: 'Male', icon: 'cil-user', value: 53 },
-      { title: 'Female', icon: 'cil-user-female', value: 43 },
-    ]
-    const progressGroupExample3 = [
-      {
-        title: 'Organic Search',
-        icon: 'cib-google',
-        percent: 56,
-        value: '191,235',
-      },
-      { title: 'Facebook', icon: 'cib-facebook', percent: 15, value: '51,223' },
-      { title: 'Twitter', icon: 'cib-twitter', percent: 11, value: '37,564' },
-      { title: 'LinkedIn', icon: 'cib-linkedin', percent: 8, value: '27,319' },
-    ]
-    const tableExample = [
-      {
-        avatar: { src: avatar1, status: 'success' },
-        user: {
-          name: 'Yiorgos Avraamu',
-          new: true,
-          registered: 'Jan 1, 2021',
-        },
-        country: { name: 'USA', flag: 'cif-us' },
-        usage: {
-          value: 50,
-          period: 'Jun 11, 2021 - Jul 10, 2021',
-          color: 'success',
-        },
-        payment: { name: 'Mastercard', icon: 'cib-cc-mastercard' },
-        activity: '10 sec ago',
-      },
-      {
-        avatar: { src: avatar2, status: 'danger' },
-        user: {
-          name: 'Avram Tarasios',
-          new: false,
-          registered: 'Jan 1, 2021',
-        },
-        country: { name: 'Brazil', flag: 'cif-br' },
-        usage: {
-          value: 22,
-          period: 'Jun 11, 2021 - Jul 10, 2021',
-          color: 'info',
-        },
-        payment: { name: 'Visa', icon: 'cib-cc-visa' },
-        activity: '5 minutes ago',
-      },
-      {
-        avatar: { src: avatar3, status: 'warning' },
-        user: { name: 'Quintin Ed', new: true, registered: 'Jan 1, 2021' },
-        country: { name: 'India', flag: 'cif-in' },
-        usage: {
-          value: 74,
-          period: 'Jun 11, 2021 - Jul 10, 2021',
-          color: 'warning',
-        },
-        payment: { name: 'Stripe', icon: 'cib-cc-stripe' },
-        activity: '1 hour ago',
-      },
-      {
-        avatar: { src: avatar4, status: 'secondary' },
-        user: { name: 'Enéas Kwadwo', new: true, registered: 'Jan 1, 2021' },
-        country: { name: 'France', flag: 'cif-fr' },
-        usage: {
-          value: 98,
-          period: 'Jun 11, 2021 - Jul 10, 2021',
-          color: 'danger',
-        },
-        payment: { name: 'PayPal', icon: 'cib-cc-paypal' },
-        activity: 'Last month',
-      },
-      {
-        avatar: { src: avatar5, status: 'success' },
-        user: {
-          name: 'Agapetus Tadeáš',
-          new: true,
-          registered: 'Jan 1, 2021',
-        },
-        country: { name: 'Spain', flag: 'cif-es' },
-        usage: {
-          value: 22,
-          period: 'Jun 11, 2021 - Jul 10, 2021',
-          color: 'primary',
-        },
-        payment: { name: 'Google Wallet', icon: 'cib-cc-apple-pay' },
-        activity: 'Last week',
-      },
-      {
-        avatar: { src: avatar6, status: 'danger' },
-        user: {
-          name: 'Friderik Dávid',
-          new: true,
-          registered: 'Jan 1, 2021',
-        },
-        country: { name: 'Poland', flag: 'cif-pl' },
-        usage: {
-          value: 43,
-          period: 'Jun 11, 2021 - Jul 10, 2021',
-          color: 'success',
-        },
-        payment: { name: 'Amex', icon: 'cib-cc-amex' },
-        activity: 'Last week',
-      },
-    ]
+});
+const items = ref([
+    { label: 'Add New', icon: 'pi pi-fw pi-plus' },
+    { label: 'Remove', icon: 'pi pi-fw pi-minus' }
+]);
+const lineOptions = ref(null);
+const productService = new ProductService();
 
-    return {
-      tableExample,
-      progressGroupExample1,
-      progressGroupExample2,
-      progressGroupExample3,
-    }
-  },
-}
+onMounted(() => {
+    productService.getProductsSmall().then((data) => (products.value = data));
+});
+
+const formatCurrency = (value) => {
+    return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+};
+const applyLightTheme = () => {
+    lineOptions.value = {
+        plugins: {
+            legend: {
+                labels: {
+                    color: '#495057'
+                }
+            }
+        },
+        scales: {
+            x: {
+                ticks: {
+                    color: '#495057'
+                },
+                grid: {
+                    color: '#ebedef'
+                }
+            },
+            y: {
+                ticks: {
+                    color: '#495057'
+                },
+                grid: {
+                    color: '#ebedef'
+                }
+            }
+        }
+    };
+};
+
+const applyDarkTheme = () => {
+    lineOptions.value = {
+        plugins: {
+            legend: {
+                labels: {
+                    color: '#ebedef'
+                }
+            }
+        },
+        scales: {
+            x: {
+                ticks: {
+                    color: '#ebedef'
+                },
+                grid: {
+                    color: 'rgba(160, 167, 181, .3)'
+                }
+            },
+            y: {
+                ticks: {
+                    color: '#ebedef'
+                },
+                grid: {
+                    color: 'rgba(160, 167, 181, .3)'
+                }
+            }
+        }
+    };
+};
+
+watch(
+    isDarkTheme,
+    (val) => {
+        if (val) {
+            applyDarkTheme();
+        } else {
+            applyLightTheme();
+        }
+    },
+    { immediate: true }
+);
 </script>
+
+<template>
+    <div class="grid">
+        <div class="col-12 lg:col-6 xl:col-3">
+            <div class="card mb-0">
+                <div class="flex justify-content-between mb-3">
+                    <div>
+                        <span class="block text-500 font-medium mb-3">Orders</span>
+                        <div class="text-900 font-medium text-xl">152</div>
+                    </div>
+                    <div class="flex align-items-center justify-content-center bg-blue-100 border-round" style="width: 2.5rem; height: 2.5rem">
+                        <i class="pi pi-shopping-cart text-blue-500 text-xl"></i>
+                    </div>
+                </div>
+                <span class="text-green-500 font-medium">24 new </span>
+                <span class="text-500">since last visit</span>
+            </div>
+        </div>
+        <div class="col-12 lg:col-6 xl:col-3">
+            <div class="card mb-0">
+                <div class="flex justify-content-between mb-3">
+                    <div>
+                        <span class="block text-500 font-medium mb-3">Revenue</span>
+                        <div class="text-900 font-medium text-xl">$2.100</div>
+                    </div>
+                    <div class="flex align-items-center justify-content-center bg-orange-100 border-round" style="width: 2.5rem; height: 2.5rem">
+                        <i class="pi pi-map-marker text-orange-500 text-xl"></i>
+                    </div>
+                </div>
+                <span class="text-green-500 font-medium">%52+ </span>
+                <span class="text-500">since last week</span>
+            </div>
+        </div>
+        <div class="col-12 lg:col-6 xl:col-3">
+            <div class="card mb-0">
+                <div class="flex justify-content-between mb-3">
+                    <div>
+                        <span class="block text-500 font-medium mb-3">Customers</span>
+                        <div class="text-900 font-medium text-xl">28441</div>
+                    </div>
+                    <div class="flex align-items-center justify-content-center bg-cyan-100 border-round" style="width: 2.5rem; height: 2.5rem">
+                        <i class="pi pi-inbox text-cyan-500 text-xl"></i>
+                    </div>
+                </div>
+                <span class="text-green-500 font-medium">520 </span>
+                <span class="text-500">newly registered</span>
+            </div>
+        </div>
+        <div class="col-12 lg:col-6 xl:col-3">
+            <div class="card mb-0">
+                <div class="flex justify-content-between mb-3">
+                    <div>
+                        <span class="block text-500 font-medium mb-3">Comments</span>
+                        <div class="text-900 font-medium text-xl">152 Unread</div>
+                    </div>
+                    <div class="flex align-items-center justify-content-center bg-purple-100 border-round" style="width: 2.5rem; height: 2.5rem">
+                        <i class="pi pi-comment text-purple-500 text-xl"></i>
+                    </div>
+                </div>
+                <span class="text-green-500 font-medium">85 </span>
+                <span class="text-500">responded</span>
+            </div>
+        </div>
+
+        <div class="col-12 xl:col-6">
+            <div class="card">
+                <h5>Recent Sales</h5>
+                <DataTable :value="products" :rows="5" :paginator="true" responsiveLayout="scroll">
+                    <Column style="width: 15%">
+                        <template #header> Image </template>
+                        <template #body="slotProps">
+                            <img :src="'demo/images/product/' + slotProps.data.image" :alt="slotProps.data.image" width="50" class="shadow-2" />
+                        </template>
+                    </Column>
+                    <Column field="name" header="Name" :sortable="true" style="width: 35%"></Column>
+                    <Column field="price" header="Price" :sortable="true" style="width: 35%">
+                        <template #body="slotProps">
+                            {{ formatCurrency(slotProps.data.price) }}
+                        </template>
+                    </Column>
+                    <Column style="width: 15%">
+                        <template #header> View </template>
+                        <template #body>
+                            <Button icon="pi pi-search" type="button" class="p-button-text"></Button>
+                        </template>
+                    </Column>
+                </DataTable>
+            </div>
+            <div class="card">
+                <div class="flex justify-content-between align-items-center mb-5">
+                    <h5>Best Selling Products</h5>
+                    <div>
+                        <Button icon="pi pi-ellipsis-v" class="p-button-text p-button-plain p-button-rounded" @click="$refs.menu2.toggle($event)"></Button>
+                        <Menu ref="menu2" :popup="true" :model="items"></Menu>
+                    </div>
+                </div>
+                <ul class="list-none p-0 m-0">
+                    <li class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
+                        <div>
+                            <span class="text-900 font-medium mr-2 mb-1 md:mb-0">Space T-Shirt</span>
+                            <div class="mt-1 text-600">Clothing</div>
+                        </div>
+                        <div class="mt-2 md:mt-0 flex align-items-center">
+                            <div class="surface-300 border-round overflow-hidden w-10rem lg:w-6rem" style="height: 8px">
+                                <div class="bg-orange-500 h-full" style="width: 50%"></div>
+                            </div>
+                            <span class="text-orange-500 ml-3 font-medium">%50</span>
+                        </div>
+                    </li>
+                    <li class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
+                        <div>
+                            <span class="text-900 font-medium mr-2 mb-1 md:mb-0">Portal Sticker</span>
+                            <div class="mt-1 text-600">Accessories</div>
+                        </div>
+                        <div class="mt-2 md:mt-0 ml-0 md:ml-8 flex align-items-center">
+                            <div class="surface-300 border-round overflow-hidden w-10rem lg:w-6rem" style="height: 8px">
+                                <div class="bg-cyan-500 h-full" style="width: 16%"></div>
+                            </div>
+                            <span class="text-cyan-500 ml-3 font-medium">%16</span>
+                        </div>
+                    </li>
+                    <li class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
+                        <div>
+                            <span class="text-900 font-medium mr-2 mb-1 md:mb-0">Supernova Sticker</span>
+                            <div class="mt-1 text-600">Accessories</div>
+                        </div>
+                        <div class="mt-2 md:mt-0 ml-0 md:ml-8 flex align-items-center">
+                            <div class="surface-300 border-round overflow-hidden w-10rem lg:w-6rem" style="height: 8px">
+                                <div class="bg-pink-500 h-full" style="width: 67%"></div>
+                            </div>
+                            <span class="text-pink-500 ml-3 font-medium">%67</span>
+                        </div>
+                    </li>
+                    <li class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
+                        <div>
+                            <span class="text-900 font-medium mr-2 mb-1 md:mb-0">Wonders Notebook</span>
+                            <div class="mt-1 text-600">Office</div>
+                        </div>
+                        <div class="mt-2 md:mt-0 ml-0 md:ml-8 flex align-items-center">
+                            <div class="surface-300 border-round overflow-hidden w-10rem lg:w-6rem" style="height: 8px">
+                                <div class="bg-green-500 h-full" style="width: 35%"></div>
+                            </div>
+                            <span class="text-green-500 ml-3 font-medium">%35</span>
+                        </div>
+                    </li>
+                    <li class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
+                        <div>
+                            <span class="text-900 font-medium mr-2 mb-1 md:mb-0">Mat Black Case</span>
+                            <div class="mt-1 text-600">Accessories</div>
+                        </div>
+                        <div class="mt-2 md:mt-0 ml-0 md:ml-8 flex align-items-center">
+                            <div class="surface-300 border-round overflow-hidden w-10rem lg:w-6rem" style="height: 8px">
+                                <div class="bg-purple-500 h-full" style="width: 75%"></div>
+                            </div>
+                            <span class="text-purple-500 ml-3 font-medium">%75</span>
+                        </div>
+                    </li>
+                    <li class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
+                        <div>
+                            <span class="text-900 font-medium mr-2 mb-1 md:mb-0">Robots T-Shirt</span>
+                            <div class="mt-1 text-600">Clothing</div>
+                        </div>
+                        <div class="mt-2 md:mt-0 ml-0 md:ml-8 flex align-items-center">
+                            <div class="surface-300 border-round overflow-hidden w-10rem lg:w-6rem" style="height: 8px">
+                                <div class="bg-teal-500 h-full" style="width: 40%"></div>
+                            </div>
+                            <span class="text-teal-500 ml-3 font-medium">%40</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-12 xl:col-6">
+            <div class="card">
+                <h5>Sales Overview</h5>
+                <Chart type="line" :data="lineData" :options="lineOptions" />
+            </div>
+            <div class="card">
+                <div class="flex align-items-center justify-content-between mb-4">
+                    <h5>Notifications</h5>
+                    <div>
+                        <Button icon="pi pi-ellipsis-v" class="p-button-text p-button-plain p-button-rounded" @click="$refs.menu1.toggle($event)"></Button>
+                        <Menu ref="menu1" :popup="true" :model="items"></Menu>
+                    </div>
+                </div>
+
+                <span class="block text-600 font-medium mb-3">TODAY</span>
+                <ul class="p-0 mx-0 mt-0 mb-4 list-none">
+                    <li class="flex align-items-center py-2 border-bottom-1 surface-border">
+                        <div class="w-3rem h-3rem flex align-items-center justify-content-center bg-blue-100 border-circle mr-3 flex-shrink-0">
+                            <i class="pi pi-dollar text-xl text-blue-500"></i>
+                        </div>
+                        <span class="text-900 line-height-3"
+                            >Richard Jones
+                            <span class="text-700">has purchased a blue t-shirt for <span class="text-blue-500">79$</span></span>
+                        </span>
+                    </li>
+                    <li class="flex align-items-center py-2">
+                        <div class="w-3rem h-3rem flex align-items-center justify-content-center bg-orange-100 border-circle mr-3 flex-shrink-0">
+                            <i class="pi pi-download text-xl text-orange-500"></i>
+                        </div>
+                        <span class="text-700 line-height-3">Your request for withdrawal of <span class="text-blue-500 font-medium">2500$</span> has been initiated.</span>
+                    </li>
+                </ul>
+
+                <span class="block text-600 font-medium mb-3">YESTERDAY</span>
+                <ul class="p-0 m-0 list-none">
+                    <li class="flex align-items-center py-2 border-bottom-1 surface-border">
+                        <div class="w-3rem h-3rem flex align-items-center justify-content-center bg-blue-100 border-circle mr-3 flex-shrink-0">
+                            <i class="pi pi-dollar text-xl text-blue-500"></i>
+                        </div>
+                        <span class="text-900 line-height-3"
+                            >Keyser Wick
+                            <span class="text-700">has purchased a black jacket for <span class="text-blue-500">59$</span></span>
+                        </span>
+                    </li>
+                    <li class="flex align-items-center py-2 border-bottom-1 surface-border">
+                        <div class="w-3rem h-3rem flex align-items-center justify-content-center bg-pink-100 border-circle mr-3 flex-shrink-0">
+                            <i class="pi pi-question text-xl text-pink-500"></i>
+                        </div>
+                        <span class="text-900 line-height-3"
+                            >Jane Davis
+                            <span class="text-700">has posted a new questions about your product.</span>
+                        </span>
+                    </li>
+                </ul>
+            </div>
+            <div
+                class="px-4 py-5 shadow-2 flex flex-column md:flex-row md:align-items-center justify-content-between mb-3"
+                style="border-radius: 1rem; background: linear-gradient(0deg, rgba(0, 123, 255, 0.5), rgba(0, 123, 255, 0.5)), linear-gradient(92.54deg, #1c80cf 47.88%, #ffffff 100.01%)"
+            >
+                <div>
+                    <div class="text-blue-100 font-medium text-xl mt-2 mb-3">TAKE THE NEXT STEP</div>
+                    <div class="text-white font-medium text-5xl">Try PrimeBlocks</div>
+                </div>
+                <div class="mt-4 mr-auto md:mt-0 md:mr-0">
+                    <a href="https://www.primefaces.org/primeblocks-vue" class="p-button font-bold px-5 py-3 p-button-warning p-button-rounded p-button-raised"> Get Started </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>

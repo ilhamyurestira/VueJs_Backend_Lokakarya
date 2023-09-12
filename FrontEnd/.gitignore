@@ -1,45 +1,40 @@
-# Folders to ignore
-dist/
-node_modules/
-tests/e2e/reports/
-
-# local env files
-.env.local
-.env.*.local
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
 # dependencies
 /node_modules
 package-lock.json
 yarn.lock
 
-# OS or Editor folders
-._*
-.cache
 .DS_Store
+dist
+dist-ssr
+coverage
+*.local
+
+/cypress/videos/
+/cypress/screenshots/
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
 .idea
-.project
-.settings
-.tmproj
-*.esproj
-*.sublime-project
-*.sublime-workspace
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
-nbproject
-Thumbs.db
-/.vscode/
 
-# Numerous always-ignore extensions
-*.diff
-*.err
-*.log
-*.orig
-*.rej
-*.swo
-*.swp
-*.vi
-*.zip
-*~
+# Themes
+public/themes/soho-light/
+public/themes/soho-dark/
+public/themes/viva-light/
+public/themes/viva-dark/
+public/themes/mira/
+public/themes/nano/
