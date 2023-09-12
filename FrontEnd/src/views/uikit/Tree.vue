@@ -18,11 +18,16 @@ onMounted(() => {
     <div class="grid">
         <div class="col-12">
             <div class="card">
-                <h5>Tree</h5>
-                <Tree :value="treeValue" selectionMode="checkbox" v-model:selectionKeys="selectedTreeValue"></Tree>
+                <h5>Setor</h5>
+                <div class="field">
+                    <label for="name1">Nomor Rekening </label> 
+                    <InputText id="name1" type="text" />
+                </div>
+                <Button label="Submit" class="mr-2 mb-2"></Button>
+                <!-- <Tree :value="treeValue" selectionMode="checkbox" v-model:selectionKeys="selectedTreeValue"></Tree> -->
             </div>
         </div>
-        <div class="col-12">
+        <!-- <div class="col-12">
             <div class="card">
                 <h5>TreeTable</h5>
                 <TreeTable :value="treeTableValue" selectionMode="checkbox" v-model:selectionKeys="selectedTreeTableValue">
@@ -32,6 +37,6 @@ onMounted(() => {
                     <Column field="type" header="Type"></Column>
                 </TreeTable>
             </div>
-        </div>
+        </div> -->
     </div>
 </template>

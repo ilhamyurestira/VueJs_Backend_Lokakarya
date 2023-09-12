@@ -57,12 +57,18 @@ const onSortChange = (event) => {
 };
 </script>
 
+
 <template>
     <div class="grid">
         <div class="col-12">
             <div class="card">
-                <h5>DataView</h5>
-                <DataView :value="dataviewValue" :layout="layout" :paginator="true" :rows="9" :sortOrder="sortOrder" :sortField="sortField">
+                <h5>Cek Saldo</h5>
+                <div class="field">
+                    <label for="name1">Nomor Rekening </label> 
+                    <InputText id="name1" type="text" />
+                </div>
+                <Button label="Submit" class="mr-2 mb-2"></Button>
+                <!-- <DataView :value="dataviewValue" :layout="layout" :paginator="true" :rows="9" :sortOrder="sortOrder" :sortField="sortField">
                     <template #header>
                         <div class="grid grid-nogutter">
                             <div class="col-6 text-left">
@@ -118,11 +124,11 @@ const onSortChange = (event) => {
                             </div>
                         </div>
                     </template>
-                </DataView>
+                </DataView> -->
             </div>
         </div>
 
-        <div class="col-12 lg:col-8">
+        <!-- <div class="col-12 lg:col-8">
             <div class="card">
                 <h5>PickList</h5>
                 <PickList v-model="picklistValue" listStyle="height:250px" dataKey="code">
@@ -145,6 +151,6 @@ const onSortChange = (event) => {
                     </template>
                 </OrderList>
             </div>
-        </div>
+        </div> -->
     </div>
 </template>
