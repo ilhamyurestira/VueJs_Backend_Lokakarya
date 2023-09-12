@@ -28,10 +28,15 @@ const router = createRouter({
                     name: 'floatlabel',
                     component: () => import('@/views/uikit/FloatLabel.vue')
                 },
+                // {
+                //     path: '/uikit/invalidstate',
+                //     name: 'invalidstate',
+                //     component: () => import('@/views/uikit/InvalidState.vue')
+                // },
                 {
-                    path: '/uikit/invalidstate',
-                    name: 'invalidstate',
-                    component: () => import('@/views/uikit/InvalidState.vue')
+                    path: '/tlpadm/masterpelanggan',
+                    name: 'masterPelanggan',
+                    component: () => import('@/views/tlpadm/MasterPelanggan.vue')
                 },
                 {
                     path: '/uikit/button',
