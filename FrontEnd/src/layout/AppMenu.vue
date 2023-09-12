@@ -5,23 +5,39 @@ import AppMenuItem from './AppMenuItem.vue';
 
 const model = ref([
     {
-        label: 'Home',
-        items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', to: '/' }]
+        label: 'User Admin',
+        items: [
+            { label: 'Role', icon: 'pi pi-fw pi-home', to: '/' },
+            { label: 'Role Menu', icon:'pi pi-fw pi-home', to: '/'},
+            { label: 'Menu', icon:'pi pi-fw pi-home', to: '/'},
+            { label: 'Hak Akses', icon:'pi pi-fw pi-home', to: '/'},
+            { label: 'User', icon:'pi pi-fw pi-home', to: '/'}
+        ]
     },
     {
-        label: 'UI Components',
+        label: 'Bank Admin',
         items: [
-            { label: 'Form Layout', icon: 'pi pi-fw pi-id-card', to: '/uikit/formlayout' },
-            { label: 'Input', icon: 'pi pi-fw pi-check-square', to: '/uikit/input' },
-            { label: 'Float Label', icon: 'pi pi-fw pi-bookmark', to: '/uikit/floatlabel' },
-            { label: 'Invalid State', icon: 'pi pi-fw pi-exclamation-circle', to: '/uikit/invalidstate' },
-            { label: 'Button', icon: 'pi pi-fw pi-mobile', to: '/uikit/button', class: 'rotated-icon' },
-            { label: 'Table', icon: 'pi pi-fw pi-table', to: '/uikit/table' },
-            { label: 'List', icon: 'pi pi-fw pi-list', to: '/uikit/list' },
-            { label: 'Tree', icon: 'pi pi-fw pi-share-alt', to: '/uikit/tree' },
-            { label: 'Panel', icon: 'pi pi-fw pi-tablet', to: '/uikit/panel' },
-            { label: 'Overlay', icon: 'pi pi-fw pi-clone', to: '/uikit/overlay' },
-            { label: 'Media', icon: 'pi pi-fw pi-image', to: '/uikit/media' },
+            { label: 'Master Bank', icon: 'pi pi-fw pi-id-card', to: '/uikit/formlayout' },
+            { label: 'Transaksi Nasabah', icon: 'pi pi-fw pi-check-square', to: '/uikit/input' },
+            { label: 'Histori Nasabah', icon: 'pi pi-fw pi-bookmark', to: '/uikit/floatlabel' }
+            ]
+    },
+    {
+    label: 'Telpon Admin',
+    items: [
+            { label: 'Master Pelanggan', icon: 'pi pi-fw pi-exclamation-circle', to: '/uikit/invalidstate' },
+            { label: 'Transaksi Telpon', icon: 'pi pi-fw pi-mobile', to: '/uikit/button', class: 'rotated-icon' },
+            { label: 'Histori Transaksi', icon: 'pi pi-fw pi-table', to: '/uikit/table' }
+    ]
+    },
+    {
+        label: 'Nasabah',
+        items: [
+            { label: 'Cek Saldo', icon: 'pi pi-fw pi-list', to: '/uikit/list' },
+            { label: 'Setor', icon: 'pi pi-fw pi-share-alt', to: '/uikit/tree' },
+            { label: 'Ambil', icon: 'pi pi-fw pi-tablet', to: '/uikit/panel' },
+            { label: 'Transaksi Antar Rekening', icon: 'pi pi-fw pi-clone', to: '/uikit/overlay' },
+            { label: 'Bayar Telpon', icon: 'pi pi-fw pi-image', to: '/uikit/media' },
             { label: 'Menu', icon: 'pi pi-fw pi-bars', to: '/uikit/menu', preventExact: true },
             { label: 'Message', icon: 'pi pi-fw pi-comment', to: '/uikit/message' },
             { label: 'File', icon: 'pi pi-fw pi-file', to: '/uikit/file' },
