@@ -39,6 +39,16 @@ const router = createRouter({
                     component: () => import('@/views/tlpadm/MasterPelanggan.vue')
                 },
                 {
+                    path: '/tlpadm/transaksiTelpon',
+                    name: 'transaksiTelpon',
+                    component: () => import('@/views/tlpadm/TransaksiTelpon.vue')
+                },
+                {
+                    path: '/tlpadm/historiTransaksi',
+                    name: 'historiTransaksi',
+                    component: () => import('@/views/tlpadm/historiTransaksi.vue')
+                },
+                {
                     path: '/uikit/button',
                     name: 'button',
                     component: () => import('@/views/uikit/Button.vue')

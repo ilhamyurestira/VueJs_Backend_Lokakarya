@@ -35,8 +35,13 @@ const toggle = () => {
     <div class="grid">
         <div class="col-12">
             <div class="card">
-                <h5>Toolbar</h5>
-                <Toolbar>
+                <h5>Tarik</h5>
+                <div class="field">
+                    <label for="name1">Nomor Rekening </label> 
+                    <InputText id="name1" type="text" />
+                </div>
+                <Button label="Submit" class="mr-2 mb-2"></Button>
+                <!-- <Toolbar>
                     <template v-slot:start>
                         <Button label="New" icon="pi pi-plus" class="mr-2" />
                         <Button label="Open" icon="pi pi-folder-open" class="p-button-secondary mr-2" />
@@ -50,10 +55,10 @@ const toggle = () => {
                     <template v-slot:end>
                         <SplitButton label="Options" :model="toolbarItems"></SplitButton>
                     </template>
-                </Toolbar>
+                </Toolbar> -->
             </div>
         </div>
-        <div class="col-12 md:col-6">
+        <!-- <div class="col-12 md:col-6">
             <div class="card">
                 <h5>AccordionPanel</h5>
                 <Accordion :activeIndex="0">
@@ -212,6 +217,6 @@ const toggle = () => {
                     </SplitterPanel>
                 </Splitter>
             </div>
-        </div>
+        </div> -->
     </div>
 </template>
