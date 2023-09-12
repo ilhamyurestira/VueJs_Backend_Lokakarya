@@ -44,7 +44,7 @@ class App {
     }
 }
 
-const port: number = 8020;
+const port: number = 8000;
 const app = new App().app;
 app.listen(port, () => {
     console.log("Aplikasi ini berjalan di port " + port);
