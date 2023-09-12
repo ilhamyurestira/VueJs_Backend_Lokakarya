@@ -28,10 +28,25 @@ const router = createRouter({
                     name: 'floatlabel',
                     component: () => import('@/views/uikit/FloatLabel.vue')
                 },
+                // {
+                //     path: '/uikit/invalidstate',
+                //     name: 'invalidstate',
+                //     component: () => import('@/views/uikit/InvalidState.vue')
+                // },
                 {
-                    path: '/uikit/invalidstate',
-                    name: 'invalidstate',
-                    component: () => import('@/views/uikit/InvalidState.vue')
+                    path: '/tlpadm/masterpelanggan',
+                    name: 'masterPelanggan',
+                    component: () => import('@/views/tlpadm/MasterPelanggan.vue')
+                },
+                {
+                    path: '/tlpadm/transaksiTelpon',
+                    name: 'transaksiTelpon',
+                    component: () => import('@/views/tlpadm/TransaksiTelpon.vue')
+                },
+                {
+                    path: '/tlpadm/historiTransaksi',
+                    name: 'historiTransaksi',
+                    component: () => import('@/views/tlpadm/historiTransaksi.vue')
                 },
                 {
                     path: '/uikit/button',

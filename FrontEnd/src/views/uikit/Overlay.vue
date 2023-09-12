@@ -77,8 +77,13 @@ const confirm = (event) => {
     <div class="grid">
         <div class="col-12 lg:col-6">
             <div class="card p-fluid">
-                <h5>Dialog</h5>
-                <Dialog header="Dialog" v-model:visible="display" :breakpoints="{ '960px': '75vw' }" :style="{ width: '30vw' }" :modal="true">
+                <h5>Transfer</h5>
+                <div class="field">
+                    <label for="name1">Nomor Rekening </label> 
+                    <InputText id="name1" type="text" />
+                </div>
+                <Button label="Submit" class="mr-2 mb-2"></Button>
+                <!-- <Dialog header="Dialog" v-model:visible="display" :breakpoints="{ '960px': '75vw' }" :style="{ width: '30vw' }" :modal="true">
                     <p class="line-height-3 m-0">
                         Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
                         consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
@@ -87,7 +92,7 @@ const confirm = (event) => {
                         <Button label="Ok" @click="close" icon="pi pi-check" class="p-button-outlined" />
                     </template>
                 </Dialog>
-                <Button label="Show" icon="pi pi-external-link" style="width: auto" @click="open" />
+                <Button label="Show" icon="pi pi-external-link" style="width: auto" @click="open" /> -->
             </div>
             <div class="card p-fluid">
                 <h5>Overlay Panel</h5>
@@ -119,7 +124,7 @@ const confirm = (event) => {
                 </div>
             </div>
         </div>
-        <div class="col-12 lg:col-6">
+        <!-- <div class="col-12 lg:col-6">
             <div class="card p-fluid">
                 <h5>Confirmation</h5>
                 <Button label="Delete" icon="pi pi-trash" class="p-button-danger" style="width: auto" @click="openConfirmation" />
@@ -182,6 +187,6 @@ const confirm = (event) => {
                 <Toast />
                 <Button ref="popup" @click="confirm($event)" icon="pi pi-check" label="Confirm" class="mr-2"></Button>
             </div>
-        </div>
+        </div> -->
     </div>
 </template>
