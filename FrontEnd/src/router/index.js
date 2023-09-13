@@ -59,30 +59,30 @@ const router = createRouter({
                     component: () => import('@/views/uikit/Table.vue')
                 },
                 {
-                    path: '/uikit/list',
-                    name: 'list',
-                    component: () => import('@/views/uikit/List.vue')
+                    path: '/uikit/CekSaldoComponent',
+                    name: 'CekSaldoCompoent',
+                    component: () => import('@/views/uikit/CekSaldoComponent.vue')
                 },
                 {
-                    path: '/uikit/tree',
+                    path: '/uikit/SetorComponent',
                     name: 'tree',
-                    component: () => import('@/views/uikit/Tree.vue')
+                    component: () => import('@/views/uikit/SetorComponent.vue')
                 },
                 {
-                    path: '/uikit/panel',
+                    path: '/uikit/TarikComponent',
                     name: 'panel',
-                    component: () => import('@/views/uikit/Panels.vue')
+                    component: () => import('@/views/uikit/TarikComponent.vue')
                 },
 
                 {
-                    path: '/uikit/overlay',
+                    path: '/uikit/TransferComponent',
                     name: 'overlay',
-                    component: () => import('@/views/uikit/Overlay.vue')
+                    component: () => import('@/views/uikit/TransferComponent.vue')
                 },
                 {
-                    path: '/uikit/media',
+                    path: '/uikit/BayarTelponComponent',
                     name: 'media',
-                    component: () => import('@/views/uikit/Media.vue')
+                    component: () => import('@/views/uikit/BayarTelponComponent.vue')
                 },
                 {
                     path: '/uikit/menu',

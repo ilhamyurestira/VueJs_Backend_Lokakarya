@@ -35,11 +35,11 @@ const model = ref([
     {
         label: 'Nasabah',
         items: [
-            { label: 'Cek Saldo', icon: 'pi pi-wallet', to: '/uikit/list' },
-            { label: 'Setor', icon: 'pi pi-dollar', to: '/uikit/tree' },
-            { label: 'Ambil', icon: 'pi pi-money-bill', to: '/uikit/panel' },
-            { label: 'Transfer', icon: 'pi pi-arrow-right-arrow-left', to: '/uikit/CekSaldoComponent' },
-            { label: 'Bayar Telpon', icon: 'pi pi-mobile', to: '/uikit/media' }
+            { label: 'Cek Saldo', icon: 'pi pi-wallet', to: '/uikit/CekSaldoComponent' },
+            { label: 'Setor', icon: 'pi pi-dollar', to: '/uikit/SetorComponent' },
+            { label: 'Ambil', icon: 'pi pi-money-bill', to: '/uikit/TarikComponent' },
+            { label: 'Transfer', icon: 'pi pi-arrow-right-arrow-left', to: '/uikit/TransferComponent' },
+            { label: 'Bayar Telpon', icon: 'pi pi-mobile', to: '/uikit/BayarTelponComponent' }
         ]
     },
     {
@@ -95,11 +95,11 @@ const model = ref([
             <app-menu-item v-if="!item.separator" :item="item" :index="i"></app-menu-item>
             <li v-if="item.separator" class="menu-separator"></li>
         </template>
-        <li>
+        <!-- <li>
             <a href="https://www.primefaces.org/primeblocks-vue/#/" target="_blank">
                 <img src="/layout/images/banner-primeblocks.png" alt="Prime Blocks" class="w-full mt-3" />
             </a>
-        </li>
+        </li> -->
     </ul>
 </template>
 
