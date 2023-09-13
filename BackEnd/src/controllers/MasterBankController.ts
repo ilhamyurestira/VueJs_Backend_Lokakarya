@@ -23,7 +23,7 @@ class MasterBankController implements IController {
         const { id } = req.params;
 
         try {
-            const masterBank = await db.master_banks.findByPk(id);
+            const masterBank = await db.master_bank.findByPk(id);
             if (!masterBank) {
                 return res.status(400).send(`Data dengan id: ${id} tidak ditemukan`);
             } else {
@@ -72,29 +72,30 @@ class MasterBankController implements IController {
         }
     }
 
-
     async update(req: Request, res: Response): Promise<Response> {
         const { id } = req.params;
-        const { userId, nama, alamat, norek, noTlp, saldo, created_at, updated_at } = req.body;
-
+        const { userId, norek, saldo, nama, alamat, noTlp } = req.body;
+    
         try {
-            const masterBank = await db.master_banks.findByPk(id);
+            const masterBank = await db.master_bank.findByPk(id);
             if (!masterBank) {
                 return res.status(400).send(`Data dengan id: ${id} tidak ditemukan.`);
             }
-
+    
+            const user = await db.user.findByPk(userId);
+            if (!user) {
+                return res.status(400).send(`User dengan id: ${userId} tidak ditemukan.`);
+            }
+    
             const currentNama = masterBank.nama;
+    
+            // Update data master_bank, termasuk nama, alamat, dan noTlp dari data user
             await masterBank.update({
-                userId,
                 nama,
                 alamat,
-                norek,
-                noTlp,
-                saldo,
-                created_at,
-                updated_at,
+                noTlp
             });
-
+    
             return res.status(200).send(`Master Bank "${currentNama}" berhasil diubah.`);
         } catch (error) {
             console.error(error);
@@ -106,7 +107,7 @@ class MasterBankController implements IController {
         const { id } = req.params;
 
         try {
-            const masterBank = await db.master_banks.findByPk(id);
+            const masterBank = await db.master_bank.findByPk(id);
             if (!masterBank) {
                 return res.status(404).send(`Master Bank dengan id: ${id} tidak ditemukan.`);
             }
