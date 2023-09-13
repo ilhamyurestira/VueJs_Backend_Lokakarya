@@ -31,7 +31,10 @@ module.exports = (sequelize, DataTypes) => {
           key: 'id',
         },
       },
-      isActive: DataTypes.STRING,
+      isActive: {
+        type: DataTypes.STRING,
+        field: 'isActive',
+      },
       programName: {
         type: DataTypes.STRING,
         field: 'programName', // Atur nama kolom sesuai yang digunakan di database

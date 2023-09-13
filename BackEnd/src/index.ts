@@ -7,17 +7,16 @@ import cors from 'cors';
 import { config as dotenv } from 'dotenv';
 
 //Router
-import UserRoutes from "./routers/UserRoutes";
-import AuthRoutes from "./routers/AuthRoutes";
-import TodoRoutes from "./routers/TodoRoutes";
-import RoleRoutes from "./routers/RoleRoutes";
-import NasabahRouter from "./routers/NasabahRouter";
-import BayarTelponRoutes from "./routers/BayarTelponRoutes";
-import TransferRoutes from "./routers/TransferRoutes";
+import UserRoutes from './routers/UserRoutes';
+import AuthRoutes from './routers/AuthRoutes';
+import TodoRoutes from './routers/TodoRoutes';
+import RoleRoutes from './routers/RoleRoutes';
+import NasabahRouter from './routers/NasabahRouter';
+import BayarTelponRoutes from './routers/BayarTelponRoutes';
+import TransferRoutes from './routers/TransferRoutes';
 import MasterBankRoutes from './routers/MasterBankRoutes';
 import HakAksesRoutes from './routers/HakAksesRoutes';
 import MenuRoutes from './routers/MenuRoutes';
-import MasterPelangganRoutes from './routers/MasterPelangganRoutes';
 
 class App {
     public app: Application;
@@ -60,8 +59,6 @@ class App {
         this.app.use('/api/v1/admin/manage/roles', RoleRoutes);
         this.app.use('/api/v1/admin/manage/menus', MenuRoutes);
         this.app.use('/api/v1/admin/manage/hakAkses', HakAksesRoutes);
-        this.app.use("/api/v1/masterPelanggan", MasterPelangganRoutes);
-
     }
 }
 
