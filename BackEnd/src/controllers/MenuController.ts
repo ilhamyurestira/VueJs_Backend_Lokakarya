@@ -3,17 +3,18 @@ import { Request, Response } from 'express';
 import IController from './Controller_Interface';
 
 const db = require('../db/models/');
+const dm = require('../db/models').menu;
 
 class MenuController implements IController{
       index = async (req: Request, res: Response): Promise<Response> => {
             try{
-                  const roleList = await db.menu.findAll();
+                  const menuList = await dm.findAll();
 
-                  if (roleList.length === 0){
-                        return res.status(200).json(roleList)
+                  if (menuList.length === 0){
+                        return res.status(200).send('Belum ada data')
                   }
                   else{
-                        return res.status(200).send('Belum ada data')
+                        return res.status(200).json(menuList)
                   }
             }
             catch (err){
@@ -26,7 +27,7 @@ class MenuController implements IController{
             const { id } = req.params;
 
             try{
-                  const data = await db.role.findByPk(id);
+                  const data = await dm.findByPk(id);
                   if(!data){
                         return res.status(400).send(`Data dengan id: ${id} tidak ditemukan`);
                   }
@@ -44,12 +45,12 @@ class MenuController implements IController{
             const { nama, icon, url, programName, createdBy } = req.body;
 
             try{
-                  const existingName = await db.role.findOne({where: {nama}});
-                  if(existingName){
+                  const existingMenu = await dm.findOne({where: {nama}});
+                  if(existingMenu){
                         return res.status(500).send('Menu dengan nama yang sama sudah terdaftar.');
                   }
                   else{
-                        const newData = await db.role.create({
+                        const newMenu = await dm.create({
                               nama,
                               icon,
                               url,
@@ -69,7 +70,7 @@ class MenuController implements IController{
             const { nama, icon, url, updatedBy } = req.body;
 
             try{
-                  const data = await db.role.findByPk(id);
+                  const data = await dm.findByPk(id);
                   if(!data){
                         return res.status(400).send(`Data dengan id: ${id} tidak ditemukan.`)
                   }
@@ -92,7 +93,7 @@ class MenuController implements IController{
             const { id } = req.params;
 
             try{
-                  const data = await db.role.findByPk(id);
+                  const data = await dm.findByPk(id);
                   if(!data){
                         return res.status(404).send(`Menu dengan id: ${id} tidak ditemukan.`);
                   }
