@@ -8,10 +8,12 @@ const dm = require('../db/models/').hak_akses;
 class HakAksesController implements IController {
   index = async (req: Request, res: Response): Promise<Response> => {
     try {
+      const role = db.role;
+      const user = db.user;
       const hakAksesList = await dm.findAll({
         include: [
-          { model: db.user, attributes: ['username'] },
-          { model: db.roles, attributes: ['nama'] },
+          { model: role, attributes: ['id', 'nama'] },
+          { model: user, attributes: ['id', 'username'] },
         ],
       });
 
@@ -52,8 +54,6 @@ class HakAksesController implements IController {
           .status(500)
           .send('user yang sama dengan role yang sama telah ada');
       } else {
-        const userName = await db.user.findbyPk(userId).username;
-        const roleName = await db.role.findByPk(roleId).nama;
         const newData = await dm.create({
           userId,
           roleId,
@@ -63,6 +63,7 @@ class HakAksesController implements IController {
         return res.status(500).send(`Hak akses telah berhasil dibuat`);
       }
     } catch (err) {
+      console.log(err);
       return res.status(500).send('pendaftaran hak akses gagal');
     }
   };
