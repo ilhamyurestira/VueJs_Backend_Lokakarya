@@ -1,0 +1,11 @@
+// Import BayarTelponController
+import BayarTelponController from "../controllers/BayarTelponController";
+import { Router } from "express";
+
+// Inisialisasi router Express
+const BayarTelponRoutes = Router();
+
+// Rute untuk pembayaran telpon
+BayarTelponRoutes.post("/bayar-telpon", BayarTelponController.bayarTelpon);
+
+export default BayarTelponRoutes;

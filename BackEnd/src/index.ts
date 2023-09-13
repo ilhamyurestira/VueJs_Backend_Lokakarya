@@ -11,10 +11,15 @@ import UserRoutes from './routers/UserRoutes';
 import AuthRoutes from './routers/AuthRoutes';
 import TodoRoutes from './routers/TodoRoutes';
 import RoleRoutes from './routers/RoleRoutes';
+import NasabahRouter from './routers/NasabahRouter';
+import BayarTelponRoutes from './routers/BayarTelponRoutes';
+import TransferRoutes from './routers/TransferRoutes';
 import MasterBankRoutes from './routers/MasterBankRoutes';
 import HakAksesRoutes from './routers/HakAksesRoutes';
 import MenuRoutes from './routers/MenuRoutes';
 import RoleMenuRoutes from './routers/RoleMenuRoutes';
+import HistoryTransaksiBankRoutes from './routers/HistoryTransaksiBankRoutes';
+import TransaksiNasabahRoutes from './routers/TransaksiNasabahRoutes';
 
 class App {
   public app: Application;
@@ -43,10 +48,19 @@ class App {
       res.send(req.body);
     });
 
+    this.app.use('/api/v1/users', UserRoutes);
+    this.app.use('/api/v1/auth', AuthRoutes);
+    this.app.use('/api/v1/todos', TodoRoutes);
+    this.app.use('/api/v1/roles', RoleRoutes);
+    this.app.use('/api/v1/nasabah', NasabahRouter);
+    this.app.use('/api/v1/nasabah', BayarTelponRoutes);
+    this.app.use('/api/v1/nasabah', TransferRoutes);
     this.app.use('/api/v1/admin/manage/users', UserRoutes);
     this.app.use('/api/v1/auth', AuthRoutes);
     this.app.use('/api/v1/todos', TodoRoutes);
     this.app.use('/api/v1/masterBank', MasterBankRoutes);
+    this.app.use('/api/v1/historyBank', HistoryTransaksiBankRoutes);
+    this.app.use('/api/v1/transaksiNasabah', TransaksiNasabahRoutes);
     this.app.use('/api/v1/admin/manage/roles', RoleRoutes);
     this.app.use('/api/v1/admin/manage/menus', MenuRoutes);
     this.app.use('/api/v1/admin/manage/hakAkses', HakAksesRoutes);
