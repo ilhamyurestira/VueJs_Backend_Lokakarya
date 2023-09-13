@@ -3,17 +3,27 @@ import { Request, Response } from 'express';
 import IController from './Controller_Interface';
 
 const db = require('../db/models/');
-const dm = require('../db/models/').role;
+const dm = require('../db/models/').hak_akses;
 
-class RoleController implements IController {
+class HakAksesController implements IController {
   index = async (req: Request, res: Response): Promise<Response> => {
     try {
-      const roleList = await dm.findAll();
+      const role = db.role;
+      const user = db.user;
+      const hakAksesList = await dm.findAll({
+        attributes: {
+          exclude: ['programName'],
+        },
+        include: [
+          { model: role, attributes: ['nama'] },
+          { model: user, attributes: ['username'] },
+        ],
+      });
 
-      if (roleList.length === 0) {
+      if (hakAksesList.length === 0) {
         return res.status(200).send('Belum ada data');
       } else {
-        return res.status(200).json(roleList);
+        return res.status(200).json(hakAksesList);
       }
     } catch (err) {
       console.error(err);
@@ -38,33 +48,32 @@ class RoleController implements IController {
   };
 
   create = async (req: Request, res: Response): Promise<Response> => {
-    const { nama, programName, createdBy } = req.body;
+    const { userId, roleId, programName, createdBy } = req.body;
 
     try {
-      const existingName = await dm.findOne({ where: { nama } });
-      if (existingName) {
+      const existingUserRole = await dm.findOne({ where: { userId, roleId } });
+      if (existingUserRole) {
         return res
           .status(500)
-          .send('Role dengan nama yang sama sudah terdaftar.');
+          .send('user yang sama dengan role yang sama telah ada');
       } else {
         const newData = await dm.create({
-          nama,
+          userId,
+          roleId,
           programName,
           createdBy,
         });
-        return res
-          .status(500)
-          .send(`Role "${nama}" telah berhasil ditambahkan.`);
+        return res.status(500).send(`Hak akses telah berhasil dibuat`);
       }
     } catch (err) {
       console.log(err);
-      return res.status(500).send('Role gagal ditambahkan.');
+      return res.status(500).send('pendaftaran hak akses gagal');
     }
   };
 
   update = async (req: Request, res: Response): Promise<Response> => {
     const { id } = req.params;
-    const { nama, updatedBy } = req.body;
+    const { userId, roleId, programName, updatedBy } = req.body;
 
     try {
       const data = await dm.findByPk(id);
@@ -73,10 +82,15 @@ class RoleController implements IController {
       }
 
       const current = data.nama;
-      await data.update({ nama, updatedBy });
-      return res.status(500).send(`Role "${current}" telah berhasil diubah.`);
+      await data.update({
+        userId,
+        roleId,
+        programName,
+        updatedBy,
+      });
+      return res.status(500).send(`Menu "${current}" telah berhasil diubah.`);
     } catch (err) {
-      return res.status(500).send(`Gagal mengubah role.`);
+      return res.status(500).send(`Gagal mengubah menu.`);
     }
   };
 
@@ -86,16 +100,16 @@ class RoleController implements IController {
     try {
       const data = await dm.findByPk(id);
       if (!data) {
-        return res.status(404).send(`Role dengan id: ${id} tidak ditemukan.`);
+        return res.status(404).send(`Menu dengan id: ${id} tidak ditemukan.`);
       }
 
       const current = data.nama;
       await data.destroy();
-      return res.status(200).send(`Role "${current}" berhasil dihapus.`);
+      return res.status(200).send(`Menu "${current}" berhasil dihapus.`);
     } catch (err) {
-      return res.status(200).send(`Gagal menghapus role.`);
+      return res.status(200).send(`Gagal menghapus menu.`);
     }
   };
 }
 
-export default new RoleController();
+export default new HakAksesController();

@@ -14,11 +14,17 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   master_bank.init({
-    userId: DataTypes.INTEGER,
+    userId: {
+      type: DataTypes.INTEGER,
+      field: 'userId' // Atur nama kolom sesuai yang digunakan di database
+    },
     nama: DataTypes.STRING,
     alamat: DataTypes.STRING,
     norek: DataTypes.INTEGER,
-    noTlp: DataTypes.INTEGER,
+    noTlp: {
+      type: DataTypes.INTEGER,
+      field: 'noTlp' // Atur nama kolom sesuai yang digunakan di database
+    },
     saldo: DataTypes.INTEGER
   }, {
     sequelize,

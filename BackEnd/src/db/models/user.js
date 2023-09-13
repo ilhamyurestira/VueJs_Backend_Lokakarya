@@ -1,7 +1,5 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class user extends Model {
     /**
@@ -11,22 +9,35 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      this.hasMany(models.hak_akses);
     }
   }
-  user.init({
-    username: DataTypes.STRING,
-    password: DataTypes.STRING,
-    nama: DataTypes.STRING,
-    alamat: DataTypes.STRING,
-    email: DataTypes.STRING,
-    telp: DataTypes.STRING,
-    programName: DataTypes.STRING,
-    createdBy: DataTypes.STRING,
-    updatedBy: DataTypes.STRING
-  }, {
-    sequelize,
-    modelName: 'user',
-    underscored: true,
-  });
+  user.init(
+    {
+      username: DataTypes.STRING,
+      password: DataTypes.STRING,
+      nama: DataTypes.STRING,
+      alamat: DataTypes.STRING,
+      email: DataTypes.STRING,
+      telp: DataTypes.STRING,
+      programName: {
+        type: DataTypes.STRING,
+        field: 'programName', // Atur nama kolom sesuai yang digunakan di database
+      },
+      createdBy: {
+        type: DataTypes.STRING,
+        field: 'createdBy', // Atur nama kolom sesuai yang digunakan di database
+      },
+      updatedBy: {
+        type: DataTypes.STRING,
+        field: 'updatedBy', // Atur nama kolom sesuai yang digunakan di database
+      },
+    },
+    {
+      sequelize,
+      modelName: 'user',
+      underscored: true,
+    }
+  );
   return user;
 };
