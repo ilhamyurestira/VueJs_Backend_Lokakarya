@@ -7,10 +7,13 @@ import cors from 'cors';
 import { config as dotenv } from 'dotenv';
 
 //Router
-import UserRoutes from './routers/UserRoutes';
-import AuthRoutes from './routers/AuthRoutes';
-import TodoRoutes from './routers/TodoRoutes';
-import RoleRoutes from './routers/RoleRoutes';
+import UserRoutes from "./routers/UserRoutes";
+import AuthRoutes from "./routers/AuthRoutes";
+import TodoRoutes from "./routers/TodoRoutes";
+import RoleRoutes from "./routers/RoleRoutes";
+import NasabahRouter from "./routers/NasabahRouter";
+import BayarTelponRoutes from "./routers/BayarTelponRoutes";
+import TransferRoutes from "./routers/TransferRoutes";
 import MasterBankRoutes from './routers/MasterBankRoutes';
 import HakAksesRoutes from './routers/HakAksesRoutes';
 import MenuRoutes from './routers/MenuRoutes';
@@ -44,6 +47,13 @@ class App {
             res.send(req.body);
         });
 
+        this.app.use("/api/v1/users", UserRoutes);
+        this.app.use("/api/v1/auth", AuthRoutes);
+        this.app.use("/api/v1/todos", TodoRoutes);
+        this.app.use("/api/v1/roles", RoleRoutes);
+        this.app.use("/api/v1/nasabah", NasabahRouter)
+        this.app.use("/api/v1/nasabah", BayarTelponRoutes);
+        this.app.use("/api/v1/nasabah", TransferRoutes)
         this.app.use('/api/v1/admin/manage/users', UserRoutes);
         this.app.use('/api/v1/auth', AuthRoutes);
         this.app.use('/api/v1/todos', TodoRoutes);
