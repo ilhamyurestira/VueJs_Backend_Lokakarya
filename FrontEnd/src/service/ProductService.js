@@ -6,9 +6,9 @@ export default class ProductService {
     }
 
     getProducts() {
-        return fetch('demo/data/products.json')
+        return fetch('http://localhost:3535/api/masterpelanggan/getMasterPelanggan')
             .then((res) => res.json())
-            .then((d) => d.data);
+            .then((d) => d.data.data);
     }
 
     getProductsWithOrdersSmall() {
