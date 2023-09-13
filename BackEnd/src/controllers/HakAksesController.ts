@@ -11,9 +11,12 @@ class HakAksesController implements IController {
       const role = db.role;
       const user = db.user;
       const hakAksesList = await dm.findAll({
+        attributes: {
+          exclude: ['programName'],
+        },
         include: [
-          { model: role, attributes: ['id', 'nama'] },
-          { model: user, attributes: ['id', 'username'] },
+          { model: role, attributes: ['nama'] },
+          { model: user, attributes: ['username'] },
         ],
       });
 

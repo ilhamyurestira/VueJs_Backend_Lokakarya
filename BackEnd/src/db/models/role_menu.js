@@ -9,12 +9,28 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      this.belongsTo(models.role, { foreignKey: 'roleId' });
+      this.belongsTo(models.menu, { foreignKey: 'menuId' });
     }
   }
   role_menu.init(
     {
-      roleId: DataTypes.INTEGER,
-      menuId: DataTypes.INTEGER,
+      roleId: {
+        type: DataTypes.INTEGER,
+        field: 'roleId',
+        references: {
+          model: 'roles',
+          key: 'id',
+        },
+      },
+      menuId: {
+        type: DataTypes.INTEGER,
+        field: 'menuId',
+        references: {
+          model: 'menus',
+          key: 'id',
+        },
+      },
       isActive: DataTypes.STRING,
       programName: {
         type: DataTypes.STRING,

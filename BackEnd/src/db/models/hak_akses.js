@@ -9,6 +9,8 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      this.belongsTo(models.role, { foreignKey: 'roleId' });
+      this.belongsTo(models.user, { foreignKey: 'userId' });
     }
   }
   hak_akses.init(
