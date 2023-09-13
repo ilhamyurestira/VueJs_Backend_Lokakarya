@@ -86,7 +86,7 @@ class UserController implements IController {
       }
 
       const userName = data.username;
-      await dm.update({
+      await data.update({
         nama,
         alamat,
         email,
@@ -96,6 +96,7 @@ class UserController implements IController {
       });
       return res.status(300).send(`update data user "${userName}" sukses.`);
     } catch (err) {
+      console.log(err);
       return res.status(300).send('update data gagal.');
     }
   };
