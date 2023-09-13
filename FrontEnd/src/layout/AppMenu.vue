@@ -28,9 +28,7 @@ const model = ref([
             { label: 'Master Pelanggan', icon: 'pi pi-fw pi-exclamation-circle', to: '/tlpadm/masterpelanggan' },
             { label: 'Transaksi Telpon', icon: 'pi pi-fw pi-mobile', to: '/tlpadm/transaksiTelpon' },
             { label: 'Histori Transaksi', icon: 'pi pi-fw pi-table', to: '/tlpadm/historiTransaksi' },
-            { label: 'Transaksi Telpon', icon: 'pi pi-fw pi-mobile', to: '/uikit/button', class: 'rotated-icon' },
-            { label: 'Histori Transaksi', icon: 'pi pi-fw pi-table', to: '/uikit/table' }
-    ]
+        ]
     },
     {
         label: 'Nasabah',

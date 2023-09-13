@@ -1,7 +1,5 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class role extends Model {
     /**
@@ -11,17 +9,31 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      this.hasMany(models.hak_akses);
+      this.hasMany(models.role_menu);
     }
   }
-  role.init({
-    nama: DataTypes.STRING,
-    programName: DataTypes.STRING,
-    createdBy: DataTypes.STRING,
-    updatedBy: DataTypes.STRING
-  }, {
-    sequelize,
-    modelName: 'role',
-    underscored: true,
-  });
+  role.init(
+    {
+      nama: DataTypes.STRING,
+      programName: {
+        type: DataTypes.STRING,
+        field: 'programName', // Atur nama kolom sesuai yang digunakan di database
+      },
+      createdBy: {
+        type: DataTypes.STRING,
+        field: 'createdBy', // Atur nama kolom sesuai yang digunakan di database
+      },
+      updatedBy: {
+        type: DataTypes.STRING,
+        field: 'updatedBy', // Atur nama kolom sesuai yang digunakan di database
+      },
+    },
+    {
+      sequelize,
+      modelName: 'role',
+      underscored: true,
+    }
+  );
   return role;
 };
