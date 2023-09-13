@@ -4,11 +4,18 @@ import IController from './Controller_Interface';
 
 const db = require('../db/models/');
 const dm = require('../db/models/').role_menu;
+const Role = require('../db/models').role;
+const Menu = require('../db/models').menu;
 
 class RoleController implements IController {
   index = async (req: Request, res: Response): Promise<Response> => {
     try {
-      const roleList = await dm.findAll();
+      const roleList = await dm.findAll({
+        include: [
+          { model: Role, attributes: ['nama'] },
+          { model: Menu, attributes: ['nama'] },
+        ],
+      });
 
       if (roleList.length === 0) {
         return res.status(200).send('Belum ada data');
@@ -25,7 +32,12 @@ class RoleController implements IController {
     const { id } = req.params;
 
     try {
-      const data = await dm.findByPk(id);
+      const data = await dm.findByPk(id, {
+        include: [
+          { model: Role, attributes: ['nama'] },
+          { model: Menu, attributes: ['nama'] },
+        ],
+      });
       if (!data) {
         return res.status(400).send(`Data dengan id: ${id} tidak ditemukan`);
       } else {
@@ -41,7 +53,9 @@ class RoleController implements IController {
     const { roleId, menuId, isActive, programName, createdBy } = req.body;
 
     try {
-      const exists = await dm.findOne({ where: { roleId, menuId } });
+      const exists = await dm.findOne({
+        where: { roleId, menuId },
+      });
       if (exists) {
         return res.status(500).send('Role menu sudah terdaftarkan di role');
       } else {
@@ -73,8 +87,14 @@ class RoleController implements IController {
           .send(`Role menu dengan id: ${id} tidak ditemukan.`);
       }
       await data.update({ roleId, menuId, isActive, programName, updatedBy });
-
-      return res.status(500).send(`Role menu berhasil diupdate`);
+      // const role = await db.role.findByPk(roleId);
+      const menu = await db.menu.findByPk(menuId);
+      if (!menu) {
+        console.log('tidak menemukan nama menu');
+      }
+      return res
+        .status(500)
+        .send(`berhasil mengupdate role menu "${menu.nama}"`);
     } catch (err) {
       console.log(err);
       return res.status(500).send(`Gagal mengubah role menu.`);
