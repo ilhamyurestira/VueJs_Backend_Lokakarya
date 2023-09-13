@@ -36,16 +36,14 @@ class MasterBankController implements IController {
     }
 
     async create(req: Request, res: Response): Promise<Response> {
-        const { userId, norek, saldo, created_at, updated_at } = req.body;
+        const { userId, saldo, created_at, updated_at } = req.body;
 
         try {
-            const existingMasterBank = await db.master_bank.findOne({ where: { norek } });
-            if (existingMasterBank) {
-                return res.status(400).send('Nomor rekening sudah terdaftar');
-            }
+            // Generate a random 7-digit account number
+            const newAccountNumber = generateRandomAccountNumber();
 
-            if (!norek) {
-                return res.status(400).send('Nomor rekening perlu diisi');
+            if (!newAccountNumber) {
+                return res.status(500).send('Gagal menghasilkan nomor rekening baru');
             }
 
             const user = await db.user.findByPk(userId);
@@ -56,19 +54,19 @@ class MasterBankController implements IController {
 
             const newMasterBank = await db.master_bank.create({
                 userId: user.id,
-                nama: user.nama, // Ambil nama dari user
-                alamat: user.alamat, // Ambil alamat dari user
-                noTlp: user.telp, // Ambil noTlp dari user
-                norek,
+                nama: user.nama,
+                alamat: user.alamat,
+                noTlp: user.telp,
+                norek: newAccountNumber,
                 saldo,
                 created_at,
                 updated_at,
             });
 
-            return res.status(200).send(`Master Bank "${newMasterBank.nama}" berhasil ditambah`);
+            return res.status(200).send(`Master Bank "${newMasterBank.nama}" telah ditambahkan dengan nomor rekening baru: ${newAccountNumber}`);
         } catch (error) {
             console.error(error);
-            return res.status(500).send('Data gagal ditambahkan');
+            return res.status(500).send('Gagal menambahkan data master bank');
         }
     }
 
@@ -122,4 +120,13 @@ class MasterBankController implements IController {
     }
 
 }
+
+function generateRandomAccountNumber() {
+    // Generate a random 7-digit number
+    const min = 1000000;
+    const max = 9999999;
+    const randomNum = Math.floor(Math.random() * (max - min + 1)) + min;
+    return randomNum.toString();
+}
+
 export default new MasterBankController();

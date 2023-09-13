@@ -34,7 +34,7 @@ onMounted(() => {
     fetchData();
 });
 const formatCurrency = (value) => {
-    return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+    return value.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' });
 };
 
 const fetchData = () => {
@@ -172,13 +172,6 @@ const initFilters = () => {
                     </template>
 
                     <!-- <Column selectionMode="multiple" headerStyle="width: 3rem"></Column> -->
-                    <Column field="id" header="ID" :sortable="true"
-                        headerStyle="width:20%; min-width:10rem;has-text-centered">
-                        <template #body="slotProps">
-                            <span class="p-column-title">ID</span>
-                            {{ slotProps.data.id }}
-                        </template>
-                    </Column>
                     <Column field="nama" header="Nama" :sortable="true" headerStyle="width20%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Nama</span>
@@ -195,6 +188,18 @@ const initFilters = () => {
                         <template #body="slotProps">
                             <span class="p-column-title">Alamat</span>
                             {{ slotProps.data.alamat }}
+                        </template>
+                    </Column>
+                    <Column field="norek" header="No Rekening" :sortable="true" headerStyle="width:20%; min-width:10rem;">
+                        <template #body="slotProps">
+                            <span class="p-column-title">No Rekening</span>
+                            {{ slotProps.data.norek }}
+                        </template>
+                    </Column>
+                    <Column field="saldo" header="Saldo" :sortable="true" headerStyle="width:20%; min-width:10rem;">
+                        <template #body="slotProps">
+                            <span class="p-column-title">Saldo</span>
+                            {{ formatCurrency(slotProps.data.saldo) }}
                         </template>
                     </Column>
                     <Column header="Action" headerStyle="width:20%;min-width:10rem;">
