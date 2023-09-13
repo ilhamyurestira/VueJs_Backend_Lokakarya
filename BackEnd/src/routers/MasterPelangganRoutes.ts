@@ -1,4 +1,4 @@
-import MasterPelanggan from "../controllers/MasterPelanggan";
+import MasterPelanggan from "../controllers/MasterPelangganController";
 import BaseRoutes from "./BaseRouter";
 
 class MasterPelangganRoutes extends BaseRoutes {
