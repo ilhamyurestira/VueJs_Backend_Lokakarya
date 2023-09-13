@@ -18,6 +18,8 @@ import MasterBankRoutes from './routers/MasterBankRoutes';
 import HakAksesRoutes from './routers/HakAksesRoutes';
 import MenuRoutes from './routers/MenuRoutes';
 import MasterPelangganRoutes from './routers/MasterPelangganRoutes';
+import HistoryTransaksiBankRoutes from './routers/HistoryTransaksiBankRoutes';
+import TransaksiNasabahRoutes from './routers/TransaksiNasabahRoutes';
 
 class App {
     public app: Application;
@@ -53,6 +55,8 @@ class App {
         this.app.use("/api/v1/nasabah", NasabahRouter)
         this.app.use("/api/v1/nasabah", BayarTelponRoutes);
         this.app.use("/api/v1/nasabah", TransferRoutes)
+        this.app.use("/api/v1/historyBank", HistoryTransaksiBankRoutes);
+        this.app.use("/api/v1/transaksiNasabah", TransaksiNasabahRoutes);
         this.app.use('/api/v1/admin/manage/users', UserRoutes);
         this.app.use('/api/v1/auth', AuthRoutes);
         this.app.use('/api/v1/todos', TodoRoutes);
