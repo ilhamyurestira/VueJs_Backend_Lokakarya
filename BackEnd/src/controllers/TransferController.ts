@@ -7,21 +7,21 @@ const { master_bank } = require('../db/models/master_bank');
 
 class TransferController implements IController {
   transfer = async (req: Request, res: Response): Promise<Response> => {
-    const { nomorRekening, nomorRekeningPenerima, jumlahTransfer } = req.body;
+    const { nomorRekeningPengirim, nomorRekeningPenerima, jumlahTransfer } = req.body;
 
     try {
       // Validasi input
-      if (!nomorRekening || !nomorRekeningPenerima || !jumlahTransfer) {
+      if (!nomorRekeningPengirim || !nomorRekeningPenerima || !jumlahTransfer) {
         return res.status(400).send('Data yang diperlukan tidak lengkap.');
       }
 
       // Dapatkan data pemilik rekening
       const pemilikRekening = await db.master_bank.findOne({
-        where: { norek: nomorRekening },
+        where: { norek: nomorRekeningPengirim },
       });
 
       if (!pemilikRekening) {
-        return res.status(404).send('Nomor rekening tidak ditemukan.');
+        return res.status(404).send('Nomor rekening pengirim tidak ditemukan.');
       }
 
       // Dapatkan data penerima transfer
@@ -51,7 +51,7 @@ class TransferController implements IController {
 
       // Kirim respons JSON ke frontend
       return res.status(200).json({
-        nomorRekening: nomorRekening,
+        nomorRekening: nomorRekeningPengirim,
         namaPemilikRekening: pemilikRekening.nama,
         nomorRekeningPenerima: nomorRekeningPenerima,
         jumlahTransfer: jumlahTransfer,

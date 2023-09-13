@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import IController from './Controller_Interface';
 
 const db = require('../db/models/');
-const { master_bank} = require ('../db/models/master_bank')
+const { master_bank } = require('../db/models/master_bank');
 
 class BayarTelponController implements IController {
   bayarTelpon = async (req: Request, res: Response): Promise<Response> => {
@@ -11,11 +11,11 @@ class BayarTelponController implements IController {
 
     try {
       // Validasi input
-      if (!nomorRekening || !nomorTelpon) {
+      if (!nomorRekening || !nomorTelpon || !jumlahPembayaran) {
         return res.status(400).send('Data yang diperlukan tidak lengkap.');
       }
 
-      // Gantilah logika validasi dan pembayaran ini sesuai dengan kebutuhan Anda
+      // Dapatkan data pemilik rekening
       const pemilikRekening = await db.master_bank.findOne({
         where: { norek: nomorRekening },
       });
@@ -24,29 +24,25 @@ class BayarTelponController implements IController {
         return res.status(404).send('Nomor rekening tidak ditemukan.');
       }
 
+      // Periksa apakah saldo pemilik rekening cukup
       if (pemilikRekening.saldo < jumlahPembayaran) {
         return res.status(400).send('Saldo tidak cukup.');
       }
 
-      const transaksi = await db.transaksi_telkom.create({
-        noTlp: nomorTelpon,
-        jumlah_pembayaran: jumlahPembayaran
-      });
-
-      // Perbarui saldo pemilik rekening
+      // Lakukan pembayaran
       pemilikRekening.saldo -= jumlahPembayaran;
+
+      // Simpan perubahan saldo
       await pemilikRekening.save();
 
-      // Simpan transaksi dan history
-      const history = await db.history.create({
-        transaksi_id: transaksi.id,
-        // Anda bisa menambahkan data history lainnya sesuai kebutuhan
-      });
+      // Simpan transaksi dan history (Anda perlu menyesuaikan ini dengan struktur tabel Anda)
+      // ...
 
-     // Kirim data respons JSON ke frontend
-     return res.status(200).json({
-        nomorPelanggan: nomorTelpon,
-        namaPelanggan: pemilikRekening.nama,
+      // Kirim respons JSON ke frontend
+      return res.status(200).json({
+        nomorRekening: nomorRekening,
+        namaPemilikRekening: pemilikRekening.nama,
+        nomorTelpon: nomorTelpon,
         jumlahPembayaran: jumlahPembayaran,
         saldoPemilikRekening: pemilikRekening.saldo,
       });
