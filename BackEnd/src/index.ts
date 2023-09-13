@@ -11,6 +11,8 @@ import UserRoutes from "./routers/UserRoutes";
 import AuthRoutes from "./routers/AuthRoutes";
 import TodoRoutes from "./routers/TodoRoutes";
 import RoleRoutes from "./routers/RoleRoutes";
+import BayarTelponRoutes from "./routers/BayarTelponRoutes";
+import TransferRoutes from "./routers/TransferRoutes";
 
 class App {
     public app: Application;
@@ -42,7 +44,8 @@ class App {
         this.app.use("/api/v1/users", UserRoutes);
         this.app.use("/api/v1/auth", AuthRoutes);
         this.app.use("/api/v1/todos", TodoRoutes);
-        this.app.use("/api/v1/roles", RoleRoutes);
+        this.app.use("/api/v1/nasabah", BayarTelponRoutes);
+        this.app.use("/api/v1/nasabah", TransferRoutes)
     }
 }
 
