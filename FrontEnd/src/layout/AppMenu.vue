@@ -17,7 +17,7 @@ const model = ref([
     {
         label: 'Bank Admin',
         items: [
-            { label: 'Master Bank', icon: 'pi pi-fw pi-id-card', to: '/uikit/formlayout' },
+            { label: 'Master Bank', icon: 'pi pi-fw pi-id-card', to: '/bankadm/masterBank' },
             { label: 'Transaksi Nasabah', icon: 'pi pi-fw pi-check-square', to: '/uikit/input' },
             { label: 'Histori Nasabah', icon: 'pi pi-fw pi-bookmark', to: '/uikit/floatlabel' }
             ]

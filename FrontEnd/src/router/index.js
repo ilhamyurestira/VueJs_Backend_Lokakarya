@@ -34,6 +34,11 @@ const router = createRouter({
                 //     component: () => import('@/views/uikit/InvalidState.vue')
                 // },
                 {
+                    path: '/bankadm/masterBank',
+                    name: 'masterBank',
+                    component: () => import('@/views/bankadm/MasterBank.vue')
+                },
+                {
                     path: '/tlpadm/masterpelanggan',
                     name: 'masterPelanggan',
                     component: () => import('@/views/tlpadm/MasterPelanggan.vue')
