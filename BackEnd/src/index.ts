@@ -17,6 +17,7 @@ import TransferRoutes from "./routers/TransferRoutes";
 import MasterBankRoutes from './routers/MasterBankRoutes';
 import HakAksesRoutes from './routers/HakAksesRoutes';
 import MenuRoutes from './routers/MenuRoutes';
+import MasterPelangganRoutes from './routers/MasterPelangganRoutes';
 
 class App {
     public app: Application;
@@ -59,6 +60,8 @@ class App {
         this.app.use('/api/v1/admin/manage/roles', RoleRoutes);
         this.app.use('/api/v1/admin/manage/menus', MenuRoutes);
         this.app.use('/api/v1/admin/manage/hakAkses', HakAksesRoutes);
+        this.app.use("/api/v1/masterPelanggan", MasterPelangganRoutes);
+
     }
 }
 

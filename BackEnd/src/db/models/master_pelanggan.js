@@ -14,7 +14,10 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   master_pelanggan.init({
-    userId: DataTypes.INTEGER,
+    userId: {
+      type: DataTypes.INTEGER,
+      field: 'userId' // Atur nama kolom sesuai yang digunakan di database
+    },
     nama: DataTypes.STRING,
     no_telp: DataTypes.INTEGER,
     alamat: DataTypes.STRING

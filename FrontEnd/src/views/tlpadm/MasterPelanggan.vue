@@ -128,6 +128,7 @@ const initFilters = () => {
         <div class="col-12">
             <div class="card">
                 <Toast />
+                <!-- Button nambah data baru -->
                 <Toolbar class="mb-4">
                     <template v-slot:start>
                         <div class="my-2">
@@ -138,6 +139,7 @@ const initFilters = () => {
 
                 </Toolbar>
 
+                <!-- Tabel data -->
                 <DataTable ref="dt" :value="products" v-model:selection="selectedProducts" dataKey="id" :paginator="true"
                     :rows="10" :filters="filters"
                     paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
@@ -155,31 +157,32 @@ const initFilters = () => {
                     </template>
 
                     <!-- <Column selectionMode="multiple" headerStyle="width: 3rem"></Column> -->
-                    <Column field="id" header="ID" :sortable="true" headerStyle="width:14%; min-width:10rem;">
+                    <Column field="id" header="ID" :sortable="true"
+                        headerStyle="width:20%; min-width:10rem;has-text-centered">
                         <template #body="slotProps">
                             <span class="p-column-title">ID</span>
-                            {{ slotProps.data.id }}
+                            {{ slotProps.data.idPelanggan }}
                         </template>
                     </Column>
-                    <Column field="nama" header="Nama" :sortable="true" headerStyle="width:14%; min-width:10rem;">
+                    <Column field="nama" header="Nama" :sortable="true" headerStyle="width20%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Nama</span>
                             {{ slotProps.data.nama }}
                         </template>
                     </Column>
-                    <Column field="noTlp" header="No Telpon" :sortable="true" headerStyle="width:14%; min-width:10rem;">
+                    <Column field="noTlp" header="No Telpon" :sortable="true" headerStyle="width:20%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">No Telpon</span>
-                            {{ slotProps.data.noTlp }}
+                            {{ slotProps.data.noTelp }}
                         </template>
                     </Column>
-                    <Column field="alamat" header="Alamat" :sortable="true" headerStyle="width:14%; min-width:10rem;">
+                    <Column field="alamat" header="Alamat" :sortable="true" headerStyle="width:20%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Alamat</span>
                             {{ slotProps.data.alamat }}
                         </template>
                     </Column>
-                    <Column header="Action" headerStyle="min-width:10rem;">
+                    <Column header="Action" headerStyle="width:20%;min-width:10rem;">
                         <template #body="slotProps">
                             <Button icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2"
                                 @click="editProduct(slotProps.data)" />
@@ -189,15 +192,16 @@ const initFilters = () => {
                     </Column>
                 </DataTable>
 
+                <!-- Dialog untuk tambah dan edit data -->
                 <Dialog v-model:visible="productDialog" :style="{ width: '450px' }" header="Detail Pelanggan" :modal="true"
                     class="p-fluid">
                     <!-- <img :src="'demo/images/product/' + product.image" :alt="product.image" v-if="product.image" width="150"
                         class="mt-0 mx-auto mb-5 block shadow-2" /> -->
                     <div class="field">
-                        <label for="id">ID</label>
-                        <InputText id="id" v-model.trim="product.id" required="true" autofocus
-                            :class="{ 'p-invalid': submitted && !product.id }" />
-                        <small class="p-invalid" v-if="submitted && !product.id">ID harus di Isi.</small>
+                        <label for="idPelanggan">ID</label>
+                        <InputText id="idPelanggan" v-model.trim="product.idPelanggan" required="true" autofocus
+                            :class="{ 'p-invalid': submitted && !product.idPelanggan }" />
+                        <small class="p-invalid" v-if="submitted && !product.idPelanggan">ID harus di Isi.</small>
                     </div>
                     <div class="field">
                         <label for="nama">Nama</label>
@@ -206,10 +210,10 @@ const initFilters = () => {
                         <small class="p-invalid" v-if="submitted && !product.nama">Nama harus di Isi.</small>
                     </div>
                     <div class="field">
-                        <label for="noTlp">No Telpon</label>
-                        <InputText id="noTlp" v-model.trim="product.noTlp" required="true" autofocus
-                            :class="{ 'p-invalid': submitted && !product.noTlp }" />
-                        <small class="p-invalid" v-if="submitted && !product.noTlp">No Telpon harus di Isi.</small>
+                        <label for="noTelp">No Telpon</label>
+                        <InputText id="noTelp" v-model.trim="product.noTelp" required="true" autofocus
+                            :class="{ 'p-invalid': submitted && !product.noTelp }" />
+                        <small class="p-invalid" v-if="submitted && !product.noTelp">No Telpon harus di Isi.</small>
                     </div>
                     <div class="field">
                         <label for="alamat">Alamat</label>
@@ -221,6 +225,7 @@ const initFilters = () => {
                     </template>
                 </Dialog>
 
+                <!-- Dialog untuk yakin hapus data -->
                 <Dialog v-model:visible="deleteProductDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
                     <div class="flex align-items-center justify-content-center">
                         <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
