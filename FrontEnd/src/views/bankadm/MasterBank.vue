@@ -147,7 +147,7 @@ const initFilters = () => {
                 <Toolbar class="mb-4">
                     <template v-slot:start>
                         <div class="my-2">
-                            <Button label="Tambah Rekening" icon="pi pi-plus" class="p-button-success mr-2"
+                            <Button label="Buat Rekening" icon="pi pi-plus" class="p-button-success mr-2"
                                 @click="openNew" />
                         </div>
                     </template>
@@ -204,8 +204,8 @@ const initFilters = () => {
                     </Column>
                     <Column header="Action" headerStyle="width:20%;min-width:10rem;">
                         <template #body="slotProps">
-                            <Button icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2"
-                                @click="editProduct(slotProps.data)" />
+                            <!-- <Button icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2"
+                                @click="editProduct(slotProps.data)" /> -->
                             <Button icon="pi pi-trash" class="p-button-rounded p-button-warning mt-2"
                                 @click="confirmDeleteProduct(slotProps.data)" />
                         </template>

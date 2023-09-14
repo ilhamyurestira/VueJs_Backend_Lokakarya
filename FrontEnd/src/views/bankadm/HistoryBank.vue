@@ -144,7 +144,7 @@ const initFilters = () => {
             <div class="card">
                 <Toast />
                 <!-- Button nambah data baru -->
-                <Toolbar class="mb-4">
+                <!-- <Toolbar class="mb-4">
                     <template v-slot:start>
                         <div class="my-2">
                             <Button label="Tambah Rekening" icon="pi pi-plus" class="p-button-success mr-2"
@@ -152,7 +152,7 @@ const initFilters = () => {
                         </div>
                     </template>
 
-                </Toolbar>
+                </Toolbar> -->
 
                 <!-- Tabel data -->
                 <DataTable ref="dt" :value="products" v-model:selection="selectedProducts" dataKey="id" :paginator="true"
@@ -214,14 +214,14 @@ const initFilters = () => {
                             {{ slotProps.data.no_tlp }}
                         </template>
                     </Column>
-                    <Column header="Action" headerStyle="width:20%;min-width:10rem;">
+                    <!-- <Column header="Action" headerStyle="width:20%;min-width:10rem;">
                         <template #body="slotProps">
                             <Button icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2"
                                 @click="editProduct(slotProps.data)" />
                             <Button icon="pi pi-trash" class="p-button-rounded p-button-warning mt-2"
                                 @click="confirmDeleteProduct(slotProps.data)" />
                         </template>
-                    </Column>
+                    </Column> -->
                 </DataTable>
 
                 <!-- Dialog untuk tambah dan edit data -->
