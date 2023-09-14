@@ -58,12 +58,11 @@ class MasterBankController implements IController {
                 alamat: user.alamat,
                 noTlp: user.telp,
                 norek: newAccountNumber,
-                saldo,
-                created_at,
-                updated_at,
+                saldo
             });
 
-            return res.status(200).send(`Master Bank "${newMasterBank.nama}" telah ditambahkan dengan nomor rekening baru: ${newAccountNumber}`);
+            return res.status(200).json(newMasterBank);
+            // return res.status(200).send(`Master Bank "${newMasterBank.nama}" telah ditambahkan dengan nomor rekening baru: ${newAccountNumber}`);
         } catch (error) {
             console.error(error);
             return res.status(500).send('Gagal menambahkan data master bank');

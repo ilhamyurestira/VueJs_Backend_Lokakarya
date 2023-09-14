@@ -5,7 +5,7 @@ class MasterBankRoutes extends BaseRoutes {
 
     public routes(): void {
         this.router.get("/", MasterBankController.index);
-        this.router.post("/", MasterBankController.create);
+        this.router.post("/tambah", MasterBankController.create);
         this.router.get("/:id", MasterBankController.show);
         this.router.put("/:id", MasterBankController.update);
         this.router.delete("/:id", MasterBankController.delete);

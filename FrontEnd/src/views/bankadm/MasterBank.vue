@@ -32,9 +32,26 @@ onBeforeMount(() => {
 // Fetch data from the API on component mount
 onMounted(() => {
     fetchData();
+    fetchUsers();
 });
 const formatCurrency = (value) => {
     return value.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' });
+};
+
+const usersList = ref([]);
+
+const fetchUsers = () => {
+    axios
+        .get('http://localhost:8000/api/v1/admin/manage/users')
+        .then((response) => {
+            // Response dari API berisi daftar pengguna
+            const users = response.data; // Asumsikan API mengembalikan array objek pengguna
+            // Assign daftar pengguna ke variabel di dalam data
+            usersList.value = users;
+        })
+        .catch((error) => {
+            console.error('Error fetching users:', error);
+        });
 };
 
 const fetchData = () => {
@@ -61,19 +78,43 @@ const hideDialog = () => {
 
 const saveProduct = () => {
     submitted.value = true;
-    if (product.value.name && product.value.name.trim() && product.value.price) {
-        if (product.value.id) {
-            product.value.inventoryStatus = product.value.inventoryStatus.value ? product.value.inventoryStatus.value : product.value.inventoryStatus;
-            products.value[findIndexById(product.value.id)] = product.value;
-            toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Updated', life: 3000 });
-        } else {
-            product.value.id = createId();
-            product.value.code = createId();
-            product.value.image = 'product-placeholder.svg';
-            product.value.inventoryStatus = product.value.inventoryStatus ? product.value.inventoryStatus.value : 'INSTOCK';
-            products.value.push(product.value);
-            toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Created', life: 3000 });
-        }
+    if (product.value.userId) {
+        // Produk baru, kirim permintaan POST hanya dengan mengirimkan userId
+        const newData = {
+            userId: product.value.userId, // Kirim hanya userId
+            saldo: parseInt(product.value.saldo),
+        };
+        
+        // Kirim permintaan POST ke BE
+        axios
+        .post(`${apiUrl}/tambah`, newData) // Pastikan endpoint API sesuai
+        .then((response) => {
+                const data = response.data;
+                if (response.status === 200) {
+                    // Produk berhasil dibuat di BE, tidak ada respons yang diharapkan dari BE
+                    toast.add({
+                        severity: 'success',
+                        summary: 'Sukses',
+                        detail: `Rekening atas nama "${data.nama}" berhasil dibuat`,
+                        life: 3000,
+                    });
+                } else {
+                    toast.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: `Rekening gagal dibuat`,
+                        life: 3000,
+                    });
+                }
+            })
+            .catch((error) => {
+                toast.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: `Rekening gagal dibuat`,
+                    life: 3000,
+                });
+            });
         productDialog.value = false;
         product.value = {};
     }
@@ -213,35 +254,35 @@ const initFilters = () => {
                 </DataTable>
 
                 <!-- Dialog untuk tambah dan edit data -->
-                <Dialog v-model:visible="productDialog" :style="{ width: '450px' }" header="Detail Pelanggan" :modal="true"
-                    class="p-fluid">
-                    <!-- <img :src="'demo/images/product/' + product.image" :alt="product.image" v-if="product.image" width="150"
-                        class="mt-0 mx-auto mb-5 block shadow-2" /> -->
-                    <div class="field">
-                        <label for="idPelanggan">ID</label>
-                        <InputText id="idPelanggan" v-model.trim="product.idPelanggan" required="true" autofocus
-                            :class="{ 'p-invalid': submitted && !product.idPelanggan }" />
-                        <small class="p-invalid" v-if="submitted && !product.idPelanggan">ID harus di Isi.</small>
-                    </div>
+                <Dialog v-model:visible="productDialog" :style="{ width: '450px' }" header="Buat Pelanggan Baru"
+                    :modal="true" class="p-fluid">
                     <div class="field">
                         <label for="nama">Nama</label>
-                        <InputText id="nama" v-model.trim="product.nama" required="true" autofocus
-                            :class="{ 'p-invalid': submitted && !product.nama }" />
-                        <small class="p-invalid" v-if="submitted && !product.nama">Nama harus di Isi.</small>
+                        <Dropdown v-model="product.userId" optionLabel="nama" optionValue="id" :options="usersList"
+                        placeholder="Pilih User" />
+                        <!-- <InputText id="nama" v-model.trim="product.nama" required="true" autofocus
+                            :class="{ 'p-invalid': submitted && !product.nama }" /> -->
+                        <small class="p-invalid" v-if="submitted && !product.nama">Nama harus diisi.</small>
                     </div>
-                    <div class="field">
+                    <!-- <div class="field">
                         <label for="noTelp">No Telpon</label>
                         <InputText id="noTelp" v-model.trim="product.noTelp" required="true" autofocus
                             :class="{ 'p-invalid': submitted && !product.noTelp }" />
-                        <small class="p-invalid" v-if="submitted && !product.noTelp">No Telpon harus di Isi.</small>
+                        <small class="p-invalid" v-if="submitted && !product.noTelp">No Telpon harus diisi.</small>
                     </div>
                     <div class="field">
                         <label for="alamat">Alamat</label>
                         <Textarea id="alamat" v-model="product.alamat" required="true" rows="3" cols="20" />
+                    </div> -->
+                    <div class="field">
+                        <label for="saldo">Saldo</label>
+                        <InputText id="saldo" v-model.trim="product.saldo" required="true" autofocus
+                            :class="{ 'p-invalid': submitted && !product.saldo }" />
+                        <small class="p-invalid" v-if="submitted && !product.saldo">Saldo harus diisi.</small>
                     </div>
                     <template #footer>
-                        <Button label="Cancel" icon="pi pi-times" class="p-button-text" @click="hideDialog" />
-                        <Button label="Save" icon="pi pi-check" class="p-button-text" @click="saveProduct" />
+                        <Button label="Batal" icon="pi pi-times" class="p-button-text" @click="hideDialog" />
+                        <Button label="Simpan" icon="pi pi-check" class="p-button-text" @click="saveProduct" />
                     </template>
                 </Dialog>
 
