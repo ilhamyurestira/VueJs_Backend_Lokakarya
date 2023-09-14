@@ -8,20 +8,21 @@ import { useToast } from 'primevue/usetoast';
 const toast = useToast();
 
 const loadedData = ref(null);
+const passwordConfirmation = ref(null);
 const apiUrl = 'http://localhost:8000/api/v1/admin/manage/users';
-const userlistDialog = ref(false);
-const deleteProductDialog = ref(false);
+const createUserDialog = ref(false);
+const deleteUserDialog = ref(false);
 const deleteProductsDialog = ref(false);
-const users = ref({});
+const user = ref({});
 const selectedProducts = ref(null);
 const dt = ref(null);
 const filters = ref({});
 const submitted = ref(false);
-const statuses = ref([
-    { label: 'INSTOCK', value: 'instock' },
-    { label: 'LOWSTOCK', value: 'lowstock' },
-    { label: 'OUTOFSTOCK', value: 'outofstock' }
-]);
+// const statuses = ref([
+//     { label: 'INSTOCK', value: 'instock' },
+//     { label: 'LOWSTOCK', value: 'lowstock' },
+//     { label: 'OUTOFSTOCK', value: 'outofstock' }
+// ]);
 
 const productService = new ProductService();
 
@@ -45,52 +46,88 @@ const fetchData = () => {
 };
 
 const openNew = () => {
-    users.value = {};
+    user.value = {};
     submitted.value = false;
-    userlistDialog.value = true;
+    createUserDialog.value = true;
 };
 
 const hideDialog = () => {
-    userlistDialog.value = false;
+    createUserDialog.value = false;
     submitted.value = false;
 };
 
-const saveProduct = () => {
+const createUser = () => {
     submitted.value = true;
-    if (users.value.name && users.value.name.trim() && users.value.price) {
-        if (users.value.id) {
-            users.value.inventoryStatus = users.value.inventoryStatus.value ? users.value.inventoryStatus.value : users.value.inventoryStatus;
-            loadedData.value[findIndexById(users.value.id)] = users.value;
-            toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Updated', life: 3000 });
-        } else {
-            users.value.id = createId();
-            users.value.code = createId();
-            users.value.image = 'product-placeholder.svg';
-            users.value.inventoryStatus = users.value.inventoryStatus ? users.value.inventoryStatus.value : 'INSTOCK';
-            loadedData.value.push(users.value);
-            toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Created', life: 3000 });
-        }
-        userlistDialog.value = false;
-        users.value = {};
+    if (user.value.username && user.value.nama.trim() && user.value.password && user.value.email && user.value.telp) {
+        const newData = {
+            username: user.value.username,
+            password: user.value.password,
+            nama: user.value.nama,
+            alamat: user.value.alamat,
+            email: user.value.email,
+            telp: user.value.telp,
+            programName: 'Web API',
+            createdBy: 'User Admin'
+        };
+        axios
+            .post(`${apiUrl}`, newData)
+            .then((response) => {
+                const data = response.data;
+                if (response.status === 201) {
+                    // Produk berhasil dibuat di BE, tidak ada respons yang diharapkan dari BE
+                    toast.add({
+                        severity: 'success',
+                        summary: 'Sukses',
+                        detail: `User: ${user.value.username} telah berhasil dibuat.`
+                    });
+                    hideDialog();
+                } else {
+                    toast.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: `User gagal dibuat (errcode: ${response.status})`,
+                        life: 3000
+                    });
+                }
+            })
+            .catch((error) => {
+                toast.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: `User gagal dibuat (errcode: ${error.status})`,
+                    life: 3000
+                });
+            });
     }
 };
 
-const editProduct = (editProduct) => {
-    users.value = { ...editProduct };
-    console.log(users);
-    userlistDialog.value = true;
+// const editUserMenu = (selectedUser) => {
+//     user.value = selectedUser;
+//     editUserDialog.value = true;
+// };
+
+// const editUser = () => {};
+
+const confirmDeleteUser = (selectedUser) => {
+    user.value = selectedUser;
+    deleteUserDialog.value = true;
 };
 
-const confirmDeleteProduct = (editProduct) => {
-    users.value = editProduct;
-    deleteProductDialog.value = true;
-};
-
-const deleteProduct = () => {
-    loadedData.value = loadedData.value.filter((val) => val.id !== users.value.id);
-    deleteProductDialog.value = false;
-    users.value = {};
-    toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Deleted', life: 3000 });
+const deleteUser = () => {
+    //removes the data from the currently loaded data
+    loadedData.value = loadedData.value.filter((val) => val.id !== user.value.id);
+    deleteUserDialog.value = false;
+    // console.log(`http://localhost:8000/api/v1/admin/manage/users/${users.value.id}`);
+    axios
+        .delete(`${apiUrl}/${user.value.id}`)
+        .then((response) => {
+            user.value = {};
+            toast.add({ severity: 'success', summary: 'Successful', detail: 'User has been deleted successfully', life: 3000 });
+        })
+        .catch((error) => {
+            console.error('Error fetching data:', error);
+            toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete user', life: 3000 });
+        });
 };
 
 const findIndexById = (id) => {
@@ -142,13 +179,12 @@ const initFilters = () => {
                 <Toolbar class="mb-4">
                     <template v-slot:start>
                         <div class="my-2">
-                            <Button label="New" icon="pi pi-plus" class="p-button-success mr-2" @click="openNew" />
-                            <Button label="Delete" icon="pi pi-trash" class="p-button-danger" @click="confirmDeleteSelected" :disabled="!selectedProducts || !selectedProducts.length" />
+                            <Button label="Create New User" icon="pi pi-user-plus" class="p-button-success mr-2" @click="openNew" />
                         </div>
                     </template>
 
                     <template v-slot:end>
-                        <FileUpload mode="basic" accept="image/*" :maxFileSize="1000000" label="Import" chooseLabel="Import" class="mr-2 inline-block" />
+                        <!-- <FileUpload mode="basic" accept="image/*" :maxFileSize="1000000" label="Import" chooseLabel="Import" class="mr-2 inline-block" /> -->
                         <Button label="Export" icon="pi pi-upload" class="p-button-help" @click="exportCSV($event)" />
                     </template>
                 </Toolbar>
@@ -176,13 +212,13 @@ const initFilters = () => {
                         </div>
                     </template>
 
-                    <Column field="username" header="Username" :sortable="true" headerStyle="width:14%; min-width:10rem;">
+                    <Column field="username" header="Username" :sortable="true" headerStyle="width:70%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Username</span>
                             {{ slotProps.data.username }}
                         </template>
                     </Column>
-                    <Column field="nama" header="Nama" :sortable="true" headerStyle="width:14%; min-width:8rem;">
+                    <!-- <Column field="nama" header="Nama" :sortable="true" headerStyle="width:14%; min-width:8rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Nama</span>
                             {{ slotProps.data.nama }}
@@ -217,27 +253,60 @@ const initFilters = () => {
                             <span class="p-column-title">Updated By</span>
                             {{ slotProps.data.updatedBy }}
                         </template>
-                    </Column>
-                    <Column field="actions" header="Actions" headerStyle="width:14%; min-width:10rem;">
-                        <template>
-                            <span class="'p-column-title'">Actions</span>
+                    </Column> -->
+                    <Column header="Actions" headerStyle="width:30%; min-width:10rem;">
+                        <template #body="slotProps">
+                            <Button icon="pi pi-user-edit" class="p-button-rounded p-button-warning mt-2 mr-1 ml-1" @click="editUserMenu(slotProps.data)" />
+                            <Button icon="pi pi-user-minus" class="p-button-rounded p-button-danger mt-2 mr-1 ml-1" @click="confirmDeleteUser(slotProps.data)" />
                         </template>
                     </Column>
                 </DataTable>
 
-                <Dialog v-model:visible="userlistDialog" :style="{ width: '450px' }" header="Product Details" :modal="true" class="p-fluid">
-                    <img :src="'demo/images/product/' + users.image" :alt="users.image" v-if="users.image" width="150" class="mt-0 mx-auto mb-5 block shadow-2" />
+                <Dialog v-model:visible="createUserDialog" :style="{ width: '450px' }" header="Create User" :modal="true" class="p-fluid">
                     <div class="field">
-                        <label for="name">Name</label>
-                        <InputText id="name" v-model.trim="users.name" required="true" autofocus :class="{ 'p-invalid': submitted && !users.name }" />
-                        <small class="p-invalid" v-if="submitted && !users.name">Name is required.</small>
+                        <label for="username">Username</label>
+                        <InputText id="username" v-model.trim="user.username" required="true" autofocus :class="{ 'p-invalid': submitted && !user.username }" />
+                        <small class="p-invalid" v-if="submitted && !user.username">Username is Required.</small>
                     </div>
                     <div class="field">
-                        <label for="description">Description</label>
-                        <Textarea id="description" v-model="users.description" required="true" rows="3" cols="20" />
+                        <label for="password">Password</label>
+                        <InputText id="password" type="password" v-model.trim="user.password" required="true" autofocus :class="{ 'p-invalid': (submitted && !user.password) || (submitted && user.password.length < 6) }" />
+                        <small class="p-invalid" v-if="(submitted && !user.password) || (submitted && user.password.length < 6)">please enter a valid password (min.length: 6)</small>
+                    </div>
+                    <div class="field">
+                        <label for="passwordConfirm">Confirm Password</label>
+                        <InputText
+                            id="passwordConfirmation"
+                            type="password"
+                            v-model.trim="passwordConfirmation"
+                            required="true"
+                            autofocus
+                            :class="{ 'p-invalid': (submitted && !passwordConfirmation) || (passwordConfirmation && passwordConfirmation !== user.password) }"
+                        />
+                        <small class="p-invalid" v-if="submitted && !passwordConfirmation">Please confirm your password above</small>
+                        <small class="p-invalid" v-if="passwordConfirmation && passwordConfirmation !== user.password">password doesn't match</small>
+                    </div>
+                    <div class="field">
+                        <label for="nama">Nama</label>
+                        <InputText id="name" v-model.trim="user.nama" required="true" autofocus :class="{ 'p-invalid': submitted && !user.nama }" />
+                        <small class="p-invalid" v-if="submitted && !user.nama">Nama tidak boleh kosong.</small>
+                    </div>
+                    <div class="field">
+                        <label for="alamat">alamat</label>
+                        <Textarea id="alamat" v-model="user.alamat" required="false" rows="4" cols="20" />
+                    </div>
+                    <div class="field">
+                        <label for="email">Email</label>
+                        <InputText id="email" v-model.trim="user.email" required="true" autofocus :class="{ 'p-invalid': submitted && !user.email }" />
+                        <small class="p-invalid" v-if="submitted && !user.email">E-Mail tidak boleh kosong.</small>
+                    </div>
+                    <div class="field">
+                        <label for="telp">No. Telepon</label>
+                        <InputText id="telp" v-model.trim="user.telp" required="true" autofocus :class="{ 'p-invalid': submitted && !user.telp }" />
+                        <small class="p-invalid" v-if="submitted && !user.telp">Nomor telepon tidak boleh kosong.</small>
                     </div>
 
-                    <div class="field">
+                    <!-- <div class="field">
                         <label for="inventoryStatus" class="mb-3">Inventory Status</label>
                         <Dropdown id="inventoryStatus" v-model="users.inventoryStatus" :options="statuses" optionLabel="label" placeholder="Select a Status">
                             <template #value="slotProps">
@@ -286,28 +355,69 @@ const initFilters = () => {
                             <label for="quantity">Quantity</label>
                             <InputNumber id="quantity" v-model="users.quantity" integeronly />
                         </div>
-                    </div>
+                    </div> -->
                     <template #footer>
-                        <Button label="Cancel" icon="pi pi-times" class="p-button-text" @click="hideDialog" />
-                        <Button label="Save" icon="pi pi-check" class="p-button-text" @click="saveProduct" />
+                        <Button label="Cancel" icon="pi pi-times" class="p-button-danger p-button-text" @click="hideDialog" />
+                        <Button label="Create" icon="pi pi-check" class="p-button-text" @click="createUser" />
                     </template>
                 </Dialog>
 
-                <Dialog v-model:visible="deleteProductDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
+                <Dialog v-model:visible="deleteUserDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
                     <div class="flex align-items-center justify-content-center">
                         <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-                        <span v-if="users"
-                            >Are you sure you want to delete <b>{{ users.name }}</b
+                        <span v-if="user"
+                            >Are you sure you want to delete <b>{{ user.username }}</b
                             >?</span
                         >
                     </div>
                     <template #footer>
-                        <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteProductDialog = false" />
-                        <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteProduct" />
+                        <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteUserDialog = false" />
+                        <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteUser" />
                     </template>
                 </Dialog>
 
-                <Dialog v-model:visible="deleteProductsDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
+                <Dialog v-model:visible="editUserDialog" :style="{ width: '450px' }" header="Edit User" :modal="true" class="p-fluid">
+                    <div class="field">
+                        <label for="username">Username</label>
+                        <InputText id="username" v-model.trim="user.username" required="true" autofocus :class="{ 'p-invalid': submitted && !user.username }" />
+                        <small class="p-invalid" v-if="submitted && !user.username">Username is Required.</small>
+                    </div>
+                    <div class="field">
+                        <label for="password">Password</label>
+                        <InputText id="password" type="password" v-model.trim="user.password" required="true" autofocus :class="{ 'p-invalid': (submitted && !user.password) || (submitted && user.password.length < 6) }" />
+                        <small class="p-invalid" v-if="(submitted && !user.password) || (submitted && user.password.length < 6)">please enter a valid password (min.length: 6)</small>
+                    </div>
+                    <div class="field">
+                        <label for="passwordConfirm">Confirm Password</label>
+                        <InputText id="passwordConfirmation" type="password" v-model.trim="passwordConfirmation" required="true" autofocus :class="{ 'p-invalid': (submitted && !passwordConfirmation) || passwordConfirmation !== user.password }" />
+                        <small class="p-invalid" v-if="submitted && !passwordConfirmation">Please confirm your password above</small>
+                        <small class="p-invalid" v-else-if="passwordConfirmation !== user.password">password doesn't match</small>
+                    </div>
+                    <div class="field">
+                        <label for="nama">Nama</label>
+                        <InputText id="name" v-model.trim="user.nama" required="true" autofocus :class="{ 'p-invalid': submitted && !user.nama }" />
+                        <small class="p-invalid" v-if="submitted && !user.nama">Nama tidak boleh kosong.</small>
+                    </div>
+                    <div class="field">
+                        <label for="alamat">alamat</label>
+                        <Textarea id="alamat" v-model="user.alamat" required="false" rows="4" cols="20" />
+                    </div>
+                    <div class="field">
+                        <label for="email">Email</label>
+                        <InputText id="email" v-model.trim="user.email" required="true" autofocus :class="{ 'p-invalid': submitted && !user.nama }" />
+                        <small class="p-invalid" v-if="submitted && !user.email">E-Mail tidak boleh kosong.</small>
+                    </div>
+                    <div class="field">
+                        <label for="telp">No. Telepon</label>
+                        <InputText id="telp" v-model.trim="user.telp" required="true" autofocus :class="{ 'p-invalid': submitted && !user.nama }" />
+                        <small class="p-invalid" v-if="submitted && !user.telp">Nomor telepon tidak boleh kosong.</small>
+                    </div>
+                    <template #footer>
+                        <Button label="Cancel" icon="pi pi-times" class="p-button-danger p-button-text" @click="hideDialog" />
+                        <Button label="Edit" icon="pi pi-check" class="p-button-success p-button-text" @click="editUser" />
+                    </template>
+                </Dialog>
+                <!-- <Dialog v-model:visible="deleteProductsDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
                     <div class="flex align-items-center justify-content-center">
                         <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
                         <span v-if="users">Are you sure you want to delete the selected products?</span>
@@ -316,7 +426,7 @@ const initFilters = () => {
                         <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteProductsDialog = false" />
                         <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteSelectedProducts" />
                     </template>
-                </Dialog>
+                </Dialog> -->
             </div>
         </div>
     </div>

@@ -25,7 +25,16 @@ class UserController implements IController {
 
   create = async (req: Request, res: Response): Promise<Response> => {
     try {
-      let { username, password, nama, alamat, email, telp } = req.body;
+      const {
+        username,
+        password,
+        nama,
+        alamat,
+        email,
+        telp,
+        programName,
+        createdBy,
+      } = req.body;
       if (!username) {
         return res.status(400).send('username belum diisi');
       } else if (!password) {
@@ -48,8 +57,8 @@ class UserController implements IController {
           alamat,
           email,
           telp,
-          programName: 'System',
-          createdBy: 'User Admin',
+          programName,
+          createdBy,
         });
 
         return res.status(201).send('registrasi user sukses!');
@@ -80,7 +89,7 @@ class UserController implements IController {
 
   update = async (req: Request, res: Response): Promise<Response> => {
     const { id } = req.params;
-    const { nama, alamat, email, telp } = req.body;
+    const { nama, alamat, email, telp, programName, updatedBy } = req.body;
 
     try {
       if (!nama) {
@@ -101,8 +110,8 @@ class UserController implements IController {
           alamat,
           email,
           telp,
-          programName: 'System',
-          updatedBy: 'User Admin',
+          programName,
+          updatedBy,
         });
         return res.status(200).send(`update data user "${userName}" sukses.`);
       }
@@ -122,7 +131,7 @@ class UserController implements IController {
       }
 
       const userName = data.username;
-      await dm.destroy(data);
+      await data.destroy();
       return res
         .status(200)
         .send(`data user "${userName}" telah berhasil dihapus.`);

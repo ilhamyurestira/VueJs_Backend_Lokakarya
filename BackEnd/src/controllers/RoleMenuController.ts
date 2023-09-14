@@ -108,9 +108,12 @@ class RoleController implements IController {
         if (!menu) {
           console.log('tidak menemukan nama menu');
         }
+        const role = await Role.findByPk(roleId);
         return res
           .status(200)
-          .send(`berhasil mengupdate role menu "${menu.nama}"`);
+          .send(
+            `berhasil mengupdate role menu "${menu.nama}" untuk role "${role.nama}"`
+          );
       }
     } catch (err) {
       console.log(err);
