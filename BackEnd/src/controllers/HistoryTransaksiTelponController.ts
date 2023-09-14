@@ -36,24 +36,15 @@ class HistoryTransaksiTelponController implements IController {
     }
 
     async create(req: Request, res: Response): Promise<Response> {
-        const { norek, tanggal, uang, status_ket, norek_dituju, no_tlp, created_at, updated_at } = req.body;
+        const { id_pelanggan, tanggal_bayar, bulan_tagihan, tahun_tagihan, uang } = req.body;
 
         try {
-            const masterBank = await db.master_bank.findOne({ where: { norek } });
-            if (!masterBank) {
-                return res.status(400).send('Data master bank tidak ditemukan berdasarkan norek');
-            }
-
             const newHistoryTransaksiTelpon = await db.history_telkom.create({
-                norek: masterBank.norek, // Gunakan norek dari master_bank
-                tanggal,
-                uang,
-                status_ket,
-                norek_dituju,
-                no_tlp,
-                nama: masterBank.nama, // Ambil nama dari master_bank
-                created_at,
-                updated_at,
+                id_pelanggan,
+                tanggal_bayar,
+                bulan_tagihan,
+                tahun_tagihan,
+                uang
             });
 
             return res.status(200).json(newHistoryTransaksiTelpon);
@@ -65,7 +56,7 @@ class HistoryTransaksiTelponController implements IController {
 
     async update(req: Request, res: Response): Promise<Response> {
         const { id } = req.params;
-        const { norek, tanggal, uang, status_ket, norek_dituju, no_tlp, nama, created_at, updated_at } = req.body;
+        const { id_pelanggan, tanggal_bayar, bulan_tagihan, tahun_tagihan, uang } = req.body;
 
         try {
             const historyTransaksiTelpon = await db.history_telkom.findByPk(id);
@@ -74,15 +65,11 @@ class HistoryTransaksiTelponController implements IController {
             }
 
             await historyTransaksiTelpon.update({
-                norek,
-                tanggal,
-                uang,
-                status_ket,
-                norek_dituju,
-                no_tlp,
-                nama,
-                created_at,
-                updated_at,
+                id_pelanggan,
+                tanggal_bayar,
+                bulan_tagihan,
+                tahun_tagihan,
+                uang
             });
 
             return res.status(200).json(historyTransaksiTelpon);
