@@ -22,7 +22,7 @@ class HakAksesController implements IController {
       });
 
       if (hakAksesList.length === 0) {
-        return res.status(200).send('Belum ada data');
+        return res.status(404).send('Belum ada data');
       } else {
         return res.status(200).json(hakAksesList);
       }
@@ -38,9 +38,9 @@ class HakAksesController implements IController {
     try {
       const data = await dm.findByPk(id, { exclude: ['programName'] });
       if (!data) {
-        return res.status(400).send(`Data dengan id: ${id} tidak ditemukan`);
+        return res.status(404).send(`Data dengan id: ${id} tidak ditemukan`);
       } else {
-        return res.status(400).json(data);
+        return res.status(200).json(data);
       }
     } catch (err) {
       console.error(err);
@@ -53,16 +53,16 @@ class HakAksesController implements IController {
 
     try {
       if (!userId) {
-        return res.status(500).send('user belum diisi');
+        return res.status(400).send('user belum diisi');
       } else if (!roleId) {
-        return res.status(500).send('role belum diisi');
+        return res.status(400).send('role belum diisi');
       } else {
         const existingUserRole = await dm.findOne({
           where: { userId, roleId },
         });
         if (existingUserRole) {
           return res
-            .status(500)
+            .status(400)
             .send('user yang sama dengan role yang sama telah ada');
         } else {
           const newData = await dm.create({
@@ -71,7 +71,7 @@ class HakAksesController implements IController {
             programName,
             createdBy,
           });
-          return res.status(500).send(`Hak akses telah berhasil dibuat`);
+          return res.status(201).send(`Hak akses telah berhasil dibuat`);
         }
       }
     } catch (err) {
@@ -86,13 +86,13 @@ class HakAksesController implements IController {
 
     try {
       if (!userId) {
-        return res.status(500).send('user belum diisi');
+        return res.status(400).send('user belum diisi');
       } else if (!roleId) {
-        return res.status(500).send('role belum diisi');
+        return res.status(400).send('role belum diisi');
       } else {
         const data = await dm.findByPk(id);
         if (!data) {
-          return res.status(400).send(`Data dengan id: ${id} tidak ditemukan.`);
+          return res.status(404).send(`Data dengan id: ${id} tidak ditemukan.`);
         }
 
         const current = data.nama;
@@ -102,7 +102,7 @@ class HakAksesController implements IController {
           programName,
           updatedBy,
         });
-        return res.status(500).send(`Menu "${current}" telah berhasil diubah.`);
+        return res.status(200).send(`Menu "${current}" telah berhasil diubah.`);
       }
     } catch (err) {
       console.log(err);
@@ -124,7 +124,7 @@ class HakAksesController implements IController {
       return res.status(200).send(`Menu "${current}" berhasil dihapus.`);
     } catch (err) {
       console.log(err);
-      return res.status(200).send(`Gagal menghapus menu.`);
+      return res.status(500).send(`Gagal menghapus menu.`);
     }
   };
 }

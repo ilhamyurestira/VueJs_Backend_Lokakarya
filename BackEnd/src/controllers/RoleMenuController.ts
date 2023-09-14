@@ -21,7 +21,7 @@ class RoleController implements IController {
         ();
 
       if (roleList.length === 0) {
-        return res.status(200).send('Belum ada data');
+        return res.status(404).send('Belum ada data');
       } else {
         return res.status(200).json(roleList);
       }
@@ -45,9 +45,9 @@ class RoleController implements IController {
         // }
       );
       if (!data) {
-        return res.status(400).send(`Data dengan id: ${id} tidak ditemukan`);
+        return res.status(404).send(`Data dengan id: ${id} tidak ditemukan`);
       } else {
-        return res.status(400).json(data);
+        return res.status(200).json(data);
       }
     } catch (err) {
       console.error(err);
@@ -60,15 +60,15 @@ class RoleController implements IController {
 
     try {
       if (!roleId) {
-        return res.status(500).send('role belum diisi');
+        return res.status(400).send('role belum diisi');
       } else if (!menuId) {
-        return res.status(500).send('menu belum diisi');
+        return res.status(400).send('menu belum diisi');
       } else {
         const exists = await dm.findOne({
           where: { roleId, menuId },
         });
         if (exists) {
-          return res.status(500).send('Role menu sudah terdaftarkan di role');
+          return res.status(400).send('Role menu sudah terdaftarkan di role');
         } else {
           const newData = await dm.create({
             roleId,
@@ -78,7 +78,7 @@ class RoleController implements IController {
             createdBy,
           });
 
-          return res.status(500).send('Role menu berhasil dibuat');
+          return res.status(201).send('Role menu berhasil dibuat');
         }
       }
     } catch (err) {
@@ -93,14 +93,14 @@ class RoleController implements IController {
 
     try {
       if (!roleId) {
-        return res.status(500).send('role belum diisi');
+        return res.status(400).send('role belum diisi');
       } else if (!menuId) {
-        return res.status(500).send('menu belum diisi');
+        return res.status(400).send('menu belum diisi');
       } else {
         const data = await dm.findByPk(id);
         if (!data) {
           return res
-            .status(400)
+            .status(404)
             .send(`Role menu dengan id: ${id} tidak ditemukan.`);
         }
         await data.update({ roleId, menuId, isActive, programName, updatedBy });
@@ -109,7 +109,7 @@ class RoleController implements IController {
           console.log('tidak menemukan nama menu');
         }
         return res
-          .status(500)
+          .status(200)
           .send(`berhasil mengupdate role menu "${menu.nama}"`);
       }
     } catch (err) {
@@ -134,7 +134,7 @@ class RoleController implements IController {
       return res.status(200).send(`Role "${current}" berhasil dihapus.`);
     } catch (err) {
       console.log(err);
-      return res.status(200).send(`Gagal menghapus role menu.`);
+      return res.status(500).send(`Gagal menghapus role menu.`);
     }
   };
 }

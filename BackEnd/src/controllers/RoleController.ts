@@ -11,7 +11,7 @@ class RoleController implements IController {
       const roleList = await dm.findAll({ exclude: ['programName'] });
 
       if (roleList.length === 0) {
-        return res.status(200).send('Belum ada data');
+        return res.status(404).send('Belum ada data');
       } else {
         return res.status(200).json(roleList);
       }
@@ -27,9 +27,9 @@ class RoleController implements IController {
     try {
       const data = await dm.findByPk(id, { exclude: ['programName'] });
       if (!data) {
-        return res.status(400).send(`Data dengan id: ${id} tidak ditemukan`);
+        return res.status(404).send(`Data dengan id: ${id} tidak ditemukan`);
       } else {
-        return res.status(400).json(data);
+        return res.status(200).json(data);
       }
     } catch (err) {
       console.error(err);
@@ -42,12 +42,12 @@ class RoleController implements IController {
 
     try {
       if (!nama) {
-        return res.status(104).send('nama role belum diisi');
+        return res.status(400).send('nama role belum diisi');
       } else {
         const existingName = await dm.findOne({ where: { nama } });
         if (existingName) {
           return res
-            .status(500)
+            .status(400)
             .send('Role dengan nama yang sama sudah terdaftar.');
         } else {
           const newData = await dm.create({
@@ -56,7 +56,7 @@ class RoleController implements IController {
             createdBy,
           });
           return res
-            .status(500)
+            .status(201)
             .send(`Role "${nama}" telah berhasil ditambahkan.`);
         }
       }
@@ -72,16 +72,16 @@ class RoleController implements IController {
 
     try {
       if (!nama) {
-        return res.status(104).send('nama role belum diisi');
+        return res.status(400).send('nama role belum diisi');
       } else {
         const data = await dm.findByPk(id);
         if (!data) {
-          return res.status(400).send(`Data dengan id: ${id} tidak ditemukan.`);
+          return res.status(404).send(`Data dengan id: ${id} tidak ditemukan.`);
         }
 
         const current = data.nama;
         await data.update({ nama, updatedBy });
-        return res.status(500).send(`Role "${current}" telah berhasil diubah.`);
+        return res.status(200).send(`Role "${current}" telah berhasil diubah.`);
       }
     } catch (err) {
       console.log(err);
@@ -103,7 +103,7 @@ class RoleController implements IController {
       return res.status(200).send(`Role "${current}" berhasil dihapus.`);
     } catch (err) {
       console.log(err);
-      return res.status(200).send(`Gagal menghapus role.`);
+      return res.status(500).send(`Gagal menghapus role.`);
     }
   };
 }

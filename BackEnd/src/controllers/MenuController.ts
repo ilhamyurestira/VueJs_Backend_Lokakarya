@@ -11,7 +11,7 @@ class MenuController implements IController {
       const menuList = await dm.findAll({ exclude: ['programName'] });
 
       if (menuList.length === 0) {
-        return res.status(200).send('Belum ada data');
+        return res.status(404).send('Belum ada data');
       } else {
         return res.status(200).json(menuList);
       }
@@ -27,9 +27,9 @@ class MenuController implements IController {
     try {
       const data = await dm.findByPk(id, { exclude: ['programName'] });
       if (!data) {
-        return res.status(400).send(`Data dengan id: ${id} tidak ditemukan`);
+        return res.status(404).send(`Data dengan id: ${id} tidak ditemukan`);
       } else {
-        return res.status(400).json(data);
+        return res.status(200).json(data);
       }
     } catch (err) {
       console.error(err);
@@ -42,12 +42,12 @@ class MenuController implements IController {
 
     try {
       if (!nama) {
-        return res.status(104).send('nama menu belum diisi');
+        return res.status(400).send('nama menu belum diisi');
       } else {
         const existingMenu = await dm.findOne({ where: { nama } });
         if (existingMenu) {
           return res
-            .status(500)
+            .status(400)
             .send('Menu dengan nama yang sama sudah terdaftar.');
         } else {
           const newMenu = await dm.create({
@@ -58,7 +58,7 @@ class MenuController implements IController {
             createdBy,
           });
           return res
-            .status(500)
+            .status(201)
             .send(`Menu "${nama}" telah berhasil ditambahkan.`);
         }
       }
@@ -75,7 +75,7 @@ class MenuController implements IController {
     try {
       const data = await dm.findByPk(id);
       if (!data) {
-        return res.status(400).send(`Data dengan id: ${id} tidak ditemukan.`);
+        return res.status(404).send(`Data dengan id: ${id} tidak ditemukan.`);
       }
 
       const current = data.nama;
@@ -85,7 +85,7 @@ class MenuController implements IController {
         url,
         updatedBy,
       });
-      return res.status(500).send(`Menu "${current}" telah berhasil diubah.`);
+      return res.status(200).send(`Menu "${current}" telah berhasil diubah.`);
     } catch (err) {
       console.log(err);
       return res.status(500).send(`Gagal mengubah menu.`);
@@ -106,7 +106,7 @@ class MenuController implements IController {
       return res.status(200).send(`Menu "${current}" berhasil dihapus.`);
     } catch (err) {
       console.log(err);
-      return res.status(200).send(`Gagal menghapus menu.`);
+      return res.status(500).send(`Gagal menghapus menu.`);
     }
   };
 }

@@ -13,12 +13,11 @@ class UserController implements IController {
       });
 
       if (userList.length === 0) {
-        return res.status(200).send('Belum ada data.');
+        return res.status(400).send('Belum ada data.');
       } else {
         return res.status(200).json(userList);
       }
     } catch (err) {
-      console.error(err);
       console.log(err);
       return res.status(500).send('Data tidak ditemukan.');
     }
@@ -26,26 +25,17 @@ class UserController implements IController {
 
   create = async (req: Request, res: Response): Promise<Response> => {
     try {
-      let {
-        username,
-        password,
-        nama,
-        alamat,
-        email,
-        telp,
-        programName,
-        createdBy,
-      } = req.body;
+      let { username, password, nama, alamat, email, telp } = req.body;
       if (!username) {
-        return res.status(102).send('username belum diisi');
+        return res.status(400).send('username belum diisi');
       } else if (!password) {
-        return res.status(103).send('password belum diisi');
+        return res.status(400).send('password belum diisi');
       } else if (!nama) {
-        return res.status(104).send('nama belum diisi');
+        return res.status(400).send('nama belum diisi');
       } else if (!email) {
-        return res.status(105).send('email belum diisi');
+        return res.status(400).send('email belum diisi');
       } else if (!telp) {
-        return res.status(106).send('nomor telepon belum diisi');
+        return res.status(400).send('nomor telepon belum diisi');
       } else {
         const hashedPassword: string = await Authentication.passwordHash(
           password
@@ -58,15 +48,15 @@ class UserController implements IController {
           alamat,
           email,
           telp,
-          programName,
-          createdBy,
+          programName: 'System',
+          createdBy: 'User Admin',
         });
 
-        return res.send('registrasi user sukses!');
+        return res.status(201).send('registrasi user sukses!');
       }
     } catch (err) {
       console.log(err);
-      return res.status(404).send('registrasi user gagal.');
+      return res.status(500).send('registrasi user gagal.');
     }
   };
 
@@ -79,30 +69,30 @@ class UserController implements IController {
       });
 
       if (!data) {
-        return res.status(200).send('user tidak ditemukan.');
+        return res.status(404).send('user tidak ditemukan.');
       }
       return res.status(200).json(data);
     } catch (err) {
       console.log(err);
-      return res.status(400).send('pencarian user gagal.');
+      return res.status(500).send('pencarian user gagal.');
     }
   };
 
   update = async (req: Request, res: Response): Promise<Response> => {
     const { id } = req.params;
-    const { nama, alamat, email, telp, programName, updatedBy } = req.body;
+    const { nama, alamat, email, telp } = req.body;
 
     try {
       if (!nama) {
-        return res.status(104).send('nama belum diisi');
+        return res.status(400).send('nama belum diisi');
       } else if (!email) {
-        return res.status(105).send('email belum diisi');
+        return res.status(400).send('email belum diisi');
       } else if (!telp) {
-        return res.status(106).send('nomor telepon belum diisi');
+        return res.status(400).send('nomor telepon belum diisi');
       } else {
         const data = await dm.findByPk(id);
         if (!data) {
-          return res.status(107).send('data user tidak ditemukan.');
+          return res.status(404).send('data user tidak ditemukan.');
         }
 
         const userName = data.username;
@@ -111,14 +101,14 @@ class UserController implements IController {
           alamat,
           email,
           telp,
-          programName,
-          updatedBy,
+          programName: 'System',
+          updatedBy: 'User Admin',
         });
-        return res.status(100).send(`update data user "${userName}" sukses.`);
+        return res.status(200).send(`update data user "${userName}" sukses.`);
       }
     } catch (err) {
       console.log(err);
-      return res.status(101).send('update data gagal.');
+      return res.status(500).send('update data gagal.');
     }
   };
 
@@ -128,13 +118,13 @@ class UserController implements IController {
     try {
       const data = await dm.findByPk(id);
       if (!data) {
-        return res.status(107).send('data user tidak ditemukan.');
+        return res.status(404).send('data user tidak ditemukan.');
       }
 
       const userName = data.username;
       await dm.destroy(data);
       return res
-        .status(500)
+        .status(200)
         .send(`data user "${userName}" telah berhasil dihapus.`);
     } catch (err) {
       console.log(err);
