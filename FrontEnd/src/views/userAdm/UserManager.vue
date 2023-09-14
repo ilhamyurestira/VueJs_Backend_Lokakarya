@@ -8,9 +8,14 @@ import { useToast } from 'primevue/usetoast';
 const toast = useToast();
 
 const loadedData = ref(null);
+// const adminData = ref(null);
 const passwordConfirmation = ref(null);
+const authenticated = ref(false);
+const check = ref({ password: '' });
 const apiUrl = 'http://localhost:8000/api/v1/admin/manage/users';
 const createUserDialog = ref(false);
+const editUserDialog = ref(false);
+const editUserInformationDialog = ref(false);
 const deleteUserDialog = ref(false);
 const deleteProductsDialog = ref(false);
 const user = ref({});
@@ -31,6 +36,7 @@ onBeforeMount(() => {
 });
 onMounted(() => {
     fetchData();
+    // getAdminData();
 });
 
 const fetchData = () => {
@@ -45,14 +51,32 @@ const fetchData = () => {
         });
 };
 
-const openNew = () => {
+// const getAdminData = () => {
+//     axios
+//         .get(`${apiUrl}/1`)
+//         .then((response) => {
+//             adminData.value = response.data;
+//         })
+//         .catch((error) => {
+//             console.error('Error fetching data:', error);
+//             toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to fetch data from the API', life: 3000 });
+//         });
+// };
+
+const openUserCreationMenu = () => {
     user.value = {};
+    passwordConfirmation.value = ref(null);
     submitted.value = false;
     createUserDialog.value = true;
 };
 
-const hideDialog = () => {
+const hideCreateUserDialog = () => {
     createUserDialog.value = false;
+    submitted.value = false;
+};
+
+const hideEditUserDialog = () => {
+    editUserInformationDialog.value = false;
     submitted.value = false;
 };
 
@@ -80,7 +104,7 @@ const createUser = () => {
                         summary: 'Sukses',
                         detail: `User: ${user.value.username} telah berhasil dibuat.`
                     });
-                    hideDialog();
+                    hideCreateUserDialog();
                 } else {
                     toast.add({
                         severity: 'error',
@@ -101,12 +125,91 @@ const createUser = () => {
     }
 };
 
-// const editUserMenu = (selectedUser) => {
-//     user.value = selectedUser;
-//     editUserDialog.value = true;
-// };
+const openEditUserInformationMenu = (selectedUser) => {
+    user.value = selectedUser;
+    editUserInformationDialog.value = true;
+};
 
-// const editUser = () => {};
+const confirmEditUser = () => {
+    editUserDialog.value = true;
+};
+
+const checkAdminPassword = (PasswordCheck) => {
+    axios
+        .post(`${apiUrl}/check`, PasswordCheck)
+        .then((response) => {
+            if (response.status === 200) {
+                editUser();
+            }
+        })
+        .catch((error) => {
+            // console.log(error);
+            if (error.response.status === 401) {
+                toast.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: `Password Admin Salah`,
+                    life: 3000
+                });
+            } else {
+                toast.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: `authentication error`,
+                    life: 3000
+                });
+            }
+        });
+};
+
+const editUser = () => {
+    submitted.value = true;
+    if (user.value.nama.trim() && user.value.email && user.value.telp) {
+        const newData = {
+            nama: user.value.nama,
+            alamat: user.value.alamat,
+            email: user.value.email,
+            telp: user.value.telp,
+            programName: 'Web API',
+            updatedBy: 'User Admin'
+        };
+        axios
+            .put(`${apiUrl}/${user.value.id}`, newData)
+            .then((response) => {
+                if (response.status === 200) {
+                    // Produk berhasil diubah di BE, tidak ada respons yang diharapkan dari BE
+                    toast.add({
+                        severity: 'success',
+                        summary: 'Sukses',
+                        detail: `User: ${user.value.username} telah berhasil diubah.`
+                    });
+                    check.value.password = '';
+                    authenticated.value = false;
+                    editUserDialog.value = false;
+                    hideEditUserDialog();
+                } else {
+                    toast.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: `informasi user: ${user.value.username} gagal diubah (errcode: ${response.status})`,
+                        life: 3000
+                    });
+                    check.value.password = '';
+                    authenticated.value = false;
+                }
+            })
+            .catch((error) => {
+                toast.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: `User gagal dibubah (errcode: ${error.status})`,
+                    life: 3000
+                });
+                check.value.password = '';
+                authenticated.value = false;
+            });
+    }
+};
 
 const confirmDeleteUser = (selectedUser) => {
     user.value = selectedUser;
@@ -130,39 +233,39 @@ const deleteUser = () => {
         });
 };
 
-const findIndexById = (id) => {
-    let index = -1;
-    for (let i = 0; i < loadedData.value.length; i++) {
-        if (loadedData.value[i].id === id) {
-            index = i;
-            break;
-        }
-    }
-    return index;
-};
+// const findIndexById = (id) => {
+//     let index = -1;
+//     for (let i = 0; i < loadedData.value.length; i++) {
+//         if (loadedData.value[i].id === id) {
+//             index = i;
+//             break;
+//         }
+//     }
+//     return index;
+// };
 
-const createId = () => {
-    let id = '';
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    for (let i = 0; i < 5; i++) {
-        id += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return id;
-};
+// const createId = () => {
+//     let id = '';
+//     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+//     for (let i = 0; i < 5; i++) {
+//         id += chars.charAt(Math.floor(Math.random() * chars.length));
+//     }
+//     return id;
+// };
 
 const exportCSV = () => {
     dt.value.exportCSV();
 };
 
-const confirmDeleteSelected = () => {
-    deleteProductsDialog.value = true;
-};
-const deleteSelectedProducts = () => {
-    loadedData.value = loadedData.value.filter((val) => !selectedProducts.value.includes(val));
-    deleteProductsDialog.value = false;
-    selectedProducts.value = null;
-    toast.add({ severity: 'success', summary: 'Successful', detail: 'Products Deleted', life: 3000 });
-};
+// const confirmDeleteSelected = () => {
+//     deleteProductsDialog.value = true;
+// };
+// const deleteSelectedProducts = () => {
+//     loadedData.value = loadedData.value.filter((val) => !selectedProducts.value.includes(val));
+//     deleteProductsDialog.value = false;
+//     selectedProducts.value = null;
+//     toast.add({ severity: 'success', summary: 'Successful', detail: 'Products Deleted', life: 3000 });
+// };
 
 const initFilters = () => {
     filters.value = {
@@ -179,7 +282,7 @@ const initFilters = () => {
                 <Toolbar class="mb-4">
                     <template v-slot:start>
                         <div class="my-2">
-                            <Button label="Create New User" icon="pi pi-user-plus" class="p-button-success mr-2" @click="openNew" />
+                            <Button label="Create New User" icon="pi pi-user-plus" class="p-button-success mr-2" @click="openUserCreationMenu" />
                         </div>
                     </template>
 
@@ -256,8 +359,9 @@ const initFilters = () => {
                     </Column> -->
                     <Column header="Actions" headerStyle="width:30%; min-width:10rem;">
                         <template #body="slotProps">
-                            <Button icon="pi pi-user-edit" class="p-button-rounded p-button-warning mt-2 mr-1 ml-1" @click="editUserMenu(slotProps.data)" />
-                            <Button icon="pi pi-user-minus" class="p-button-rounded p-button-danger mt-2 mr-1 ml-1" @click="confirmDeleteUser(slotProps.data)" />
+                            <Button icon="pi pi-user-edit" class="p-button-secondary mt-2 mr-1 ml-1" label="Edit Information" @click="openEditUserInformationMenu(slotProps.data)" />
+                            <!-- <Button icon="pi pi-undo" class="p-button-warning mt-1 mr-1 ml-1" label="Reset Password" @click="resetUserPassword(slotProps.data)" /> -->
+                            <Button icon="pi pi-user-minus" class="p-button-danger mt-2 mr-1 ml-1" label="Delete User" @click="confirmDeleteUser(slotProps.data)" />
                         </template>
                     </Column>
                 </DataTable>
@@ -306,61 +410,62 @@ const initFilters = () => {
                         <small class="p-invalid" v-if="submitted && !user.telp">Nomor telepon tidak boleh kosong.</small>
                     </div>
 
-                    <!-- <div class="field">
-                        <label for="inventoryStatus" class="mb-3">Inventory Status</label>
-                        <Dropdown id="inventoryStatus" v-model="users.inventoryStatus" :options="statuses" optionLabel="label" placeholder="Select a Status">
-                            <template #value="slotProps">
-                                <div v-if="slotProps.value && slotProps.value.value">
-                                    <span :class="'product-badge status-' + slotProps.value.value">{{ slotProps.value.label }}</span>
-                                </div>
-                                <div v-else-if="slotProps.value && !slotProps.value.value">
-                                    <span :class="'product-badge status-' + slotProps.value.toLowerCase()">{{ slotProps.value }}</span>
-                                </div>
-                                <span v-else>
-                                    {{ slotProps.placeholder }}
-                                </span>
-                            </template>
-                        </Dropdown>
-                    </div>
-
-                    <div class="field">
-                        <label class="mb-3">Category</label>
-                        <div class="formgrid grid">
-                            <div class="field-radiobutton col-6">
-                                <RadioButton id="category1" name="category" value="Accessories" v-model="users.category" />
-                                <label for="category1">Accessories</label>
-                            </div>
-                            <div class="field-radiobutton col-6">
-                                <RadioButton id="category2" name="category" value="Clothing" v-model="users.category" />
-                                <label for="category2">Clothing</label>
-                            </div>
-                            <div class="field-radiobutton col-6">
-                                <RadioButton id="category3" name="category" value="Electronics" v-model="users.category" />
-                                <label for="category3">Electronics</label>
-                            </div>
-                            <div class="field-radiobutton col-6">
-                                <RadioButton id="category4" name="category" value="Fitness" v-model="users.category" />
-                                <label for="category4">Fitness</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="formgrid grid">
-                        <div class="field col">
-                            <label for="price">Price</label>
-                            <InputNumber id="price" v-model="users.price" mode="currency" currency="USD" locale="en-US" :class="{ 'p-invalid': submitted && !users.price }" :required="true" />
-                            <small class="p-invalid" v-if="submitted && !users.price">Price is required.</small>
-                        </div>
-                        <div class="field col">
-                            <label for="quantity">Quantity</label>
-                            <InputNumber id="quantity" v-model="users.quantity" integeronly />
-                        </div>
-                    </div> -->
                     <template #footer>
-                        <Button label="Cancel" icon="pi pi-times" class="p-button-danger p-button-text" @click="hideDialog" />
+                        <Button label="Cancel" icon="pi pi-times" class="p-button-danger p-button-text" @click="hideCreateUserDialog" />
                         <Button label="Create" icon="pi pi-check" class="p-button-text" @click="createUser" />
                     </template>
                 </Dialog>
+
+                <Dialog v-model:visible="editUserDialog" :style="{ width: '450px', height: '400px' }" header="Confirm" :modal="true">
+                    <div class="flex align-items-center justify-content-center">
+                        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
+                        <span v-if="user"
+                            >Are you sure you want to edit <b>{{ user.username }}</b> information ? please enter user admin password to confirm
+                        </span>
+                    </div>
+                    <div class="flex align-items-center mt-4 justify-content-center">
+                        <InputText id="adminPassword" type="password" v-model="check.password" required="true" placeholder="Admin Password" autofocus :class="{ 'p-invalid': !check.password }" />
+                    </div>
+                    <div class="flex align-items-center mt-1 justify-content-center">
+                        <small class="p-invalid" v-if="!check.password">please enter the user admin password</small>
+                    </div>
+
+                    <template #footer>
+                        <Button label="Cancel" icon="pi pi-times" class="p-button-text" @click="editUserDialog = false" />
+                        <Button label="Confirm" icon="pi pi-check" class="p-button-text" @click="checkAdminPassword(check)" :class="{ 'p-disabled': !check.password }" />
+                    </template>
+                </Dialog>
+
+                <Dialog v-model:visible="editUserInformationDialog" :style="{ width: '450px' }" header="Edit User Information" :modal="true" class="p-fluid">
+                    <div class="field">
+                        <label for="nama">Nama</label>
+                        <InputText id="name" v-model.trim="user.nama" required="true" autofocus :class="{ 'p-invalid': submitted && !user.nama }" />
+                        <small class="p-invalid" v-if="submitted && !user.nama">Nama tidak boleh kosong.</small>
+                    </div>
+                    <div class="field">
+                        <label for="alamat">alamat</label>
+                        <Textarea id="alamat" v-model="user.alamat" required="false" rows="4" cols="20" />
+                    </div>
+                    <div class="field">
+                        <label for="email">Email</label>
+                        <InputText id="email" v-model.trim="user.email" required="true" autofocus :class="{ 'p-invalid': submitted && !user.email }" />
+                        <small class="p-invalid" v-if="submitted && !user.email">E-Mail tidak boleh kosong.</small>
+                    </div>
+                    <div class="field">
+                        <label for="telp">No. Telepon</label>
+                        <InputText id="telp" v-model.trim="user.telp" required="true" autofocus :class="{ 'p-invalid': submitted && !user.telp }" />
+                        <small class="p-invalid" v-if="submitted && !user.telp">Nomor telepon tidak boleh kosong.</small>
+                    </div>
+
+                    <template #footer>
+                        <Button label="Cancel" icon="pi pi-times" class="p-button-danger p-button-text" @click="hideEditUserDialog" />
+                        <Button label="Edit" icon="pi pi-check" class="p-button-success p-button-text" @click="confirmEditUser" />
+                    </template>
+                </Dialog>
+
+                <!-- <Dialog v-model:visible="resetUserPasswordDialog" :style="{ width: '450px' }" header="Create User" :modal="true" class="p-fluid">
+
+                </Dialog> -->
 
                 <Dialog v-model:visible="deleteUserDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
                     <div class="flex align-items-center justify-content-center">
@@ -375,58 +480,6 @@ const initFilters = () => {
                         <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteUser" />
                     </template>
                 </Dialog>
-
-                <Dialog v-model:visible="editUserDialog" :style="{ width: '450px' }" header="Edit User" :modal="true" class="p-fluid">
-                    <div class="field">
-                        <label for="username">Username</label>
-                        <InputText id="username" v-model.trim="user.username" required="true" autofocus :class="{ 'p-invalid': submitted && !user.username }" />
-                        <small class="p-invalid" v-if="submitted && !user.username">Username is Required.</small>
-                    </div>
-                    <div class="field">
-                        <label for="password">Password</label>
-                        <InputText id="password" type="password" v-model.trim="user.password" required="true" autofocus :class="{ 'p-invalid': (submitted && !user.password) || (submitted && user.password.length < 6) }" />
-                        <small class="p-invalid" v-if="(submitted && !user.password) || (submitted && user.password.length < 6)">please enter a valid password (min.length: 6)</small>
-                    </div>
-                    <div class="field">
-                        <label for="passwordConfirm">Confirm Password</label>
-                        <InputText id="passwordConfirmation" type="password" v-model.trim="passwordConfirmation" required="true" autofocus :class="{ 'p-invalid': (submitted && !passwordConfirmation) || passwordConfirmation !== user.password }" />
-                        <small class="p-invalid" v-if="submitted && !passwordConfirmation">Please confirm your password above</small>
-                        <small class="p-invalid" v-else-if="passwordConfirmation !== user.password">password doesn't match</small>
-                    </div>
-                    <div class="field">
-                        <label for="nama">Nama</label>
-                        <InputText id="name" v-model.trim="user.nama" required="true" autofocus :class="{ 'p-invalid': submitted && !user.nama }" />
-                        <small class="p-invalid" v-if="submitted && !user.nama">Nama tidak boleh kosong.</small>
-                    </div>
-                    <div class="field">
-                        <label for="alamat">alamat</label>
-                        <Textarea id="alamat" v-model="user.alamat" required="false" rows="4" cols="20" />
-                    </div>
-                    <div class="field">
-                        <label for="email">Email</label>
-                        <InputText id="email" v-model.trim="user.email" required="true" autofocus :class="{ 'p-invalid': submitted && !user.nama }" />
-                        <small class="p-invalid" v-if="submitted && !user.email">E-Mail tidak boleh kosong.</small>
-                    </div>
-                    <div class="field">
-                        <label for="telp">No. Telepon</label>
-                        <InputText id="telp" v-model.trim="user.telp" required="true" autofocus :class="{ 'p-invalid': submitted && !user.nama }" />
-                        <small class="p-invalid" v-if="submitted && !user.telp">Nomor telepon tidak boleh kosong.</small>
-                    </div>
-                    <template #footer>
-                        <Button label="Cancel" icon="pi pi-times" class="p-button-danger p-button-text" @click="hideDialog" />
-                        <Button label="Edit" icon="pi pi-check" class="p-button-success p-button-text" @click="editUser" />
-                    </template>
-                </Dialog>
-                <!-- <Dialog v-model:visible="deleteProductsDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
-                    <div class="flex align-items-center justify-content-center">
-                        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-                        <span v-if="users">Are you sure you want to delete the selected products?</span>
-                    </div>
-                    <template #footer>
-                        <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteProductsDialog = false" />
-                        <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteSelectedProducts" />
-                    </template>
-                </Dialog> -->
             </div>
         </div>
     </div>

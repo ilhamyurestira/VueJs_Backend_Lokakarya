@@ -140,5 +140,34 @@ class UserController implements IController {
       return res.status(500).send('gagal menghapus user.');
     }
   };
+
+  userAdmin = async (req: Request, res: Response): Promise<Response> => {
+    const { password } = req.body;
+
+    try {
+if (!password) {
+        return res.status(400).send('password belum diisi');
+      } else {
+        const user = await dm.findOne({
+          where: { username: 'useradmin' },
+        });
+
+        // check password
+        let compare = await Authentication.passwordCompare(
+          password,
+          user.password
+        );
+
+        // generate token
+        if (compare) {
+          return res.status(200).send("Password Confirmed");
+        }
+        return res.status(401).send('Wrong Password');
+      }
+    } catch (err) {
+      console.log(err);
+      return res.status(500).send('authentication error');
+    }
+  }
 }
 export default new UserController();
