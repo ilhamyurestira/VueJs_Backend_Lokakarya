@@ -59,8 +59,6 @@ class App {
     this.app.use('/api/v1/historyBank', HistoryTransaksiBankRoutes);
     this.app.use('/api/v1/transaksiNasabah', TransaksiNasabahRoutes);
     this.app.use('/api/v1/masterBank', MasterBankRoutes);
-    this.app.use('/api/v1/masterPelanggan', MasterPelangganRoutes);
-    this.app.use('/api/v1/transaksiTelkom', TransaksiTelkomRoutes);
     this.app.use('/api/v1/admin/manage/users', UserRoutes);
     this.app.use('/api/v1/admin/manage/roles', RoleRoutes);
     this.app.use('/api/v1/admin/manage/menus', MenuRoutes);

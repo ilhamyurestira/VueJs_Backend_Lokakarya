@@ -36,32 +36,18 @@ class TransaksiTelkomController implements IController {
     }
 
     async create(req: Request, res: Response): Promise<Response> {
-        const { userId, nama, no_telp, alamat } = req.body;
+        const { id_pelanggan, bulan_tagihan, tahun_tagihan, uang, status } = req.body;
 
         try {
-            const existingTransaksiTelkom = await db.transaksi_telkom.findOne({ where: { userId } });
-            if (existingTransaksiTelkom) {
-                return res.status(400).send('User ID sudah terdaftar');
-            }
-
-            // if (!norek) {
-            //     return res.status(400).send('Nomor rekening perlu diisi');
-            // }
-
-            const user = await db.user.findByPk(userId);
-
-            if (!user) {
-                return res.status(400).send(`User dengan id: ${userId} tidak ditemukan`);
-            }
-
             const newTransaksiTelkom = await db.transaksi_telkom.create({
-                userId: user.id,
-                nama: user.nama, // Ambil nama dari user
-                alamat: user.alamat, // Ambil alamat dari user
-                no_telp: user.telp, // Ambil noTlp dari user
+                id_pelanggan: id_pelanggan,
+                bulan_tagihan: bulan_tagihan,
+                tahun_tagihan: tahun_tagihan,
+                uang: uang,
+                status: status
             });
 
-            return res.status(200).send(`Master Pelanggan "${newTransaksiTelkom.nama}" berhasil ditambah`);
+            return res.status(200).send(`Transaksi Telpon "${newTransaksiTelkom.nama}" berhasil ditambah`);
         } catch (error) {
             console.error(error);
             return res.status(500).send('Data gagal ditambahkan');
@@ -71,7 +57,7 @@ class TransaksiTelkomController implements IController {
 
     async update(req: Request, res: Response): Promise<Response> {
         const { id } = req.params;
-        const { userId, nama, alamat, norek, noTlp, saldo, created_at, updated_at } = req.body;
+        const { id_pelanggan, bulan_tagihan, tahun_tagihan, uang, status } = req.body;
 
         try {
             const transaksiTelkom = await db.transaksi_telkom.findByPk(id);
@@ -81,17 +67,14 @@ class TransaksiTelkomController implements IController {
 
             const currentNama = transaksiTelkom.nama;
             await transaksiTelkom.update({
-                userId,
-                nama,
-                alamat,
-                norek,
-                noTlp,
-                saldo,
-                created_at,
-                updated_at,
+                id_pelanggan,
+                bulan_tagihan,
+                tahun_tagihan,
+                uang,
+                status
             });
 
-            return res.status(200).send(`Master Pelanggan "${currentNama}" berhasil diubah.`);
+            return res.status(200).send(`Transaksi Telpon "${currentNama}" berhasil diubah.`);
         } catch (error) {
             console.error(error);
             return res.status(500).send('Gagal mengubah data master pelanggan.');
@@ -104,15 +87,15 @@ class TransaksiTelkomController implements IController {
         try {
             const transaksiTelkom = await db.transaksi_telkom.findByPk(id);
             if (!transaksiTelkom) {
-                return res.status(404).send(`Master Pelangan dengan id: ${id} tidak ditemukan.`);
+                return res.status(404).send(`Transaksi Telpon dengan id: ${id} tidak ditemukan.`);
             }
 
             const currentNama = transaksiTelkom.nama;
             await transaksiTelkom.destroy();
-            return res.status(200).send(`Master Pelangan "${currentNama}" berhasil dihapus.`);
+            return res.status(200).send(`Transaksi Telpon "${currentNama}" berhasil dihapus.`);
         } catch (error) {
             console.error(error);
-            return res.status(500).send('Gagal menghapus data master pelangan.');
+            return res.status(500).send('Gagal menghapus data Transaksi Telpon.');
         }
     }
 
