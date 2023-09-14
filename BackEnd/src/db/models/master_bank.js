@@ -22,7 +22,7 @@ module.exports = (sequelize, DataTypes) => {
     alamat: DataTypes.STRING,
     norek: DataTypes.INTEGER,
     noTlp: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       field: 'noTlp' // Atur nama kolom sesuai yang digunakan di database
     },
     saldo: DataTypes.INTEGER

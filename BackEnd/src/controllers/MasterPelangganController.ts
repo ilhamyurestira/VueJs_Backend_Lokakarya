@@ -39,12 +39,12 @@ class MasterPelangganController implements IController {
         const { userId, nama, no_telp, alamat } = req.body;
 
         try {
-            const existingMasterPelanggan = await db.master_pelanggan.findOne({ where: { userId } });
-            if (existingMasterPelanggan) {
-                return res.status(400).send(`Data pelanggan dengan userId: ${userId} sudah ada`);
-            }
+            // const existingMasterPelanggan = await db.master_pelanggan.findOne({ where: { userId } });
+            // if (existingMasterPelanggan) {
+            //     return res.status(400).send(`Data pelanggan dengan userId: ${userId} sudah ada`);
+            // }
 
-            let user = await db.user.findByPk(userId);
+            const user = await db.user.findByPk(userId);
 
             if (!user) {
                 return res.status(400).send(`Data pelanggan dengan userId: ${userId} belum ada di tabel user`);
@@ -52,10 +52,10 @@ class MasterPelangganController implements IController {
 
 
             const newMasterPelanggan = await db.master_pelanggan.create({
-                userId: userId,
-                nama: nama, // Ambil nama dari user
-                alamat: alamat, // Ambil alamat dari user
-                no_telp: no_telp, // Ambil noTlp dari user
+                userId: user.id,
+                nama: user.nama,
+                alamat: user.alamat,
+                no_telp: user.telp,
             });
 
             return res.status(200).send(`Master Pelanggan "${newMasterPelanggan.nama}" berhasil ditambah`);

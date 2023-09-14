@@ -1,30 +1,21 @@
 <script setup>
 import { FilterMatchMode } from 'primevue/api';
 import { ref, onMounted, onBeforeMount } from 'vue';
-import ProductService from '@/service/ProductService';
 import { useToast } from 'primevue/usetoast';
 
 import axios from 'axios'; // Import Axios
 
 const toast = useToast();
 
-const products = ref([]);
+const datas = ref([]);
 const apiUrl = 'http://localhost:8000/api/v1/masterBank'; // Replace with your API URL
-const productDialog = ref(false);
-const deleteProductDialog = ref(false);
-const deleteProductsDialog = ref(false);
-const product = ref({});
-const selectedProducts = ref(null);
+const dataDialog = ref(false);
+const deleteDialog = ref(false);
+const data = ref({});
+const selecteddatas = ref(null);
 const dt = ref(null);
 const filters = ref({});
 const submitted = ref(false);
-const statuses = ref([
-    { label: 'INSTOCK', value: 'instock' },
-    { label: 'LOWSTOCK', value: 'lowstock' },
-    { label: 'OUTOFSTOCK', value: 'outofstock' }
-]);
-
-const productService = new ProductService();
 
 onBeforeMount(() => {
     initFilters();
@@ -32,15 +23,32 @@ onBeforeMount(() => {
 // Fetch data from the API on component mount
 onMounted(() => {
     fetchData();
+    fetchUsers();
 });
 const formatCurrency = (value) => {
     return value.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' });
 };
 
+const usersList = ref([]);
+
+const fetchUsers = () => {
+    axios
+        .get('http://localhost:8000/api/v1/admin/manage/users')
+        .then((response) => {
+            // Response dari API berisi daftar pengguna
+            const users = response.data; // Asumsikan API mengembalikan array objek pengguna
+            // Assign daftar pengguna ke variabel di dalam data
+            usersList.value = users;
+        })
+        .catch((error) => {
+            console.error('Error fetching users:', error);
+        });
+};
+
 const fetchData = () => {
     axios.get(apiUrl)
         .then((response) => {
-            products.value = response.data; // Assuming your API response is an array of products
+            datas.value = response.data; // Assuming your API response is an array of datas
         })
         .catch((error) => {
             console.error('Error fetching data:', error);
@@ -49,86 +57,124 @@ const fetchData = () => {
 };
 
 const openNew = () => {
-    product.value = {};
+    data.value = {};
     submitted.value = false;
-    productDialog.value = true;
+    dataDialog.value = true;
 };
 
 const hideDialog = () => {
-    productDialog.value = false;
+    dataDialog.value = false;
     submitted.value = false;
+    data.value = {};
 };
 
-const saveProduct = () => {
+const saveRekening = () => {
     submitted.value = true;
-    if (product.value.name && product.value.name.trim() && product.value.price) {
-        if (product.value.id) {
-            product.value.inventoryStatus = product.value.inventoryStatus.value ? product.value.inventoryStatus.value : product.value.inventoryStatus;
-            products.value[findIndexById(product.value.id)] = product.value;
-            toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Updated', life: 3000 });
-        } else {
-            product.value.id = createId();
-            product.value.code = createId();
-            product.value.image = 'product-placeholder.svg';
-            product.value.inventoryStatus = product.value.inventoryStatus ? product.value.inventoryStatus.value : 'INSTOCK';
-            products.value.push(product.value);
-            toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Created', life: 3000 });
-        }
-        productDialog.value = false;
-        product.value = {};
+    if (data.value.userId && data.value.saldo >= 100000) {
+        // Validasi saldo minimal 100000
+        const newData = {
+            userId: data.value.userId,
+            saldo: parseInt(data.value.saldo),
+        };
+
+        // Kirim permintaan POST ke BE
+        axios
+            .post(`${apiUrl}/tambah`, newData)
+            .then((response) => {
+                const data = response.data;
+                if (response.status === 200) {
+                    toast.add({
+                        severity: 'success',
+                        summary: 'Sukses',
+                        detail: `Rekening atas nama "${data.nama}" berhasil dibuat`,
+                        life: 3000,
+                    });
+                    fetchData(); // Refresh data
+                } else {
+                    toast.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: `Rekening gagal dibuat`,
+                        life: 3000,
+                    });
+                }
+            })
+            .catch((error) => {
+                toast.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: `Rekening gagal dibuat`,
+                    life: 3000,
+                });
+            });
+        dataDialog.value = false;
+        data.value = {};
     }
 };
 
-const editProduct = (editProduct) => {
-    product.value = { ...editProduct };
-    console.log(product);
-    productDialog.value = true;
-};
+const formatPhoneNumber = (phoneNumber) => {
+    // Hapus karakter non-digit dari nomor telepon
+    const cleanedPhoneNumber = phoneNumber.replace(/\D/g, '');
 
-const confirmDeleteProduct = (editProduct) => {
-    product.value = editProduct;
-    deleteProductDialog.value = true;
-};
-
-const deleteProduct = () => {
-    products.value = products.value.filter((val) => val.id !== product.value.id);
-    deleteProductDialog.value = false;
-    product.value = {};
-    toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Deleted', life: 3000 });
-};
-
-const findIndexById = (id) => {
-    let index = -1;
-    for (let i = 0; i < products.value.length; i++) {
-        if (products.value[i].id === id) {
-            index = i;
-            break;
-        }
+    // Format nomor telepon sesuai dengan format yang berlaku di Indonesia
+    if (cleanedPhoneNumber.length === 11) {
+        // Format untuk nomor telepon dengan kode area (contoh: "08123456789")
+        return cleanedPhoneNumber.replace(/(\d{4})(\d{3})(\d{4})/, '$1-$2-$3');
+    } else if (cleanedPhoneNumber.length === 12) {
+        // Format untuk nomor telepon dengan kode negara (contoh: "+628123456789")
+        return cleanedPhoneNumber.replace(/(\d{2})(\d{4})(\d{3})(\d{4})/, '+$1 $2-$3-$4');
+    } else {
+        return phoneNumber; // Kembalikan nomor asli jika tidak sesuai format
     }
-    return index;
 };
 
-const createId = () => {
-    let id = '';
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    for (let i = 0; i < 5; i++) {
-        id += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return id;
+const confirmDeleteRekening = (editdata) => {
+    data.value = editdata;
+    deleteDialog.value = true;
+};
+
+const deleteRekening = () => {
+    deleteRekeningById(data.value.id);
+    deleteDialog.value = false;
+    data.value = {};
+};
+
+const deleteRekeningById = (id) => {
+    axios
+        .delete(`${apiUrl}/hapus/${id}`)
+        .then((response) => {
+            if (response.status === 200) {
+                // Successful deletion
+                toast.add({
+                    severity: 'success',
+                    summary: 'Success',
+                    detail: 'data Deleted',
+                    life: 3000,
+                });
+                fetchData(); // Refresh the data after deletion
+            } else {
+                // Handle deletion failure
+                toast.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to delete data',
+                    life: 3000,
+                });
+            }
+        })
+        .catch((error) => {
+            // Handle API request error
+            toast.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Failed to delete data',
+                life: 3000,
+            });
+        });
 };
 
 const exportCSV = () => {
     dt.value.exportCSV();
-};
-
-const confirmDeleteSelected = () => {
-    deleteProductsDialog.value = true;
-};
-const deleteSelectedProducts = () => {
-    products.value = products.value.filter((val) => !selectedProducts.value.includes(val));
-    deleteProductsDialog.value = false;
-    selectedProducts.value = null;
-    toast.add({ severity: 'success', summary: 'Successful', detail: 'Products Deleted', life: 3000 });
 };
 
 const initFilters = () => {
@@ -155,12 +201,11 @@ const initFilters = () => {
                 </Toolbar>
 
                 <!-- Tabel data -->
-                <DataTable ref="dt" :value="products" v-model:selection="selectedProducts" dataKey="id" :paginator="true"
+                <DataTable ref="dt" :value="datas" v-model:selection="selecteddatas" dataKey="id" :paginator="true"
                     :rows="10" :filters="filters"
                     paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                     :rowsPerPageOptions="[5, 10, 25]"
-                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
-                    responsiveLayout="scroll">
+                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} datas" responsiveLayout="scroll">
                     <template #header>
                         <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
                             <h5 class="m-0">Data Nasabah</h5>
@@ -172,6 +217,12 @@ const initFilters = () => {
                     </template>
 
                     <!-- <Column selectionMode="multiple" headerStyle="width: 3rem"></Column> -->
+                    <Column field="index" header="No" :sortable="false" headerStyle="width:5%; min-width:5rem;">
+                        <template #body="slotProps">
+                            <span class="p-column-title">N0</span>
+                            {{ slotProps.index + 1 }}
+                        </template>
+                    </Column>
                     <Column field="nama" header="Nama" :sortable="true" headerStyle="width20%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Nama</span>
@@ -181,7 +232,7 @@ const initFilters = () => {
                     <Column field="noTlp" header="No Telpon" :sortable="true" headerStyle="width:20%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">No Telpon</span>
-                            {{ slotProps.data.noTlp }}
+                            {{ formatPhoneNumber(slotProps.data.noTlp) }}
                         </template>
                     </Column>
                     <Column field="alamat" header="Alamat" :sortable="true" headerStyle="width:20%; min-width:10rem;">
@@ -199,72 +250,64 @@ const initFilters = () => {
                     <Column field="saldo" header="Saldo" :sortable="true" headerStyle="width:20%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Saldo</span>
-                            {{ formatCurrency(slotProps.data.saldo) }}
+                            {{ slotProps.data.saldo !== null ? formatCurrency(slotProps.data.saldo) : 'Rp 0' }}
                         </template>
                     </Column>
                     <Column header="Action" headerStyle="width:20%;min-width:10rem;">
                         <template #body="slotProps">
                             <!-- <Button icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2"
-                                @click="editProduct(slotProps.data)" /> -->
+                                @click="editdata(slotProps.data)" /> -->
                             <Button icon="pi pi-trash" class="p-button-rounded p-button-warning mt-2"
-                                @click="confirmDeleteProduct(slotProps.data)" />
+                                @click="confirmDeleteRekening(slotProps.data)" />
                         </template>
                     </Column>
                 </DataTable>
 
                 <!-- Dialog untuk tambah dan edit data -->
-                <Dialog v-model:visible="productDialog" :style="{ width: '450px' }" header="Detail Pelanggan" :modal="true"
+                <Dialog v-model:visible="dataDialog" :style="{ width: '450px' }" header="Buat Rekening Baru" :modal="true"
                     class="p-fluid">
-                    <!-- <img :src="'demo/images/product/' + product.image" :alt="product.image" v-if="product.image" width="150"
-                        class="mt-0 mx-auto mb-5 block shadow-2" /> -->
-                    <div class="field">
-                        <label for="idPelanggan">ID</label>
-                        <InputText id="idPelanggan" v-model.trim="product.idPelanggan" required="true" autofocus
-                            :class="{ 'p-invalid': submitted && !product.idPelanggan }" />
-                        <small class="p-invalid" v-if="submitted && !product.idPelanggan">ID harus di Isi.</small>
-                    </div>
                     <div class="field">
                         <label for="nama">Nama</label>
-                        <InputText id="nama" v-model.trim="product.nama" required="true" autofocus
-                            :class="{ 'p-invalid': submitted && !product.nama }" />
-                        <small class="p-invalid" v-if="submitted && !product.nama">Nama harus di Isi.</small>
+                        <Dropdown v-model="data.userId" optionLabel="nama" optionValue="id" :options="usersList"
+                            placeholder="Pilih User" required="true" autofocus
+                            :class="{ 'p-invalid': submitted && !data.userId }" />
+                        <small class="p-invalid" v-if="submitted && !data.userId">Nama harus diisi.</small>
                     </div>
                     <div class="field">
-                        <label for="noTelp">No Telpon</label>
-                        <InputText id="noTelp" v-model.trim="product.noTelp" required="true" autofocus
-                            :class="{ 'p-invalid': submitted && !product.noTelp }" />
-                        <small class="p-invalid" v-if="submitted && !product.noTelp">No Telpon harus di Isi.</small>
-                    </div>
-                    <div class="field">
-                        <label for="alamat">Alamat</label>
-                        <Textarea id="alamat" v-model="product.alamat" required="true" rows="3" cols="20" />
+                        <label for="saldo">Saldo</label>
+                        <InputNumber v-model="data.saldo" inputId="currency-indonesia" mode="currency" currency="IDR"
+                            locale="id-ID" id="saldo" required="true" autofocus
+                            :class="{ 'p-invalid': submitted && (!data.saldo || data.saldo < 100000) }" />
+                        <small class="p-invalid" v-if="submitted && (!data.saldo || data.saldo < 100000)">Saldo harus diisi
+                            minimal 100.000.</small>
                     </div>
                     <template #footer>
-                        <Button label="Cancel" icon="pi pi-times" class="p-button-text" @click="hideDialog" />
-                        <Button label="Save" icon="pi pi-check" class="p-button-text" @click="saveProduct" />
+                        <Button label="Batal" icon="pi pi-times" class="p-button-text" @click="hideDialog" />
+                        <Button label="Simpan" icon="pi pi-check" class="p-button-text" @click="saveRekening" />
                     </template>
                 </Dialog>
 
                 <!-- Dialog untuk yakin hapus data -->
-                <Dialog v-model:visible="deleteProductDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
+                <Dialog v-model:visible="deleteDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
                     <div class="flex align-items-center justify-content-center">
                         <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-                        <span v-if="product">Are you sure you want to delete <b>{{ product.name }}</b>?</span>
+                        <span v-if="data">Are you sure you want to delete <b>{{ data.name }}</b>?</span>
                     </div>
                     <template #footer>
-                        <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteProductDialog = false" />
-                        <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteProduct" />
+                        <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteDialog = false" />
+                        <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteRekening" />
                     </template>
                 </Dialog>
 
-                <Dialog v-model:visible="deleteProductsDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
+                <Dialog v-model:visible="deleteDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
                     <div class="flex align-items-center justify-content-center">
                         <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-                        <span v-if="product">Are you sure you want to delete the selected products?</span>
+                        <span v-if="data">Apakah kamu yakin menghapus Rekening dengan Nomor Rekening : <b>{{ data.norek
+                        }}</b>?</span>
                     </div>
                     <template #footer>
-                        <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteProductsDialog = false" />
-                        <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteSelectedProducts" />
+                        <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteDialog = false" />
+                        <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteRekening" />
                     </template>
                 </Dialog>
             </div>

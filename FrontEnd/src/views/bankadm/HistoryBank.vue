@@ -172,6 +172,12 @@ const initFilters = () => {
                     </template>
 
                     <!-- <Column selectionMode="multiple" headerStyle="width: 3rem"></Column> -->
+                    <Column field="index" header="No" :sortable="false" headerStyle="width:5%; min-width:5rem;">
+                        <template #body="slotProps">
+                            <span class="p-column-title">N0</span>
+                            {{ slotProps.index + 1 }}
+                        </template>
+                    </Column>
                     <Column field="nama" header="Nama" :sortable="true" headerStyle="width:20%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Nama</span>

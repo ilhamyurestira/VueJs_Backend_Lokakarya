@@ -30,7 +30,7 @@ module.exports = {
         unique: true,
       },
       noTlp: {
-        type: Sequelize.INTEGER(9)
+        type: Sequelize.STRING(25)
       },
       saldo: {
         type: Sequelize.INTEGER(12)

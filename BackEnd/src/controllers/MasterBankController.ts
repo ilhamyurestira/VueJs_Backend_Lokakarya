@@ -37,33 +37,42 @@ class MasterBankController implements IController {
 
     async create(req: Request, res: Response): Promise<Response> {
         const { userId, saldo, created_at, updated_at } = req.body;
-
+    
+        // Validasi apakah saldo telah diisi
+        if (saldo === undefined || saldo === null) {
+            return res.status(400).send('Saldo harus diisi');
+        }
+    
+        // Validasi minimal saldo
+        const minimumSaldo = 100000;
+        if (saldo < minimumSaldo) {
+            return res.status(400).send(`Saldo harus minimal ${minimumSaldo}`);
+        }
+    
         try {
             // Generate a random 7-digit account number
             const newAccountNumber = generateRandomAccountNumber();
-
+    
             if (!newAccountNumber) {
                 return res.status(500).send('Gagal menghasilkan nomor rekening baru');
             }
-
+    
             const user = await db.user.findByPk(userId);
-
+    
             if (!user) {
                 return res.status(400).send(`User dengan id: ${userId} tidak ditemukan`);
             }
-
+    
             const newMasterBank = await db.master_bank.create({
                 userId: user.id,
                 nama: user.nama,
                 alamat: user.alamat,
                 noTlp: user.telp,
                 norek: newAccountNumber,
-                saldo,
-                created_at,
-                updated_at,
+                saldo
             });
-
-            return res.status(200).send(`Master Bank "${newMasterBank.nama}" telah ditambahkan dengan nomor rekening baru: ${newAccountNumber}`);
+    
+            return res.status(200).json(newMasterBank);
         } catch (error) {
             console.error(error);
             return res.status(500).send('Gagal menambahkan data master bank');
