@@ -50,24 +50,20 @@ class App {
       res.send(req.body);
     });
 
-    this.app.use('/api/v1/users', UserRoutes);
     this.app.use('/api/v1/auth', AuthRoutes);
     this.app.use('/api/v1/todos', TodoRoutes);
-    this.app.use('/api/v1/roles', RoleRoutes);
     this.app.use('/api/v1/nasabah', NasabahRouter);
     this.app.use('/api/v1/nasabah', BayarTelponRoutes);
     this.app.use('/api/v1/nasabah', TransferRoutes);
     this.app.use('/api/v1/historyBank', HistoryTransaksiBankRoutes);
     this.app.use('/api/v1/transaksiNasabah', TransaksiNasabahRoutes);
-    this.app.use('/api/v1/admin/manage/users', UserRoutes);
-    this.app.use('/api/v1/auth', AuthRoutes);
-    this.app.use('/api/v1/todos', TodoRoutes);
     this.app.use('/api/v1/masterBank', MasterBankRoutes);
+    this.app.use('/api/v1/masterPelanggan', MasterPelangganRoutes);
+    this.app.use('/api/v1/transaksiTelkom', TransaksiTelkomRoutes);
+    this.app.use('/api/v1/admin/manage/users', UserRoutes);
     this.app.use('/api/v1/admin/manage/roles', RoleRoutes);
     this.app.use('/api/v1/admin/manage/menus', MenuRoutes);
     this.app.use('/api/v1/admin/manage/hakAkses', HakAksesRoutes);
-    this.app.use('/api/v1/masterPelanggan', MasterPelangganRoutes);
-    this.app.use('/api/v1/transaksiTelkom', TransaksiTelkomRoutes);
     this.app.use('/api/v1/admin/manage/roleMenu', RoleMenuRoutes);
   }
 }

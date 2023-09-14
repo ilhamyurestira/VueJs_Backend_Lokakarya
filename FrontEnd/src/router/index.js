@@ -34,6 +34,36 @@ const router = createRouter({
                 //     component: () => import('@/views/uikit/InvalidState.vue')
                 // },
                 {
+                    path: '/useradm',
+                    name: 'userAdminMenu',
+                    component: () => import('@/views/userAdm/UserAdminMenu.vue')
+                },
+                {
+                    path: '/useradm/manage/menus',
+                    name: 'menuManager',
+                    component: () => import('@/views/userAdm/MenuManager.vue')
+                },
+                {
+                    path: '/useradm/manage/roles',
+                    name: 'roleManager',
+                    component: () => import('@/views/userAdm/RoleManager.vue')
+                },
+                {
+                    path: '/useradm/manage/roleMenus',
+                    name: 'roleMenuManager',
+                    component: () => import('@/views/userAdm/RoleMenuManager.vue')
+                },
+                {
+                    path: '/useradm/manage/hakAkses',
+                    name: 'hakAksesManager',
+                    component: () => import('@/views/userAdm/HakAksesManager.vue')
+                },
+                {
+                    path: '/useradm/manage/users',
+                    name: 'userManager',
+                    component: () => import('@/views/userAdm/UserManager.vue')
+                },
+                {
                     path: '/bankadm/masterBank',
                     name: 'masterBank',
                     component: () => import('@/views/bankadm/MasterBank.vue')
