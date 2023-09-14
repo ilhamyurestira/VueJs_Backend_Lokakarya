@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 const db = require('../db/models');
+const { master_bank, transaksi_nasabah, history_transaksi_bank } = require('../db/models/master_bank')
 
 class NasabahController {
   getSaldo = async (req: Request, res: Response): Promise<Response> => {
@@ -39,7 +40,35 @@ class NasabahController {
       // Update saldo nasabah di database
       await db.master_bank.update({ saldo: updatedSaldo }, { where: { norek } });
 
+      //input history ke tabel transaksi nasabah 
+      const tanggalTransaksi = new Date();
+      const setorNasabah = await db.transaksi_nasabah.create({
+        norek: nasabah.norek,
+        tanggal: tanggalTransaksi,
+        status: 'D',
+        uang: jumlah,
+        status_ket: 1,
+        norek_dituju: null,
+        no_tlp: nasabah.no_tlp,
+        created_at: tanggalTransaksi,
+        updated_at: tanggalTransaksi,
+      });
+
+      //input history ke history transasksi 
+      const setorHistory = await db.history_transaksi_bank.create({
+        norek: nasabah.norek,
+        tanggal: tanggalTransaksi,
+        uang: jumlah,
+        status_ket: 1,
+        norek_dituju: null,
+        no_tlp: nasabah.no_tlp,
+        nama: null,
+        created_at: tanggalTransaksi,
+        updated_at: tanggalTransaksi,
+      });
+
       return res.status(200).json({ message: `Saldo ${nasabah.nama} berhasil ditambahkan` });
+
     } catch (err) {
       console.error(err);
       return res.status(500).json({ error: 'Terjadi kesalahan saat menambahkan saldo nasabah' });
@@ -62,6 +91,33 @@ class NasabahController {
         // Mengurangkan saldo nasabah di database
         nasabah.saldo -= jumlah;
         await nasabah.save();
+
+        //input history ke tabel transaksi nasabah 
+      const tanggalTransaksi = new Date();
+      const setorNasabah = await db.transaksi_nasabah.create({
+        norek: nasabah.norek,
+        tanggal: tanggalTransaksi,
+        status: 'K',
+        uang: jumlah,
+        status_ket: 2,
+        norek_dituju: null,
+        no_tlp: nasabah.no_tlp,
+        created_at: tanggalTransaksi,
+        updated_at: tanggalTransaksi,
+      });
+
+      //input history ke history transasksi 
+      const setorHistory = await db.history_transaksi_bank.create({
+        norek: nasabah.norek,
+        tanggal: tanggalTransaksi,
+        uang: jumlah,
+        status_ket: 2,
+        norek_dituju: null,
+        no_tlp: nasabah.no_tlp,
+        nama: null,
+        created_at: tanggalTransaksi,
+        updated_at: tanggalTransaksi,
+      });
 
         return res.status(200).json({ message: `Saldo ${nasabah.nama} berhasil ditarik` });
       } else {
