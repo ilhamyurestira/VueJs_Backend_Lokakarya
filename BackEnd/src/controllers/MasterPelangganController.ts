@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import IController from "./Controller_Interface";
 const db = require('../db/models/');
 
-class MasterPelanggan implements IController {
+class MasterPelangganController implements IController {
 
     async index(req: Request, res: Response): Promise<Response> {
         try {
@@ -117,4 +117,4 @@ class MasterPelanggan implements IController {
     }
 
 }
-export default new MasterPelanggan();
+export default new MasterPelangganController();

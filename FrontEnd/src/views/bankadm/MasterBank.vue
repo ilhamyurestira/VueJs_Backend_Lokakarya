@@ -3,12 +3,13 @@ import { FilterMatchMode } from 'primevue/api';
 import { ref, onMounted, onBeforeMount } from 'vue';
 import ProductService from '@/service/ProductService';
 import { useToast } from 'primevue/usetoast';
+
 import axios from 'axios'; // Import Axios
 
 const toast = useToast();
 
-const products = ref(null);
-const apiUrl = 'http://localhost:8000/api/v1/masterPelanggan'; // Replace with your API URL
+const products = ref([]);
+const apiUrl = 'http://localhost:8000/api/v1/masterBank'; // Replace with your API URL
 const productDialog = ref(false);
 const deleteProductDialog = ref(false);
 const deleteProductsDialog = ref(false);
@@ -28,10 +29,13 @@ const productService = new ProductService();
 onBeforeMount(() => {
     initFilters();
 });
+// Fetch data from the API on component mount
 onMounted(() => {
-    // productService.getProducts().then((data) => (products.value = data));
     fetchData();
 });
+const formatCurrency = (value) => {
+    return value.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' });
+};
 
 const fetchData = () => {
     axios.get(apiUrl)
@@ -42,9 +46,6 @@ const fetchData = () => {
             console.error('Error fetching data:', error);
             toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to fetch data from the API', life: 3000 });
         });
-};
-const formatCurrency = (value) => {
-    return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
 };
 
 const openNew = () => {
@@ -146,7 +147,7 @@ const initFilters = () => {
                 <Toolbar class="mb-4">
                     <template v-slot:start>
                         <div class="my-2">
-                            <Button label="Tambah Pelanggan" icon="pi pi-plus" class="p-button-success mr-2"
+                            <Button label="Tambah Rekening" icon="pi pi-plus" class="p-button-success mr-2"
                                 @click="openNew" />
                         </div>
                     </template>
@@ -162,7 +163,7 @@ const initFilters = () => {
                     responsiveLayout="scroll">
                     <template #header>
                         <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-                            <h5 class="m-0">Data Pelanggan</h5>
+                            <h5 class="m-0">Data Nasabah</h5>
                             <span class="block mt-2 md:mt-0 p-input-icon-left">
                                 <i class="pi pi-search" />
                                 <InputText v-model="filters['global'].value" placeholder="Search..." />
@@ -171,13 +172,6 @@ const initFilters = () => {
                     </template>
 
                     <!-- <Column selectionMode="multiple" headerStyle="width: 3rem"></Column> -->
-                    <Column field="id" header="ID" :sortable="true"
-                        headerStyle="width:20%; min-width:10rem;has-text-centered">
-                        <template #body="slotProps">
-                            <span class="p-column-title">ID</span>
-                            {{ slotProps.data.id }}
-                        </template>
-                    </Column>
                     <Column field="nama" header="Nama" :sortable="true" headerStyle="width20%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Nama</span>
@@ -187,13 +181,25 @@ const initFilters = () => {
                     <Column field="noTlp" header="No Telpon" :sortable="true" headerStyle="width:20%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">No Telpon</span>
-                            {{ slotProps.data.no_telp }}
+                            {{ slotProps.data.noTlp }}
                         </template>
                     </Column>
                     <Column field="alamat" header="Alamat" :sortable="true" headerStyle="width:20%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Alamat</span>
                             {{ slotProps.data.alamat }}
+                        </template>
+                    </Column>
+                    <Column field="norek" header="No Rekening" :sortable="true" headerStyle="width:20%; min-width:10rem;">
+                        <template #body="slotProps">
+                            <span class="p-column-title">No Rekening</span>
+                            {{ slotProps.data.norek }}
+                        </template>
+                    </Column>
+                    <Column field="saldo" header="Saldo" :sortable="true" headerStyle="width:20%; min-width:10rem;">
+                        <template #body="slotProps">
+                            <span class="p-column-title">Saldo</span>
+                            {{ formatCurrency(slotProps.data.saldo) }}
                         </template>
                     </Column>
                     <Column header="Action" headerStyle="width:20%;min-width:10rem;">
