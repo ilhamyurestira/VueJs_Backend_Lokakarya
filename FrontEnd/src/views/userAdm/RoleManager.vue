@@ -9,7 +9,7 @@ import axios from 'axios'; // Import Axios
 const toast = useToast();
 
 const products = ref([]);
-const apiUrl = 'http://localhost:8000/api/v1/masterBank'; // Replace with your API URL
+const apiUrl = 'http://localhost:8000/api/v1/admin/manage/roles'; // Replace with your API URL
 const productDialog = ref(false);
 const deleteProductDialog = ref(false);
 const deleteProductsDialog = ref(false);
@@ -38,7 +38,8 @@ const formatCurrency = (value) => {
 };
 
 const fetchData = () => {
-    axios.get(apiUrl)
+    axios
+        .get(apiUrl)
         .then((response) => {
             products.value = response.data; // Assuming your API response is an array of products
         })
@@ -147,20 +148,25 @@ const initFilters = () => {
                 <Toolbar class="mb-4">
                     <template v-slot:start>
                         <div class="my-2">
-                            <Button label="Buat Rekening" icon="pi pi-plus" class="p-button-success mr-2"
-                                @click="openNew" />
+                            <Button label="Tambah Rekening" icon="pi pi-plus" class="p-button-success mr-2" @click="openNew" />
                         </div>
                     </template>
-
                 </Toolbar>
 
                 <!-- Tabel data -->
-                <DataTable ref="dt" :value="products" v-model:selection="selectedProducts" dataKey="id" :paginator="true"
-                    :rows="10" :filters="filters"
+                <DataTable
+                    ref="dt"
+                    :value="products"
+                    v-model:selection="selectedProducts"
+                    dataKey="id"
+                    :paginator="true"
+                    :rows="10"
+                    :filters="filters"
                     paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                     :rowsPerPageOptions="[5, 10, 25]"
                     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
-                    responsiveLayout="scroll">
+                    responsiveLayout="scroll"
+                >
                     <template #header>
                         <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
                             <h5 class="m-0">Data Nasabah</h5>
@@ -204,35 +210,29 @@ const initFilters = () => {
                     </Column>
                     <Column header="Action" headerStyle="width:20%;min-width:10rem;">
                         <template #body="slotProps">
-                            <!-- <Button icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2"
-                                @click="editProduct(slotProps.data)" /> -->
-                            <Button icon="pi pi-trash" class="p-button-rounded p-button-warning mt-2"
-                                @click="confirmDeleteProduct(slotProps.data)" />
+                            <Button icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" @click="editProduct(slotProps.data)" />
+                            <Button icon="pi pi-trash" class="p-button-rounded p-button-warning mt-2" @click="confirmDeleteProduct(slotProps.data)" />
                         </template>
                     </Column>
                 </DataTable>
 
                 <!-- Dialog untuk tambah dan edit data -->
-                <Dialog v-model:visible="productDialog" :style="{ width: '450px' }" header="Detail Pelanggan" :modal="true"
-                    class="p-fluid">
+                <Dialog v-model:visible="productDialog" :style="{ width: '450px' }" header="Detail Pelanggan" :modal="true" class="p-fluid">
                     <!-- <img :src="'demo/images/product/' + product.image" :alt="product.image" v-if="product.image" width="150"
                         class="mt-0 mx-auto mb-5 block shadow-2" /> -->
                     <div class="field">
                         <label for="idPelanggan">ID</label>
-                        <InputText id="idPelanggan" v-model.trim="product.idPelanggan" required="true" autofocus
-                            :class="{ 'p-invalid': submitted && !product.idPelanggan }" />
+                        <InputText id="idPelanggan" v-model.trim="product.idPelanggan" required="true" autofocus :class="{ 'p-invalid': submitted && !product.idPelanggan }" />
                         <small class="p-invalid" v-if="submitted && !product.idPelanggan">ID harus di Isi.</small>
                     </div>
                     <div class="field">
                         <label for="nama">Nama</label>
-                        <InputText id="nama" v-model.trim="product.nama" required="true" autofocus
-                            :class="{ 'p-invalid': submitted && !product.nama }" />
+                        <InputText id="nama" v-model.trim="product.nama" required="true" autofocus :class="{ 'p-invalid': submitted && !product.nama }" />
                         <small class="p-invalid" v-if="submitted && !product.nama">Nama harus di Isi.</small>
                     </div>
                     <div class="field">
                         <label for="noTelp">No Telpon</label>
-                        <InputText id="noTelp" v-model.trim="product.noTelp" required="true" autofocus
-                            :class="{ 'p-invalid': submitted && !product.noTelp }" />
+                        <InputText id="noTelp" v-model.trim="product.noTelp" required="true" autofocus :class="{ 'p-invalid': submitted && !product.noTelp }" />
                         <small class="p-invalid" v-if="submitted && !product.noTelp">No Telpon harus di Isi.</small>
                     </div>
                     <div class="field">
@@ -249,7 +249,10 @@ const initFilters = () => {
                 <Dialog v-model:visible="deleteProductDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
                     <div class="flex align-items-center justify-content-center">
                         <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-                        <span v-if="product">Are you sure you want to delete <b>{{ product.name }}</b>?</span>
+                        <span v-if="product"
+                            >Are you sure you want to delete <b>{{ product.name }}</b
+                            >?</span
+                        >
                     </div>
                     <template #footer>
                         <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteProductDialog = false" />

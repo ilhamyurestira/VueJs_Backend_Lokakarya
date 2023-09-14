@@ -41,24 +41,21 @@ class MasterPelangganController implements IController {
         try {
             const existingMasterPelanggan = await db.master_pelanggan.findOne({ where: { userId } });
             if (existingMasterPelanggan) {
-                return res.status(400).send('User ID sudah terdaftar');
+                return res.status(400).send(`Data pelanggan dengan userId: ${userId} sudah ada`);
             }
 
-            // if (!norek) {
-            //     return res.status(400).send('Nomor rekening perlu diisi');
-            // }
-
-            const user = await db.user.findByPk(userId);
+            let user = await db.user.findByPk(userId);
 
             if (!user) {
-                return res.status(400).send(`User dengan id: ${userId} tidak ditemukan`);
+                return res.status(400).send(`Data pelanggan dengan userId: ${userId} belum ada di tabel user`);
             }
 
+
             const newMasterPelanggan = await db.master_pelanggan.create({
-                userId: user.id,
-                nama: user.nama, // Ambil nama dari user
-                alamat: user.alamat, // Ambil alamat dari user
-                no_telp: user.telp, // Ambil noTlp dari user
+                userId: userId,
+                nama: nama, // Ambil nama dari user
+                alamat: alamat, // Ambil alamat dari user
+                no_telp: no_telp, // Ambil noTlp dari user
             });
 
             return res.status(200).send(`Master Pelanggan "${newMasterPelanggan.nama}" berhasil ditambah`);
@@ -71,7 +68,7 @@ class MasterPelangganController implements IController {
 
     async update(req: Request, res: Response): Promise<Response> {
         const { id } = req.params;
-        const { userId, nama, alamat, norek, noTlp, saldo, created_at, updated_at } = req.body;
+        const { userId, nama, no_telp, alamat } = req.body;
 
         try {
             const masterPelanggan = await db.master_pelanggan.findByPk(id);
@@ -83,12 +80,8 @@ class MasterPelangganController implements IController {
             await masterPelanggan.update({
                 userId,
                 nama,
+                no_telp,
                 alamat,
-                norek,
-                noTlp,
-                saldo,
-                created_at,
-                updated_at,
             });
 
             return res.status(200).send(`Master Pelanggan "${currentNama}" berhasil diubah.`);
