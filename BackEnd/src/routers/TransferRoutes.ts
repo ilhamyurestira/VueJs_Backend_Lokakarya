@@ -7,5 +7,6 @@ const TransferRoutes = Router();
 
 // Rute untuk pembayaran telpon
 TransferRoutes.post("/transfer", TransferController.transfer);
+TransferRoutes.get('/accountInfo/:nomorRekening', TransferController.getAccountInfo);
 
 export default TransferRoutes;

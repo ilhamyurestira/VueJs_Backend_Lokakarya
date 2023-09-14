@@ -21,36 +21,37 @@ class TransferController implements IController {
       });
 
 
-      // Dapatkan data penerima transfer
-      const penerimaTransfer = await db.master_bank.findOne({
-        where: { norek: nomorRekeningPenerima },
-      });
+  // Dapatkan data penerima transfer
+  const penerimaTransfer = await db.master_bank.findOne({
+    where: { norek: nomorRekeningPenerima },
+  });
 
 
-      if (!pemilikRekening) {
-        return res.status(404).send('Nomor rekening pengirim tidak ditemukan.');
-      }
+  if (!pemilikRekening) {
+    return res.status(404).send('Nomor rekening pengirim tidak ditemukan.');
+  }
 
-      if (!penerimaTransfer) {
-        return res.status(404).send('Nomor rekening penerima tidak ditemukan.');
-      }
+  if (!penerimaTransfer) {
+    return res.status(404).send('Nomor rekening penerima tidak ditemukan.');
+  }
 
-    //   if (!pemilikRekening && !penerimaTransfer ) {
-        // return res.status(404).send('Nomor rekening pengirim dan penerima tidak ditemukan.');
-    //   }
+//   if (!pemilikRekening && !penerimaTransfer ) {
+    // return res.status(404).send('Nomor rekening pengirim dan penerima tidak ditemukan.');
+//   }
 
-      // Periksa apakah saldo pemilik rekening cukup
-      if (pemilikRekening.saldo < jumlahTransfer) {
-        return res.status(400).send('Saldo tidak cukup.');
-      }
+  // Periksa apakah saldo pemilik rekening cukup
+  if (pemilikRekening.saldo < jumlahTransfer) {
+    return res.status(400).send('Saldo tidak cukup.');
+  }
 
-      // Lakukan transfer
-      pemilikRekening.saldo -= jumlahTransfer;
-      penerimaTransfer.saldo += jumlahTransfer;
+  // Lakukan transfer
+  pemilikRekening.saldo -= jumlahTransfer;
+  penerimaTransfer.saldo += jumlahTransfer;
 
-      // Simpan perubahan saldo
-      await pemilikRekening.save();
-      await penerimaTransfer.save();
+        // Simpan perubahan saldo
+        await pemilikRekening.save();
+        await penerimaTransfer.save();
+  
 
       // Simpan transaksi dan history
       const tanggalTransaksi = new Date();
@@ -87,11 +88,39 @@ class TransferController implements IController {
         jumlahTransfer: jumlahTransfer,
         namaPemilikPenerima: penerimaTransfer.nama,
       });
+
     } catch (err) {
       console.error(err);
       return res.status(500).send('Terjadi kesalahan saat melakukan transfer.');
     }
+
+    
   };
+  getAccountInfo = async (req: Request, res: Response): Promise<Response> => {
+    const { nomorRekening } = req.params; // Ambil nomor rekening dari parameter URL
+
+    try {
+      // Dapatkan data pemilik rekening berdasarkan nomor rekening
+      const pemilikRekening = await db.master_bank.findOne({
+        where: { norek: nomorRekening },
+      });
+
+      if (!pemilikRekening) {
+        return res.status(404).send('Nomor rekening tidak ditemukan.');
+      }
+
+      // Kirim informasi rekening sebagai respons JSON
+      return res.status(200).json({
+        nomorRekening: pemilikRekening.norek,
+        namaPemilikRekening: pemilikRekening.nama,
+        saldo: pemilikRekening.saldo,
+      });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).send('Terjadi kesalahan saat mengambil informasi rekening.');
+    }
+  };
+
 
   // Metode-metode berikut ini dapat dibiarkan kosong atau dihapus jika tidak relevan
   index = async (req: Request, res: Response): Promise<Response> => {
