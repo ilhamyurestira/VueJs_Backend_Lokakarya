@@ -3,10 +3,29 @@ const db = require('../db/models');
 const { master_bank, transaksi_nasabah, history_transaksi_bank } = require('../db/models/master_bank')
 
 class NasabahController {
-  getSaldo = async (req: Request, res: Response): Promise<Response> => {
-    const { norek } = req.body;
 
-    console.log('Nilai req.body:', req.body);
+  //get data nasabah by norek 
+  getNasabah = async (req: Request, res: Response): Promise<Response> => {
+    const { norek } = req.params;
+
+        try {
+            const nasabah = await db.master_bank.findOne({where: {norek}});
+            if (!nasabah) {
+                return res.status(404).send(`nasabah dengan nomor rekening ${norek} tidak ditemukan`);
+            }
+            return res.status(200).json(nasabah);
+        } catch (error) {
+            console.error(error);
+            return res.status(500).send('Data tidak ditemukan');
+        }
+  }
+  
+  
+  //get db jumlah saldo
+  getSaldo = async (req: Request, res: Response): Promise<Response> => {
+    const { norek } = req.query;
+
+    console.log('Nilai req.query:', req.query);
     console.log('Nilai norek:', norek);
 
     try {
@@ -26,8 +45,8 @@ class NasabahController {
   // Setor saldo nasabah
   tambahSaldo = async (req: Request, res: Response): Promise<Response> => {
     const { norek, jumlah } = req.body;
-    // const { jumlah } = req.body;
     console.log('Nilai jumlah:', jumlah);
+
     try {
       const nasabah = await db.master_bank.findOne({ where: { norek } });
 
