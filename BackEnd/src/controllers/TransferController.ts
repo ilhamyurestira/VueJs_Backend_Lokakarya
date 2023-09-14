@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import IController from './Controller_Interface';
 
 const db = require('../db/models/');
-const { master_bank } = require('../db/models/master_bank');
+const { master_bank, transaksi_nasabah, history_transaksi_bank } = require('../db/models/master_bank');
 
 class TransferController implements IController {
   transfer = async (req: Request, res: Response): Promise<Response> => {
@@ -20,18 +20,24 @@ class TransferController implements IController {
         where: { norek: nomorRekeningPengirim },
       });
 
-      if (!pemilikRekening) {
-        return res.status(404).send('Nomor rekening pengirim tidak ditemukan.');
-      }
 
       // Dapatkan data penerima transfer
       const penerimaTransfer = await db.master_bank.findOne({
         where: { norek: nomorRekeningPenerima },
       });
 
+
+      if (!pemilikRekening) {
+        return res.status(404).send('Nomor rekening pengirim tidak ditemukan.');
+      }
+
       if (!penerimaTransfer) {
         return res.status(404).send('Nomor rekening penerima tidak ditemukan.');
       }
+
+    //   if (!pemilikRekening && !penerimaTransfer ) {
+        // return res.status(404).send('Nomor rekening pengirim dan penerima tidak ditemukan.');
+    //   }
 
       // Periksa apakah saldo pemilik rekening cukup
       if (pemilikRekening.saldo < jumlahTransfer) {
@@ -46,8 +52,32 @@ class TransferController implements IController {
       await pemilikRekening.save();
       await penerimaTransfer.save();
 
-      // Simpan transaksi dan history (Anda perlu menyesuaikan ini dengan struktur tabel Anda)
-      // ...
+      // Simpan transaksi dan history
+      const tanggalTransaksi = new Date();
+      const transaksiBaru = await db.transaksi_nasabah.create({
+        norek: pemilikRekening.norek,
+        tanggal: tanggalTransaksi,
+        status: 'K',
+        uang: jumlahTransfer,
+        status_ket: 3,
+        norek_dituju: penerimaTransfer.norek,
+        no_tlp: pemilikRekening.no_tlp,
+        created_at: tanggalTransaksi,
+        updated_at: tanggalTransaksi,
+      });
+
+      const historyTransaksiBaru = await db.history_transaksi_bank.create({
+        norek: pemilikRekening.norek,
+        tanggal: tanggalTransaksi,
+        uang: jumlahTransfer,
+        status_ket: 3,
+        norek_dituju: penerimaTransfer.norek,
+        no_tlp: pemilikRekening.no_tlp,
+        nama: pemilikRekening.nama,
+        created_at: tanggalTransaksi,
+        updated_at: tanggalTransaksi,
+      });
+
 
       // Kirim respons JSON ke frontend
       return res.status(200).json({
