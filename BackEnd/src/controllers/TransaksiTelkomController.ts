@@ -47,7 +47,7 @@ class TransaksiTelkomController implements IController {
                 status: status
             });
 
-            return res.status(200).send(`Transaksi Telpon "${newTransaksiTelkom.nama}" berhasil ditambah`);
+            return res.status(200).send(`Transaksi Telpon berhasil ditambah`);
         } catch (error) {
             console.error(error);
             return res.status(500).send('Data gagal ditambahkan');
@@ -74,7 +74,7 @@ class TransaksiTelkomController implements IController {
                 status
             });
 
-            return res.status(200).send(`Transaksi Telpon "${currentNama}" berhasil diubah.`);
+            return res.status(200).send(`Transaksi Telpon berhasil diubah.`);
         } catch (error) {
             console.error(error);
             return res.status(500).send('Gagal mengubah data master pelanggan.');
@@ -92,7 +92,7 @@ class TransaksiTelkomController implements IController {
 
             const currentNama = transaksiTelkom.nama;
             await transaksiTelkom.destroy();
-            return res.status(200).send(`Transaksi Telpon "${currentNama}" berhasil dihapus.`);
+            return res.status(200).send(`Transaksi Telpon berhasil dihapus.`);
         } catch (error) {
             console.error(error);
             return res.status(500).send('Gagal menghapus data Transaksi Telpon.');
