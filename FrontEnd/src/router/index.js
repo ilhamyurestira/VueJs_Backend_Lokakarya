@@ -69,6 +69,16 @@ const router = createRouter({
                     component: () => import('@/views/bankadm/MasterBank.vue')
                 },
                 {
+                    path: '/bankadm/transaksiNasabah',
+                    name: 'transaksiNasabah',
+                    component: () => import('@/views/bankadm/TransaksiNasabah.vue')
+                },
+                {
+                    path: '/bankadm/historyBank',
+                    name: 'historyBank',
+                    component: () => import('@/views/bankadm/HistoryBank.vue')
+                },
+                {
                     path: '/tlpadm/masterpelanggan',
                     name: 'masterPelanggan',
                     component: () => import('@/views/tlpadm/MasterPelanggan.vue')
