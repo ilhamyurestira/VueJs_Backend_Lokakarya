@@ -10,12 +10,15 @@ const Menu = require('../db/models').menu;
 class RoleController implements IController {
   index = async (req: Request, res: Response): Promise<Response> => {
     try {
-      const roleList = await dm.findAll({
-        include: [
-          { model: Role, attributes: ['nama'] },
-          { model: Menu, attributes: ['nama'] },
-        ],
-      });
+      const roleList = await dm
+        .findAll
+        // {
+        //   include: [
+        //     { model: Role, attributes: ['nama'] },
+        //     { model: Menu, attributes: ['nama'] },
+        //   ],
+        // }
+        ();
 
       if (roleList.length === 0) {
         return res.status(200).send('Belum ada data');
@@ -32,12 +35,15 @@ class RoleController implements IController {
     const { id } = req.params;
 
     try {
-      const data = await dm.findByPk(id, {
-        include: [
-          { model: Role, attributes: ['nama'] },
-          { model: Menu, attributes: ['nama'] },
-        ],
-      });
+      const data = await dm.findByPk(
+        id
+        // , {
+        //   include: [
+        //     { model: Role, attributes: ['nama'] },
+        //     { model: Menu, attributes: ['nama'] },
+        //   ],
+        // }
+      );
       if (!data) {
         return res.status(400).send(`Data dengan id: ${id} tidak ditemukan`);
       } else {
@@ -53,21 +59,27 @@ class RoleController implements IController {
     const { roleId, menuId, isActive, programName, createdBy } = req.body;
 
     try {
-      const exists = await dm.findOne({
-        where: { roleId, menuId },
-      });
-      if (exists) {
-        return res.status(500).send('Role menu sudah terdaftarkan di role');
+      if (!roleId) {
+        return res.status(500).send('role belum diisi');
+      } else if (!menuId) {
+        return res.status(500).send('menu belum diisi');
       } else {
-        const newData = await dm.create({
-          roleId,
-          menuId,
-          isActive,
-          programName,
-          createdBy,
+        const exists = await dm.findOne({
+          where: { roleId, menuId },
         });
+        if (exists) {
+          return res.status(500).send('Role menu sudah terdaftarkan di role');
+        } else {
+          const newData = await dm.create({
+            roleId,
+            menuId,
+            isActive,
+            programName,
+            createdBy,
+          });
 
-        return res.status(500).send('Role menu berhasil dibuat');
+          return res.status(500).send('Role menu berhasil dibuat');
+        }
       }
     } catch (err) {
       console.log(err);
@@ -80,20 +92,26 @@ class RoleController implements IController {
     const { roleId, menuId, isActive, programName, updatedBy } = req.body;
 
     try {
-      const data = await dm.findByPk(id);
-      if (!data) {
+      if (!roleId) {
+        return res.status(500).send('role belum diisi');
+      } else if (!menuId) {
+        return res.status(500).send('menu belum diisi');
+      } else {
+        const data = await dm.findByPk(id);
+        if (!data) {
+          return res
+            .status(400)
+            .send(`Role menu dengan id: ${id} tidak ditemukan.`);
+        }
+        await data.update({ roleId, menuId, isActive, programName, updatedBy });
+        const menu = await Menu.findByPk(menuId);
+        if (!menu) {
+          console.log('tidak menemukan nama menu');
+        }
         return res
-          .status(400)
-          .send(`Role menu dengan id: ${id} tidak ditemukan.`);
+          .status(500)
+          .send(`berhasil mengupdate role menu "${menu.nama}"`);
       }
-      await data.update({ roleId, menuId, isActive, programName, updatedBy });
-      const menu = await Menu.findByPk(menuId);
-      if (!menu) {
-        console.log('tidak menemukan nama menu');
-      }
-      return res
-        .status(500)
-        .send(`berhasil mengupdate role menu "${menu.nama}"`);
     } catch (err) {
       console.log(err);
       return res.status(500).send(`Gagal mengubah role menu.`);
@@ -115,6 +133,7 @@ class RoleController implements IController {
       await data.destroy();
       return res.status(200).send(`Role "${current}" berhasil dihapus.`);
     } catch (err) {
+      console.log(err);
       return res.status(200).send(`Gagal menghapus role menu.`);
     }
   };
