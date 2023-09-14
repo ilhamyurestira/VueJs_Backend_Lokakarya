@@ -6,9 +6,9 @@
         <form @submit.prevent="getAccountInfo">
           <div>
             <div>
-              <h5>Masukkan Nomor Pengirim:</h5>
+              <h5>Masukkan Nomor Rekening Anda:</h5>
               <InputText
-                type="number"
+                type="text"
                 v-model="nomorRekeningPengirim"
                 class="custom-input"
                 :class="{'p-invalid': nomorRekeningError}"

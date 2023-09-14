@@ -105,7 +105,15 @@ export default {
 
         Swal.fire({
           icon: 'success',
-          text: 'Berhasil setor.'
+          text: 'Berhasil setor.',
+          customClass: {
+            container: 'custom-class',
+          },
+          allowOutsideClick: false,
+            allowEscapeKey: false,
+            allowEnterKey: false, // pastikan pesan tidak bisa ditutup dengan menekan tombol Enter
+            showConfirmButton: true, // tampilkan tombol OK
+            confirmButtonText: 'OK',
         });
 
       } catch (error) {
@@ -120,3 +128,9 @@ export default {
   },
 };
 </script>
+
+<style>
+.custom-class {
+  z-index: 3;
+}
+</style>
