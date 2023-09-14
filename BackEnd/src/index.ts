@@ -19,6 +19,7 @@ import HakAksesRoutes from './routers/HakAksesRoutes';
 import MenuRoutes from './routers/MenuRoutes';
 import MasterPelangganRoutes from './routers/MasterPelangganRoutes';
 import TransaksiTelkomRoutes from './routers/TransaksiTelkomRoutes';
+import HistoryTransaksiTelponRoutes from './routers/HistoryTransaksiTelponRoutes';
 import HistoryTransaksiBankRoutes from './routers/HistoryTransaksiBankRoutes';
 import TransaksiNasabahRoutes from './routers/TransaksiNasabahRoutes';
 import RoleMenuRoutes from './routers/RoleMenuRoutes';
@@ -68,6 +69,7 @@ class App {
     this.app.use('/api/v1/admin/manage/hakAkses', HakAksesRoutes);
     this.app.use('/api/v1/masterPelanggan', MasterPelangganRoutes);
     this.app.use('/api/v1/transaksiTelkom', TransaksiTelkomRoutes);
+    this.app.use('/api/v1/historyTransaksiTelpon', HistoryTransaksiTelponRoutes);
     this.app.use('/api/v1/admin/manage/roleMenu', RoleMenuRoutes);
   }
 }
