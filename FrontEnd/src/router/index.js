@@ -34,11 +34,6 @@ const router = createRouter({
                 //     component: () => import('@/views/uikit/InvalidState.vue')
                 // },
                 {
-                    path: '/useradm',
-                    name: 'userAdminMenu',
-                    component: () => import('@/views/userAdm/UserAdminMenu.vue')
-                },
-                {
                     path: '/useradm/manage/menus',
                     name: 'menuManager',
                     component: () => import('@/views/userAdm/MenuManager.vue')
