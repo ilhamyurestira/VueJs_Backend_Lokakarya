@@ -127,7 +127,14 @@ const confirmDeleteProduct = (editProduct) => {
 };
 
 const deleteProduct = () => {
-    products.value = products.value.filter((val) => val.id !== product.value.id);
+    if (product.value.id) {
+
+        // Kirim permintaan POST ke BE
+        axios.delete(`${apiUrl}/` + product.value.id);
+        productDialog.value = false;
+        product.value = {};
+    }
+    // products.value = products.value.filter((val) => val.id !== product.value.id);
     deleteProductDialog.value = false;
     product.value = {};
     toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Deleted', life: 3000 });
@@ -235,8 +242,8 @@ const initFilters = () => {
                     </Column>
                     <Column header="Action" headerStyle="width:20%;min-width:10rem;">
                         <template #body="slotProps">
-                            <Button icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2"
-                                @click="editProduct(slotProps.data)" />
+                            <!-- <Button icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2"
+                                @click="editProduct(slotProps.data)" /> -->
                             <Button icon="pi pi-trash" class="p-button-rounded p-button-warning mt-2"
                                 @click="confirmDeleteProduct(slotProps.data)" />
                         </template>
