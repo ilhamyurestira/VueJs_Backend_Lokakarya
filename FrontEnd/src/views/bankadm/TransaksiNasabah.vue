@@ -9,7 +9,7 @@ import axios from 'axios'; // Import Axios
 const toast = useToast();
 
 const products = ref([]);
-const apiUrl = 'http://localhost:8000/api/v1/masterBank'; // Replace with your API URL
+const apiUrl = 'http://localhost:8000/api/v1/transaksiNasabah'; // Replace with your API URL
 const productDialog = ref(false);
 const deleteProductDialog = ref(false);
 const deleteProductsDialog = ref(false);
@@ -144,15 +144,15 @@ const initFilters = () => {
             <div class="card">
                 <Toast />
                 <!-- Button nambah data baru -->
-                <Toolbar class="mb-4">
+                <!-- <Toolbar class="mb-4">
                     <template v-slot:start>
                         <div class="my-2">
-                            <Button label="Buat Rekening" icon="pi pi-plus" class="p-button-success mr-2"
+                            <Button label="Tambah Rekening" icon="pi pi-plus" class="p-button-success mr-2"
                                 @click="openNew" />
                         </div>
                     </template>
 
-                </Toolbar>
+                </Toolbar> -->
 
                 <!-- Tabel data -->
                 <DataTable ref="dt" :value="products" v-model:selection="selectedProducts" dataKey="id" :paginator="true"
@@ -172,44 +172,50 @@ const initFilters = () => {
                     </template>
 
                     <!-- <Column selectionMode="multiple" headerStyle="width: 3rem"></Column> -->
-                    <Column field="nama" header="Nama" :sortable="true" headerStyle="width20%; min-width:10rem;">
+                    <Column field="norek" header="Nomor Rekening" :sortable="true" headerStyle="width20%; min-width:10rem;">
                         <template #body="slotProps">
-                            <span class="p-column-title">Nama</span>
-                            {{ slotProps.data.nama }}
-                        </template>
-                    </Column>
-                    <Column field="noTlp" header="No Telpon" :sortable="true" headerStyle="width:20%; min-width:10rem;">
-                        <template #body="slotProps">
-                            <span class="p-column-title">No Telpon</span>
-                            {{ slotProps.data.noTlp }}
-                        </template>
-                    </Column>
-                    <Column field="alamat" header="Alamat" :sortable="true" headerStyle="width:20%; min-width:10rem;">
-                        <template #body="slotProps">
-                            <span class="p-column-title">Alamat</span>
-                            {{ slotProps.data.alamat }}
-                        </template>
-                    </Column>
-                    <Column field="norek" header="No Rekening" :sortable="true" headerStyle="width:20%; min-width:10rem;">
-                        <template #body="slotProps">
-                            <span class="p-column-title">No Rekening</span>
+                            <span class="p-column-title">Nomor Rekening</span>
                             {{ slotProps.data.norek }}
                         </template>
                     </Column>
-                    <Column field="saldo" header="Saldo" :sortable="true" headerStyle="width:20%; min-width:10rem;">
+                    <Column field="tanggal" header="Tanggal Transaksi" :sortable="true" headerStyle="width:20%; min-width:10rem;">
                         <template #body="slotProps">
-                            <span class="p-column-title">Saldo</span>
-                            {{ formatCurrency(slotProps.data.saldo) }}
+                            <span class="p-column-title">Tanggal Transaksi</span>
+                            {{ slotProps.data.tanggal }}
                         </template>
                     </Column>
-                    <Column header="Action" headerStyle="width:20%;min-width:10rem;">
+                    <Column field="status" header="Status" :sortable="true" headerStyle="width:20%; min-width:10rem;">
                         <template #body="slotProps">
-                            <!-- <Button icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2"
-                                @click="editProduct(slotProps.data)" /> -->
+                            <span class="p-column-title">Status</span>
+                            {{ slotProps.data.status }}
+                        </template>
+                    </Column>
+                    <Column field="status_ket" header="Keterangan" :sortable="true" headerStyle="width:20%; min-width:10rem;">
+                        <template #body="slotProps">
+                            <span class="p-column-title">Keterangan</span>
+                            {{ slotProps.data.status_ket }}
+                        </template>
+                    </Column>
+                    <Column field="norek_dituju" header="Rekening Tujuan" :sortable="true" headerStyle="width:20%; min-width:10rem;">
+                        <template #body="slotProps">
+                            <span class="p-column-title">Rekening Tujuan</span>
+                            {{ slotProps.data.norek_dituju }}
+                        </template>
+                    </Column>
+                    <Column field="no_tlp" header="Nomor Telepon" :sortable="true" headerStyle="width:20%; min-width:10rem;">
+                        <template #body="slotProps">
+                            <span class="p-column-title">Nomor Telepon</span>
+                            {{ slotProps.data.no_tlp }}
+                        </template>
+                    </Column>
+                    <!-- <Column header="Action" headerStyle="width:20%;min-width:10rem;">
+                        <template #body="slotProps">
+                            <Button icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2"
+                                @click="editProduct(slotProps.data)" />
                             <Button icon="pi pi-trash" class="p-button-rounded p-button-warning mt-2"
                                 @click="confirmDeleteProduct(slotProps.data)" />
                         </template>
-                    </Column>
+                    </Column> -->
                 </DataTable>
 
                 <!-- Dialog untuk tambah dan edit data -->

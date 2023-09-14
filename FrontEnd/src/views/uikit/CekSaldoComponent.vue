@@ -11,55 +11,67 @@
                                 :class="{ 'p-invalid': nomorRekeningError }" required /><br />&nbsp;
                             <span v-if="nomorRekeningError" class="p-error">Nomor rekening harus diisi</span>
                             <br />&nbsp;
-                            <Button label="Submit" class="custom-button" type="submit" />
+                            <Button label="Cek Saldo" class="custom-button" type="submit" />
                         </div>
                     </div>
                 </form>
             </div>
         </div>
     </div>
+    <Dialog v-if="showModal" v-model:visible="showModal" modal header="Informasi Saldo" :style="{ width: '50vw' }">
+        <p>Nomor Rekening : {{ nasabah.norek }}</p>
+        <p>Nama Nasabah : {{ nasabah.nama }}</p>
+        <p>Saldo Nasabah : {{ nasabah.saldo }}</p>
+    </Dialog>
 </template>
 
 <script>
 // import axios
 import axios from "axios";
+import Swal from 'sweetalert2';
+
 export default {
+    name: "CekSaldoComponent",
     data() {
         return {
             norek: "",
-            nasabah: [],
+            nasabah: {},
+            nomorRekeningError: false,
+            showModal: false,
+            nama: "",
+            saldo: "",
         };
     },
-    created: function () {
-        this.getSaldo()
-    },
+
     methods: {
         async getSaldo() {
-            console.log("cek ini", this.norek);
+
+            //validasi required field
+            if (!this.norek) {
+                this.nomorRekeningError = true;
+                return;
+            } else {
+                this.nomorRekeningError = false;
+            }
+
+            //get database
             try {
                 const response = await axios.get(
-                    `http://localhost:8000/api/v1/nasabah/cekSaldo`, 
+                    `http://localhost:8000/api/v1/nasabah/cekSaldo?norek=${this.norek}`,
                     {
                         norek: Number(this.norek)
                     }
                 );
                 this.nasabah = response.data;
-
-                if (!norek.value) {
-                    nomorRekeningError.value = true;
-                    return;
-                } else {
-                    nomorRekeningError.value = false;
-                }
-            } catch (err) {
-                console.log(err);
+                this.showModal = true;
+            } catch (error) {
+                console.log(error);
+                Swal.fire({
+                    icon: 'error',
+                    text: error.response.data
+                });
             }
         },
-
-        async cancelProcess() {
-            this.$router.push("/uikit/CekSaldoComponent");
-        },
-
     },
 };
 </script>
@@ -85,4 +97,5 @@ export default {
 .p-error {
     color: red;
     /* Warna teks merah untuk pesan kesalahan */
-}</style>
+}
+</style>

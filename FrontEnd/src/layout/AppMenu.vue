@@ -2,6 +2,8 @@
 import { ref } from 'vue';
 
 import AppMenuItem from './AppMenuItem.vue';
+import 'font-awesome/css/font-awesome.min.css';
+import '@fortawesome/fontawesome-free/css/all.css';
 
 const model = ref([
     {
@@ -17,9 +19,9 @@ const model = ref([
     {
         label: 'Bank Admin',
         items: [
-            { label: 'Master Bank', icon: 'pi pi-fw pi-id-card', to: '/bankadm/masterBank' },
-            { label: 'Transaksi Nasabah', icon: 'pi pi-fw pi-check-square', to: '/uikit/input' },
-            { label: 'Histori Nasabah', icon: 'pi pi-fw pi-bookmark', to: '/uikit/floatlabel' }
+            { label: 'Master Bank', icon: 'fa fa-solid fa-building-columns', to: '/bankadm/masterBank' },
+            { label: 'Transaksi Nasabah', icon: 'fa fa-solid fa-money-bill-transfer', to: '/bankadm/transaksiNasabah' },
+            { label: 'Histori Nasabah', icon: 'fa fa-solid fa-clock-rotate-left', to: '/bankadm/historyBank', customIcon: 'fa-light fa-chevron-down' }
             ]
     },
     {
