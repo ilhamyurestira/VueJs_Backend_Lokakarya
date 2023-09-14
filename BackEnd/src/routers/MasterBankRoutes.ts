@@ -8,7 +8,7 @@ class MasterBankRoutes extends BaseRoutes {
         this.router.post("/tambah", MasterBankController.create);
         this.router.get("/:id", MasterBankController.show);
         this.router.put("/:id", MasterBankController.update);
-        this.router.delete("/:id", MasterBankController.delete);
+        this.router.delete("/hapus/:id", MasterBankController.delete);
     }
 }
 
