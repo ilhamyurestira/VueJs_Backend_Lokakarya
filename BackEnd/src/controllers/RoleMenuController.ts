@@ -87,8 +87,7 @@ class RoleController implements IController {
           .send(`Role menu dengan id: ${id} tidak ditemukan.`);
       }
       await data.update({ roleId, menuId, isActive, programName, updatedBy });
-      // const role = await db.role.findByPk(roleId);
-      const menu = await db.menu.findByPk(menuId);
+      const menu = await Menu.findByPk(menuId);
       if (!menu) {
         console.log('tidak menemukan nama menu');
       }
