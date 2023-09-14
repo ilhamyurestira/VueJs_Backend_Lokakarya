@@ -9,83 +9,142 @@ const model = ref([
     {
         label: 'User Admin',
         items: [
-            { label: 'Role', icon: 'pi pi-fw pi-home', to: '/' },
-            { label: 'Role Menu', icon:'pi pi-fw pi-home', to: '/'},
-            { label: 'Menu', icon:'pi pi-fw pi-home', to: '/'},
-            { label: 'Hak Akses', icon:'pi pi-fw pi-home', to: '/'},
-            { label: 'User', icon:'pi pi-fw pi-home', to: '/'}
+            { label: 'User Manager', icon: 'pi pi-fw pi-user-edit', to: { name: 'userManager' } },
+            { label: 'Role Manager', icon: 'pi pi-fw pi-users', to: { name: 'roleManager' } },
+            { label: 'Menu Manager', icon: 'pi pi-fw pi-align-left', to: { name: 'menuManager' } },
+            { label: 'Manage Hak Akses', icon: 'pi pi-fw pi-wrench', to: { name: 'hakAksesManager' } },
+            { label: 'Manage Role Menus', icon: 'pi pi-fw pi-wrench', to: { name: 'roleMenuManager' } }
         ]
     },
     {
         label: 'Bank Admin',
         items: [
-            { label: 'Master Bank', icon: 'fa fa-solid fa-building-columns', to: '/bankadm/masterBank' },
-            { label: 'Transaksi Nasabah', icon: 'fa fa-solid fa-money-bill-transfer', to: '/bankadm/transaksiNasabah' },
-            { label: 'Histori Nasabah', icon: 'fa fa-solid fa-clock-rotate-left', to: '/bankadm/historyBank', customIcon: 'fa-light fa-chevron-down' }
-            ]
+            { label: 'Master Bank', icon: 'fa fa-solid fa-building-columns', to: { name: 'masterBank' } },
+            { label: 'Transaksi Nasabah', icon: 'fa fa-solid fa-money-bill-transfer', to: { name: 'transaksiNasabah' } },
+            { label: 'Histori Nasabah', icon: 'fa fa-solid fa-clock-rotate-left', to: { name: 'historyBank' }, customIcon: 'fa-light fa-chevron-down' }
+        ]
     },
     {
         label: 'Telpon Admin',
         items: [
-            { label: 'Master Pelanggan', icon: 'pi pi-fw pi-exclamation-circle', to: '/tlpadm/masterpelanggan' },
-            { label: 'Transaksi Telpon', icon: 'pi pi-fw pi-mobile', to: '/tlpadm/transaksiTelpon' },
-            { label: 'Histori Transaksi', icon: 'pi pi-fw pi-table', to: '/tlpadm/historiTransaksi' },
+            { label: 'Master Pelanggan', icon: 'pi pi-fw pi-exclamation-circle', to: { name: 'masterPelanggan' } },
+            { label: 'Transaksi Telpon', icon: 'pi pi-fw pi-mobile', to: { name: 'transaksiTelpon' } },
+            { label: 'Histori Transaksi', icon: 'pi pi-fw pi-table', to: { name: 'historiTransaksi' } }
         ]
     },
     {
         label: 'Nasabah',
         items: [
-            { label: 'Cek Saldo', icon: 'pi pi-wallet', to: '/uikit/CekSaldoComponent' },
-            { label: 'Setor', icon: 'pi pi-dollar', to: '/uikit/SetorComponent' },
-            { label: 'Ambil', icon: 'pi pi-money-bill', to: '/uikit/TarikComponent' },
-            { label: 'Transfer', icon: 'pi pi-arrow-right-arrow-left', to: '/uikit/TransferComponent' },
-            { label: 'Bayar Telpon', icon: 'pi pi-mobile', to: '/uikit/BayarTelponComponent' }
+            { label: 'Cek Saldo', icon: 'pi pi-wallet', to: { name: 'cekSaldo' } },
+            { label: 'Setor', icon: 'pi pi-dollar', to: { name: 'setor' } },
+            { label: 'Ambil', icon: 'pi pi-money-bill', to: { name: 'tarik' } },
+            { label: 'Transfer', icon: 'pi pi-arrow-right-arrow-left', to: { name: 'transfer' } },
+            { label: 'Bayar Telpon', icon: 'pi pi-mobile', to: { name: 'bayarTelpon' } }
         ]
     },
     {
-        label: 'Hierarchy',
+        //comment this section when done building
+        label: 'Development Kit',
         items: [
             {
-                label: 'Submenu 1',
-                icon: 'pi pi-fw pi-bookmark',
+                label: 'Utilities',
                 items: [
-                    {
-                        label: 'Submenu 1.1',
-                        icon: 'pi pi-fw pi-bookmark',
-                        items: [
-                            { label: 'Submenu 1.1.1', icon: 'pi pi-fw pi-bookmark' },
-                            { label: 'Submenu 1.1.2', icon: 'pi pi-fw pi-bookmark' },
-                            { label: 'Submenu 1.1.3', icon: 'pi pi-fw pi-bookmark' }
-                        ]
-                    },
-                    {
-                        label: 'Submenu 1.2',
-                        icon: 'pi pi-fw pi-bookmark',
-                        items: [{ label: 'Submenu 1.2.1', icon: 'pi pi-fw pi-bookmark' }]
-                    }
+                    { label: 'Icons', to: { name: 'icons' } },
+                    { label: 'Blocks', to: { name: 'blocks' } },
+                    { label: 'Documentation', to: { name: 'documentation' } }
                 ]
             },
             {
-                label: 'Submenu 2',
-                icon: 'pi pi-fw pi-bookmark',
+                label: 'UI Kit',
                 items: [
+                    { label: 'Form Layout', to: { name: 'formlayout' } },
+                    { label: 'Input', to: { name: 'input' } },
+                    { label: 'Float Label', to: { name: 'floatlabel' } },
+                    { label: 'Button', to: { name: 'button' } },
+                    { label: 'Table', to: { name: 'table' } },
+                    { label: 'Message', to: { name: 'message' } },
+                    { label: 'Chart', to: { name: 'charts' } },
+                    { label: 'File', to: { name: 'file' } },
+                    { label: 'Invalid State', to: { name: 'invalidState' } },
+                    { label: 'List', to: { name: 'lists' } },
+                    { label: 'Pick', to: { name: 'picks' } },
                     {
-                        label: 'Submenu 2.1',
-                        icon: 'pi pi-fw pi-bookmark',
+                        label: 'Menus',
                         items: [
-                            { label: 'Submenu 2.1.1', icon: 'pi pi-fw pi-bookmark' },
-                            { label: 'Submenu 2.1.2', icon: 'pi pi-fw pi-bookmark' }
+                            { label: 'Demo', to: { name: 'menuDemo' } },
+                            { label: 'Personal', to: { name: 'personalMenu' } },
+                            { label: 'Seat', to: { name: 'seatMenu' } },
+                            { label: 'Payment', to: { name: 'paymentMenu' } },
+                            { label: 'Confirmation', to: { name: 'confirmationMenu' } }
                         ]
                     },
+                    { label: 'Miscellanious', to: { name: 'misc' } }
+                ]
+            },
+            {
+                label: 'Pages',
+                items: [
                     {
-                        label: 'Submenu 2.2',
-                        icon: 'pi pi-fw pi-bookmark',
-                        items: [{ label: 'Submenu 2.2.1', icon: 'pi pi-fw pi-bookmark' }]
-                    }
+                        label: 'Authorization',
+                        items: [
+                            { label: 'Access', to: { name: 'accessDenied' } },
+                            { label: 'Error', to: { name: 'error' } },
+                            { label: 'Login', to: { name: 'login' } }
+                        ]
+                    },
+                    { label: 'Empty', to: { name: 'emptyPage' } },
+                    { label: 'Landing', to: { name: 'landing' } },
+                    { label: 'NotFound', to: { name: 'notfound' } },
+                    { label: 'Timeline', to: { name: 'timeline' } },
+                    { label: 'CRUD', to: { name: 'crud' } }
                 ]
             }
         ]
-    },
+    }
+    // {
+    //     label: 'Hierarchy',
+    //     items: [
+    //         {
+    //             label: 'Submenu 1',
+    //             icon: 'pi pi-fw pi-bookmark',
+    //             items: [
+    //                 {
+    //                     label: 'Submenu 1.1',
+    //                     icon: 'pi pi-fw pi-bookmark',
+    //                     items: [
+    //                         { label: 'Submenu 1.1.1', icon: 'pi pi-fw pi-bookmark' },
+    //                         { label: 'Submenu 1.1.2', icon: 'pi pi-fw pi-bookmark' },
+    //                         { label: 'Submenu 1.1.3', icon: 'pi pi-fw pi-bookmark' }
+    //                     ]
+    //                 },
+    //                 {
+    //                     label: 'Submenu 1.2',
+    //                     icon: 'pi pi-fw pi-bookmark',
+    //                     items: [{ label: 'Submenu 1.2.1', icon: 'pi pi-fw pi-bookmark' }]
+    //                 }
+    //             ]
+    //         },
+    //         {
+    //             label: 'Submenu 2',
+    //             icon: 'pi pi-fw pi-bookmark',
+    //             items: [
+    //                 {
+    //                     label: 'Submenu 2.1',
+    //                     icon: 'pi pi-fw pi-bookmark',
+    //                     items: [
+    //                         { label: 'Submenu 2.1.1', icon: 'pi pi-fw pi-bookmark' },
+    //                         { label: 'Submenu 2.1.2', icon: 'pi pi-fw pi-bookmark' }
+    //                     ]
+    //                 },
+    //                 {
+    //                     label: 'Submenu 2.2',
+    //                     icon: 'pi pi-fw pi-bookmark',
+    //                     items: [{ label: 'Submenu 2.2.1', icon: 'pi pi-fw pi-bookmark' }]
+    //                 }
+    //             ]
+    //         }
+    //     ]
+    // }
 ]);
 </script>
 

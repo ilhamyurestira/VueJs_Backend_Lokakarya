@@ -100,51 +100,70 @@ const router = createRouter({
                 },
                 {
                     path: '/uikit/CekSaldoComponent',
-                    name: 'CekSaldoCompoent',
-                    component: () => import('@/views/uikit/CekSaldoComponent.vue')
+                    name: 'cekSaldo',
+                    component: () => import('@/views/nasabah/CekSaldoComponent.vue')
                 },
                 {
                     path: '/uikit/SetorComponent',
-                    name: 'tree',
-                    component: () => import('@/views/uikit/SetorComponent.vue')
+                    name: 'setor',
+                    component: () => import('@/views/nasabah/SetorComponent.vue')
                 },
                 {
                     path: '/uikit/TarikComponent',
-                    name: 'panel',
-                    component: () => import('@/views/uikit/TarikComponent.vue')
+                    name: 'tarik',
+                    component: () => import('@/views/nasabah/TarikComponent.vue')
                 },
-
                 {
                     path: '/uikit/TransferComponent',
-                    name: 'overlay',
-                    component: () => import('@/views/uikit/TransferComponent.vue')
+                    name: 'transfer',
+                    component: () => import('@/views/nasabah/TransferComponent.vue')
                 },
                 {
                     path: '/uikit/BayarTelponComponent',
-                    name: 'media',
-                    component: () => import('@/views/uikit/BayarTelponComponent.vue')
+                    name: 'bayarTelpon',
+                    component: () => import('@/views/nasabah/BayarTelponComponent.vue')
                 },
                 {
                     path: '/uikit/menu',
+                    name: 'personalMenu',
                     component: () => import('@/views/uikit/Menu.vue'),
                     children: [
                         {
-                            path: '/uikit/menu',
+                            path: '/uikit/menu/demo',
+                            name: 'menuDemo',
                             component: () => import('@/views/uikit/menu/PersonalDemo.vue')
                         },
                         {
                             path: '/uikit/menu/seat',
+                            name: 'seatMenu',
                             component: () => import('@/views/uikit/menu/SeatDemo.vue')
                         },
                         {
                             path: '/uikit/menu/payment',
+                            name: 'paymentMenu',
                             component: () => import('@/views/uikit/menu/PaymentDemo.vue')
                         },
                         {
                             path: '/uikit/menu/confirmation',
+                            name: 'confirmationMenu',
                             component: () => import('@/views/uikit/menu/ConfirmationDemo.vue')
                         }
                     ]
+                },
+                {
+                    path: '/uikit/invalidState',
+                    name: 'invalidState',
+                    component: () => import('@/views/uikit/InvalidState.vue')
+                },
+                {
+                    path: '/uikit/lists',
+                    name: 'lists',
+                    component: () => import('@/views/uikit/ListCom.vue')
+                },
+                {
+                    path: '/uikit/picks',
+                    name: 'picks',
+                    component: () => import('@/views/uikit/pick.vue')
                 },
                 {
                     path: '/uikit/message',
@@ -208,7 +227,21 @@ const router = createRouter({
             name: 'notfound',
             component: () => import('@/views/pages/NotFound.vue')
         },
-
+        {
+            path: '/pages/empty',
+            name: 'emptyPage',
+            component: () => import('@/views/pages/Empty.vue')
+        },
+        {
+            path: '/pages/timeline',
+            name: 'timeline',
+            component: () => import('@/views/pages/Timeline.vue')
+        },
+        {
+            path: '/pages/crud',
+            name: 'crud',
+            component: () => import('@/views/pages/Crud.vue')
+        },
         {
             path: '/auth/login',
             name: 'login',

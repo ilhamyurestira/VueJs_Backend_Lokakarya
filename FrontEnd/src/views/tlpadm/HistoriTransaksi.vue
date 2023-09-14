@@ -8,7 +8,7 @@ import axios from 'axios'; // Import Axios
 const toast = useToast();
 
 const products = ref(null);
-const apiUrl = 'http://localhost:8000/api/v1/masterPelanggan'; // Replace with your API URL
+const apiUrl = 'http://localhost:8000/api/v1/historyTransaksiTelpon'; // Replace with your API URL
 const productDialog = ref(false);
 const deleteProductDialog = ref(false);
 const deleteProductsDialog = ref(false);
@@ -32,6 +32,10 @@ onMounted(() => {
     // productService.getProducts().then((data) => (products.value = data));
     fetchData();
 });
+
+const formatCurrency = (value) => {
+    return value.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' });
+};
 
 const fetchData = () => {
     axios.get(apiUrl)
@@ -160,30 +164,37 @@ const initFilters = () => {
                     </template>
 
                     <!-- <Column selectionMode="multiple" headerStyle="width: 3rem"></Column> -->
-                    <Column field="nama" header="Nama" :sortable="true" headerStyle="width20%; min-width:10rem;">
+                    <Column field="nama" header="ID Pelanggan" :sortable="true" headerStyle="width10%; min-width:10rem;">
                         <template #body="slotProps">
-                            <span class="p-column-title">Nama</span>
-                            {{ slotProps.data.nama }}
+                            <span class="p-column-title">ID Pelanggan</span>
+                            {{ slotProps.data.id_pelanggan }}
+                        </template>
+                    </Column>
+                    <Column field="tanggal" header="Tanggal Bayar" :sortable="true"
+                        headerStyle="width:30%; min-width:10rem;">
+                        <template #body="slotProps">
+                            <span class="p-column-title">Tanggal Bayar</span>
+                            {{ slotProps.data.tanggal_bayar }}
                         </template>
                     </Column>
                     <Column field="blnTagihan" header="Bulan Tagihan" :sortable="true"
                         headerStyle="width20%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Bulan Tagihan</span>
-                            {{ slotProps.data.nama }}
+                            {{ slotProps.data.bulan_tagihan }}
                         </template>
                     </Column>
                     <Column field="thnTagihan" header="Tahun Tagihan" :sortable="true"
                         headerStyle="width20%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Tahun Tagihan</span>
-                            {{ slotProps.data.nama }}
+                            {{ slotProps.data.tahun_tagihan }}
                         </template>
                     </Column>
                     <Column field="uang" header="Uang" :sortable="true" headerStyle="width:14%; min-width:8rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Uang</span>
-                            {{ (slotProps.data.price) }}
+                            {{ formatCurrency(slotProps.data.uang) }}
                         </template>
                     </Column>
                 </DataTable>
