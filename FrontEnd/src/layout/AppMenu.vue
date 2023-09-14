@@ -9,11 +9,11 @@ const model = ref([
     {
         label: 'User Admin',
         items: [
-            { label: 'Role', icon: 'pi pi-fw pi-home', to: '/' },
-            { label: 'Role Menu', icon:'pi pi-fw pi-home', to: '/'},
-            { label: 'Menu', icon:'pi pi-fw pi-home', to: '/'},
-            { label: 'Hak Akses', icon:'pi pi-fw pi-home', to: '/'},
-            { label: 'User', icon:'pi pi-fw pi-home', to: '/'}
+            { label: 'User Manager', icon: 'pi pi-fw pi-user-edit', to: { name: 'userManager' } },
+            { label: 'Role Manager', icon: 'pi pi-fw pi-users', to: { name: 'roleManager' } },
+            { label: 'Menu Manager', icon: 'pi pi-fw pi-align-left', to: { name: 'menuManager' } },
+            { label: 'Manage Hak Akses', icon: 'pi pi-fw pi-wrench', to: { name: 'hakAksesManager' } },
+            { label: 'Manage Role Menus', icon: 'pi pi-fw pi-wrench', to: { name: 'roleMenuManager' } }
         ]
     },
     {
@@ -22,14 +22,14 @@ const model = ref([
             { label: 'Master Bank', icon: 'fa fa-solid fa-building-columns', to: '/bankadm/masterBank' },
             { label: 'Transaksi Nasabah', icon: 'fa fa-solid fa-money-bill-transfer', to: '/bankadm/transaksiNasabah' },
             { label: 'Histori Nasabah', icon: 'fa fa-solid fa-clock-rotate-left', to: '/bankadm/historyBank', customIcon: 'fa-light fa-chevron-down' }
-            ]
+        ]
     },
     {
         label: 'Telpon Admin',
         items: [
             { label: 'Master Pelanggan', icon: 'pi pi-fw pi-exclamation-circle', to: '/tlpadm/masterpelanggan' },
             { label: 'Transaksi Telpon', icon: 'pi pi-fw pi-mobile', to: '/tlpadm/transaksiTelpon' },
-            { label: 'Histori Transaksi', icon: 'pi pi-fw pi-table', to: '/tlpadm/historiTransaksi' },
+            { label: 'Histori Transaksi', icon: 'pi pi-fw pi-table', to: '/tlpadm/historiTransaksi' }
         ]
     },
     {
@@ -85,7 +85,7 @@ const model = ref([
                 ]
             }
         ]
-    },
+    }
 ]);
 </script>
 
