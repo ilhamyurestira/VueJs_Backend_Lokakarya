@@ -68,7 +68,7 @@ class MasterPelangganController implements IController {
 
     async update(req: Request, res: Response): Promise<Response> {
         const { id } = req.params;
-        const { userId, nama, alamat, norek, noTlp, saldo, created_at, updated_at } = req.body;
+        const { userId, nama, no_telp, alamat } = req.body;
 
         try {
             const masterPelanggan = await db.master_pelanggan.findByPk(id);
@@ -80,12 +80,8 @@ class MasterPelangganController implements IController {
             await masterPelanggan.update({
                 userId,
                 nama,
+                no_telp,
                 alamat,
-                norek,
-                noTlp,
-                saldo,
-                created_at,
-                updated_at,
             });
 
             return res.status(200).send(`Master Pelanggan "${currentNama}" berhasil diubah.`);
