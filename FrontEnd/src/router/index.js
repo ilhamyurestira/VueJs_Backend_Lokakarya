@@ -151,19 +151,19 @@ const router = createRouter({
                     ]
                 },
                 {
-                    path: '/uikit/TransferComponent',
-                    name: 'transfer',
-                    component: () => import('@/views/uikit/TransferComponent.vue')
+                    path: '/uikit/invalidState',
+                    name: 'invalidState',
+                    component: () => import('@/views/uikit/InvalidState.vue')
                 },
                 {
-                    path: '/uikit/TransferComponent',
-                    name: 'transfer',
-                    component: () => import('@/views/uikit/TransferComponent.vue')
+                    path: '/uikit/lists',
+                    name: 'lists',
+                    component: () => import('@/views/uikit/ListCom.vue')
                 },
                 {
-                    path: '/uikit/TransferComponent',
-                    name: 'transfer',
-                    component: () => import('@/views/uikit/TransferComponent.vue')
+                    path: '/uikit/picks',
+                    name: 'picks',
+                    component: () => import('@/views/uikit/pick.vue')
                 },
                 {
                     path: '/uikit/message',
@@ -227,7 +227,21 @@ const router = createRouter({
             name: 'notfound',
             component: () => import('@/views/pages/NotFound.vue')
         },
-
+        {
+            path: '/pages/empty',
+            name: 'emptyPage',
+            component: () => import('@/views/pages/Empty.vue')
+        },
+        {
+            path: '/pages/timeline',
+            name: 'timeline',
+            component: () => import('@/views/pages/Timeline.vue')
+        },
+        {
+            path: '/pages/crud',
+            name: 'crud',
+            component: () => import('@/views/pages/Crud.vue')
+        },
         {
             path: '/auth/login',
             name: 'login',

@@ -44,7 +44,7 @@ const model = ref([
     },
     {
         //comment this section when done building
-        label: 'Development Tools',
+        label: 'Development Kit',
         items: [
             {
                 label: 'Utilities',
@@ -65,6 +65,9 @@ const model = ref([
                     { label: 'Message', to: { name: 'message' } },
                     { label: 'Chart', to: { name: 'charts' } },
                     { label: 'File', to: { name: 'file' } },
+                    { label: 'Invalid State', to: { name: 'invalidState' } },
+                    { label: 'List', to: { name: 'lists' } },
+                    { label: 'Pick', to: { name: 'picks' } },
                     {
                         label: 'Menus',
                         items: [
@@ -76,6 +79,24 @@ const model = ref([
                         ]
                     },
                     { label: 'Miscellanious', to: { name: 'misc' } }
+                ]
+            },
+            {
+                label: 'Pages',
+                items: [
+                    {
+                        label: 'Authorization',
+                        items: [
+                            { label: 'Access', to: { name: 'accessDenied' } },
+                            { label: 'Error', to: { name: 'error' } },
+                            { label: 'Login', to: { name: 'login' } }
+                        ]
+                    },
+                    { label: 'Empty', to: { name: 'emptyPage' } },
+                    { label: 'Landing', to: { name: 'landing' } },
+                    { label: 'NotFound', to: { name: 'notfound' } },
+                    { label: 'Timeline', to: { name: 'timeline' } },
+                    { label: 'CRUD', to: { name: 'crud' } }
                 ]
             }
         ]
