@@ -2,12 +2,12 @@
   <div class="grid p-fluid">
     <div class="col-12">
       <div class="card">
-        <h2>Setor</h2>
+        <h2 style="margin-bottom: 25px;">Setor</h2>
         <form @submit.prevent="setor">
           <div>
             <div>
-              <h5>Nomor Rekening Tujuan:</h5>
-              <InputText type="number" v-model="norek" class="custom-input" :class="{ 'p-invalid': nomorRekeningError }"
+              <h5>Masukkan Rekening Tujuan:</h5>
+              <InputText type="text" v-model="norek" class="custom-input" :class="{ 'p-invalid': nomorRekeningError }"
                 required /> &nbsp;
               <span v-if="nomorRekeningError" class="p-error">Nomor rekening harus diisi</span>
             </div>
@@ -19,16 +19,18 @@
   </div>
 
   <Dialog v-if="showModal" v-model:visible="showModal" modal header="Setor" :style="{ width: '50vw' }">
+    <div style="text-align: center; line-height: 1;font-size: 20px; margin-top: 10px;"> 
     <p>Nomor Rekening : {{ infoNasabah.norek }}</p>
     <p>Nama Pemilik Rekening : {{ infoNasabah.nama }}</p>
     <p>Saldo : {{ infoNasabah.saldo }}</p>
     <div>
       <h3>Nominal Setor:</h3>
-      <InputText type="number" v-model="jumlah" class="custom-input" :class="{ 'p-invalid': jumlahSetorError }"
+      <InputText type="text" v-model="jumlah" class="custom-input" :class="{ 'p-invalid': jumlahSetorError }"
         required />
     </div>
     <div style="margin: 10px;">
       <Button label="Setor" class="custom-button" @click="handleSetor" type="submit"/>
+    </div>
     </div>
   </Dialog>
 </template>
@@ -105,15 +107,16 @@ export default {
 
         Swal.fire({
           icon: 'success',
-          text: 'Berhasil setor.',
+          text: 'Setoran anda berhasil dikirim.',
           customClass: {
-            container: 'custom-class',
+            container: 'custom-class', // Anda perlu menambahkan gaya ini
           },
           allowOutsideClick: false,
-            allowEscapeKey: false,
-            allowEnterKey: false, // pastikan pesan tidak bisa ditutup dengan menekan tombol Enter
-            showConfirmButton: true, // tampilkan tombol OK
-            confirmButtonText: 'OK',
+          allowEscapeKey: false,
+          allowEnterKey: false,
+          showConfirmButton: true,
+          confirmButtonText: 'OK',
+          appendTo: 'body' // Anda perlu menambahkan ini agar pesan notifikasi muncul di depan modal
         });
 
       } catch (error) {
@@ -121,7 +124,11 @@ export default {
 
         Swal.fire({
           icon: 'error',
-          text: error.response.data
+          text: error.response.data,
+          customClass: {
+            container: 'custom-class', // Anda perlu menambahkan gaya ini
+          },
+          appendTo: 'body' // Anda perlu menambahkan ini agar pesan notifikasi muncul di depan modal
         });
       }
     },
@@ -130,7 +137,28 @@ export default {
 </script>
 
 <style>
+.custom-input {
+  width: 200px;
+  height: 40px;
+  font-size: 16px;
+}
+
+.custom-button {
+  width: 100px;
+  height: 40px;
+  font-size: 16px;
+}
+
+.p-invalid {
+  border-color: red;
+}
+
+.p-error {
+  color: red;
+}
+
+/* Gaya khusus untuk pesan notifikasi */
 .custom-class {
-  z-index: 3;
+  z-index: 10000; /* Pastikan pesan notifikasi ada di atas modal */
 }
 </style>

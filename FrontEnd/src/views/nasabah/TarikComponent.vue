@@ -2,13 +2,13 @@
   <div class="grid p-fluid">
     <div class="col-12">
       <div class="card">
-        <h2>Tarik Dana</h2>
+        <h2 style="margin-bottom: 25px;">Tarik Dana</h2>
         <form @submit.prevent="tarikDana">
           <div>
             <div>
-              <h5>Nomor Rekening Tujuan:</h5>
+              <h5>Masukkan Nomor Rekening Anda:</h5>
               <InputText
-                type="number"
+                type="text"
                 v-model="norek"
                 class="custom-input"
                 :class="{ 'p-invalid': nomorRekeningError }"
@@ -17,24 +17,27 @@
               <span v-if="nomorRekeningError" class="p-error">Nomor rekening harus diisi</span>
             </div>
           </div>
-          <div>
-            <h3>Jumlah Penarikan:</h3>
-            <InputText
-              type="number"
-              v-model="jumlah"
-              class="custom-input"
-              :class="{ 'p-invalid': jumlahTarikError }"
-              required
-            />
-            <span v-if="jumlahTarikError" class="p-error">Jumlah penarikan harus diisi</span>
-          </div>
-          <div style="margin: 10px;">
-            <Button label="Tarik Dana" class="custom-button" type="submit" />
+          <div> &nbsp
+            <Button label="Cek Rekening" class="custom-button" type="submit" />
           </div>
         </form>
       </div>
     </div>
   </div>
+
+  <Dialog v-if="showModal" v-model:visible="showModal" modal header="Informasi Saldo" :style="{ width: '50vw' }">
+    <div style="text-align: center; line-height: 1; font-size: 20px; margin-top: 10px;">
+      <p>Nomor Rekening : {{ nasabah.norek }}</p>
+      <p>Nama Nasabah : {{ nasabah.nama }}</p>
+      <div>
+        <h3> Jumlah Tarik:</h3>
+        <InputText type="text" v-model="jumlahTarik" class="custom-input" :class="{ 'p-invalid': jumlahTarikError}" required/>
+      </div>
+    <div style="margin: 20px;">
+      <Button label="Tarik Dana" class="custom-button" @click="prosesTarikDana" />
+    </div>
+    </div>
+  </Dialog>
 </template>
 
 <script>
@@ -47,8 +50,9 @@ export default {
     return {
       norek: "",
       nomorRekeningError: false,
-      jumlah: "",
-      jumlahTarikError: false,
+      jumlahTarik: "", // Jumlah tarik akan diinput setelah informasi saldo ditampilkan
+      showModal: false, // Pastikan ini diatur sebagai false
+      nasabah: {}, // Informasi nasabah
     };
   },
   methods: {
@@ -60,7 +64,26 @@ export default {
         this.nomorRekeningError = false;
       }
 
-      if (!this.jumlah) {
+      try {
+        const response = await axios.get(
+          `http://localhost:8000/api/v1/nasabah/cekSaldo?norek=${this.norek}`,
+          {
+            norek: Number(this.norek)
+          }
+        );
+        this.nasabah = response.data;
+        this.showModal = true; // Perbarui showModal untuk menampilkan modal
+      } catch (error) {
+        console.log(error);
+        Swal.fire({
+          icon: 'error',
+          text: error.response.data
+        });
+      }
+    },
+    
+    async prosesTarikDana() {
+      if (!this.jumlahTarik) {
         this.jumlahTarikError = true;
         return;
       } else {
@@ -72,20 +95,21 @@ export default {
           `http://localhost:8000/api/v1/nasabah/tarik`,
           {
             norek: Number(this.norek),
-            jumlah: Number(this.jumlah)
+            jumlah: Number(this.jumlahTarik)
           }
         );
 
         Swal.fire({
           icon: 'success',
-          text: 'Berhasil melakukan penarikan.'
+          text: 'Dana anda berhasil ditarik.'
         });
 
         // Setelah berhasil, Anda dapat mereset input
         this.norek = "";
-        this.jumlah = "";
+        this.jumlahTarik = "";
+        this.showModal = false; // Sembunyikan modal setelah penarikan berhasil
       } catch (error) {
-        console.log(error);
+        console.error(error);
 
         Swal.fire({
           icon: 'error',
@@ -96,3 +120,40 @@ export default {
   },
 };
 </script>
+
+<style>
+.custom-input {
+  width: 200px;
+  height: 40px;
+  font-size: 16px;
+}
+
+.custom-button {
+  width: 100px;
+  height: 40px;
+  font-size: 16px;
+}
+
+.p-invalid {
+  border-color: red;
+}
+
+.p-error {
+  color: red;
+}
+
+.p-dialog .p-dialog-header {
+  border-bottom: 0 none;
+  background: #b0aec8f7;
+  color: #ffffff;
+  padding: 1.5rem;
+  border-top-right-radius: 6px;
+  border-top-left-radius: 6px;
+}
+
+.p-icon {
+  width: 5rem;
+  height: 1rem;
+  color: black;
+}
+</style>

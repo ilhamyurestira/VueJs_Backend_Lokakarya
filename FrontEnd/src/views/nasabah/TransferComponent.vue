@@ -2,7 +2,7 @@
   <div class="grid p-fluid">
     <div class="col-12">
       <div class="card">
-        <h2>Transfer</h2>
+        <h2 style="margin-bottom: 25px;">Transfer</h2>
         <form @submit.prevent="getAccountInfo">
           <div>
             <div>
@@ -26,6 +26,7 @@
 
   <!-- Modal untuk informasi pemilik rekening -->
   <Dialog v-if="showAccountInfo" v-model:visible="showAccountInfo" modal header="Informasi Rekening" :style="{ width: '50vw' } ">
+    <div style="text-align: center; line-height: 1;font-size: 20px; margin-top: 10px;"> 
     <p>Nomor Rekening: {{ accountInfo.nomorRekening }}</p>
     <p>Nama Pemilik Rekening: {{ accountInfo.namaPemilikRekening }}</p>
     <p>Saldo Saat Ini: {{ accountInfo.saldo }}</p>
@@ -40,18 +41,19 @@
       />
       <span v-if="nomorRekeningPenerimaError" class="p-error">Nomor rekening penerima harus diisi</span>
     </div>
-    <div>
+    <div> &nbsp;
       <h5>Jumlah Transfer:</h5>
       <InputText
-        type="number"
+        type="text"
         v-model="jumlahTransfer"
         class="custom-input"
         :class="{'p-invalid': jumlahTransferError}"
         required
       />
       <span v-if="jumlahTransferError" class="p-error">Jumlah transfer harus diisi</span>
-    </div>
+    </div>&nbsp; &nbsp; &nbsp;
     <Button label="Transfer" class="custom-button" @click="transfer" />
+    </div>
   </Dialog>
 </template>
 
@@ -146,7 +148,16 @@ export default {
         // Tampilkan notifikasi berhasil
         Swal.fire({
           icon: 'success',
-          text: 'Transfer berhasil.'
+          text: 'Transfer berhasil.',
+          customClass:{
+            container: 'custom-class'
+          },
+          allowOutsideClick: false,
+          allowEscapeKey: false,
+          allowEnterKey: false,
+          showConfirmButton: true,
+          confirmButtonText: 'OK',
+          appendTo: 'body'
         });
 
         // Setelah berhasil, Anda dapat mereset semua input dan menyembunyikan modal
@@ -160,10 +171,40 @@ export default {
         Swal.fire({
           icon: 'error',
           text: error.response.data,
-          // 'z-index': 3
+          customClass:{
+            container: 'custom-class'
+          },
+          appendTo: 'body'
         });
       }
     },
   },
 };
 </script>
+
+<style>
+.custom-input {
+  width: 200px;
+  height: 40px;
+  font-size: 16px;
+}
+
+.custom-button {
+  width: 100px;
+  height: 40px;
+  font-size: 16px;
+}
+
+.p-invalid {
+  border-color: red;
+}
+
+.p-error {
+  color: red;
+}
+
+/* Gaya khusus untuk pesan notifikasi */
+.custom-class {
+  z-index: 10000; /* Pastikan pesan notifikasi ada di atas modal */
+}
+</style>
