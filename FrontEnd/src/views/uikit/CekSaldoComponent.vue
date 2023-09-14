@@ -49,7 +49,7 @@ const cekSaldo = (e) => {
 } else {
     Swal.fire({
         title: 'Nomor Rekening Tidak Ditemukan',
-        text: 'Nomor rekening tidak ditemukan.',
+        text: 'Nomor rekening yang anda masukkan tidak ditemukan.',
         icon: 'error',
     });
 }

@@ -3,11 +3,11 @@ import { Request, Response } from 'express';
 import IController from './Controller_Interface';
 
 const db = require('../db/models/');
-const { master_bank } = require('../db/models/master_bank');
+const { master_bank, transaksi_nasabah, history_transaksi_bank } = require('../db/models/master_bank');
 
 class BayarTelponController implements IController {
   bayarTelpon = async (req: Request, res: Response): Promise<Response> => {
-    const { nomorRekening, nomorTelpon, jumlahPembayaran } = req.body;
+    const { nomorRekening, nomorTelpon, jumlahPembayaran, penerimaBayarTelpon } = req.body;
 
     try {
       // Validasi input
@@ -35,8 +35,31 @@ class BayarTelponController implements IController {
       // Simpan perubahan saldo
       await pemilikRekening.save();
 
-      // Simpan transaksi dan history (Anda perlu menyesuaikan ini dengan struktur tabel Anda)
-      // ...
+      // Simpan transaksi dan history 
+      const tanggalTransaksi = new Date();
+      const transaksiBaru = await db.transaksi_nasabah.create({
+        norek: pemilikRekening.norek,
+        tanggal: tanggalTransaksi,
+        status: 'K',
+        uang: jumlahPembayaran,
+        status_ket: 4,
+        norek_dituju: penerimaBayarTelpon.norek,
+        no_tlp: nomorTelpon,
+        created_at: tanggalTransaksi,
+        updated_at: tanggalTransaksi,
+      });
+
+      const historyTransaksiBaru = await db.history_transaksi_bank.create({
+        norek: pemilikRekening.norek,
+        tanggal: tanggalTransaksi,
+        uang: jumlahPembayaran,
+        status_ket: 4,
+        norek_dituju: penerimaBayarTelpon.norek,
+        no_tlp: nomorTelpon,
+        nama: pemilikRekening.nama,
+        created_at: tanggalTransaksi,
+        updated_at: tanggalTransaksi,
+      });
 
       // Kirim respons JSON ke frontend
       return res.status(200).json({

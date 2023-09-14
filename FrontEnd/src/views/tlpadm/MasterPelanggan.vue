@@ -3,10 +3,12 @@ import { FilterMatchMode } from 'primevue/api';
 import { ref, onMounted, onBeforeMount } from 'vue';
 import ProductService from '@/service/ProductService';
 import { useToast } from 'primevue/usetoast';
+import axios from 'axios'; // Import Axios
 
 const toast = useToast();
 
 const products = ref(null);
+const apiUrl = 'http://localhost:8000/api/v1/masterPelanggan'; // Replace with your API URL
 const productDialog = ref(false);
 const deleteProductDialog = ref(false);
 const deleteProductsDialog = ref(false);
@@ -27,8 +29,20 @@ onBeforeMount(() => {
     initFilters();
 });
 onMounted(() => {
-    productService.getProducts().then((data) => (products.value = data));
+    // productService.getProducts().then((data) => (products.value = data));
+    fetchData();
 });
+
+const fetchData = () => {
+    axios.get(apiUrl)
+        .then((response) => {
+            products.value = response.data; // Assuming your API response is an array of products
+        })
+        .catch((error) => {
+            console.error('Error fetching data:', error);
+            toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to fetch data from the API', life: 3000 });
+        });
+};
 const formatCurrency = (value) => {
     return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
 };
@@ -161,7 +175,7 @@ const initFilters = () => {
                         headerStyle="width:20%; min-width:10rem;has-text-centered">
                         <template #body="slotProps">
                             <span class="p-column-title">ID</span>
-                            {{ slotProps.data.idPelanggan }}
+                            {{ slotProps.data.id }}
                         </template>
                     </Column>
                     <Column field="nama" header="Nama" :sortable="true" headerStyle="width20%; min-width:10rem;">
@@ -173,7 +187,7 @@ const initFilters = () => {
                     <Column field="noTlp" header="No Telpon" :sortable="true" headerStyle="width:20%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">No Telpon</span>
-                            {{ slotProps.data.noTelp }}
+                            {{ slotProps.data.no_telp }}
                         </template>
                     </Column>
                     <Column field="alamat" header="Alamat" :sortable="true" headerStyle="width:20%; min-width:10rem;">
