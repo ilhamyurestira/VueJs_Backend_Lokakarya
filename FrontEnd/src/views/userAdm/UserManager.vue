@@ -1,4 +1,5 @@
 <script setup>
+'use strict';
 import { FilterMatchMode } from 'primevue/api';
 import { ref, onMounted, onBeforeMount } from 'vue';
 import ProductService from '@/service/ProductService';
@@ -7,19 +8,27 @@ import { useToast } from 'primevue/usetoast';
 
 const toast = useToast();
 
-const loadedData = ref(null);
+const loadedUsers = ref(null);
 // const adminData = ref(null);
+const newUser = ref({
+    id: null,
+    username: null
+});
 const passwordConfirmation = ref(null);
-const authenticated = ref(false);
-const check = ref({ password: '' });
+const check = ref({ password: null });
 const apiUrl = 'http://localhost:8000/api/v1/admin/manage/users';
+const nasabahUrl = `http://localhost:8000/api/v1/masterBank`;
+const pelangganUrl = `http://loaclhost:8000/api/v1/masterPelanggan`;
 const adminCheckUrl = `http://localhost:8000/api/v1/admin/manage/users/check`;
 const createUserDialog = ref(false);
+const createNasabahQuerry = ref(false);
+const createPelangganQuerry = ref(false);
 const editUserDialog = ref(false);
 const editUserInformationDialog = ref(false);
 const deleteUserDialog = ref(false);
 const deleteProductsDialog = ref(false);
 const user = ref({});
+const saldoAwal = ref({ saldo: null });
 const selectedProducts = ref(null);
 const dt = ref(null);
 const filters = ref({});
@@ -36,37 +45,27 @@ onBeforeMount(() => {
     initFilters();
 });
 onMounted(() => {
-    fetchData();
-    // getAdminData();
+    fetchUserData();
 });
 
-const fetchData = () => {
+const fetchUserData = () => {
     axios
         .get(apiUrl)
         .then((response) => {
-            loadedData.value = response.data; // Assuming your API response is an array of products
+            loadedUsers.value = response.data; // Assuming your API response is an array of products
         })
         .catch((error) => {
-            console.error('Error fetching data:', error);
+            console.error('Error fetching user data:', error);
             toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to fetch data from the API', life: 3000 });
         });
 };
 
-// const getAdminData = () => {
-//     axios
-//         .get(`${apiUrl}/1`)
-//         .then((response) => {
-//             adminData.value = response.data;
-//         })
-//         .catch((error) => {
-//             console.error('Error fetching data:', error);
-//             toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to fetch data from the API', life: 3000 });
-//         });
-// };
-
 const openUserCreationMenu = () => {
     user.value = {};
-    passwordConfirmation.value = ref(null);
+    passwordConfirmation.value = null;
+    createNasabahQuerry.value = false;
+    createPelangganQuerry.value = false;
+    saldoAwal.value.saldo = null;
     submitted.value = false;
     createUserDialog.value = true;
 };
@@ -99,13 +98,13 @@ const createUser = () => {
             .then((response) => {
                 const data = response.data;
                 if (response.status === 201) {
+                    hideCreateUserDialog();
                     // Produk berhasil dibuat di BE, tidak ada respons yang diharapkan dari BE
                     toast.add({
                         severity: 'success',
                         summary: 'Sukses',
                         detail: `User: ${user.value.username} telah berhasil dibuat.`
                     });
-                    hideCreateUserDialog();
                 } else {
                     toast.add({
                         severity: 'error',
@@ -124,6 +123,92 @@ const createUser = () => {
                 });
             });
     }
+    console.log(newUser.value);
+    if (createNasabahQuerry.value === true) {
+        createBankAccount();
+    }
+    if (createPelangganQuerry.value === true) {
+        registerPelanggan();
+    }
+    user.value = {};
+    fetchUserData();
+};
+
+const getNewUser = () => {
+    axios
+        .get(`${apiUrl}/${user.value.username}`)
+        .then((response) => {
+            const data = response.data;
+            console.log(data);
+            newUser.value.id = response.data.id;
+            newUser.value.username = response.data.id;
+        })
+        .catch((error) => {
+            console.log(error);
+            toast.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: `gagal mengambil user id baru (errcode: ${error.response.status})`,
+                life: 3000
+            });
+        });
+};
+
+const createBankAccount = () => {
+    const newData = {
+        userId: newUser.value.id,
+        saldo: saldoAwal.value.saldo
+    };
+    console.log(newData);
+    axios
+        .post('http://localhost:8000/api/v1/masterBank/tambah', newData)
+        .then((response) => {
+            const data = response.data;
+            console.log(data);
+            if (response.status === 200) {
+                toast.add({
+                    severity: 'success',
+                    summary: 'Sukses',
+                    detail: `Bank Account untuk user: ${user.value.username} telah berhasil dibuat.`
+                });
+            }
+            createNasabahQuerry.value = false;
+        })
+        .catch((error) => {
+            console.log(error);
+            toast.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: `Bank Account gagal dibuat (errcode: ${error.response.status})`,
+                life: 3000
+            });
+        });
+};
+
+const registerPelanggan = (newUser) => {
+    axios
+        .post('http://localhost:8000/api/v1/masterPelanggan/tambah', { userId: newUser.value.id })
+        .then((response) => {
+            const data = response.data;
+            console.log(data);
+            if (response.status === 200) {
+                toast.add({
+                    severity: 'success',
+                    summary: 'Sukses',
+                    detail: `Berhasil mendaftar user: ${user.value.username} sebagai pelanggan telkom`
+                });
+            }
+            createPelangganQuerry.value = false;
+        })
+        .catch((error) => {
+            console.log(error);
+            toast.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: `Gagal mendaftarkan user: ${user.value.username} sebagai pelanggan telkom. (errcode: ${error.response.status})`,
+                life: 3000
+            });
+        });
 };
 
 const openEditUserInformationMenu = (selectedUser) => {
@@ -185,8 +270,6 @@ const editUser = () => {
                         summary: 'Sukses',
                         detail: `User: ${user.value.username} telah berhasil diubah.`
                     });
-                    check.value.password = '';
-                    authenticated.value = false;
                     editUserDialog.value = false;
                     hideEditUserDialog();
                 } else {
@@ -196,9 +279,8 @@ const editUser = () => {
                         detail: `informasi user: ${user.value.username} gagal diubah (errcode: ${response.status})`,
                         life: 3000
                     });
-                    check.value.password = '';
-                    authenticated.value = false;
                 }
+                check.value.password = null;
             })
             .catch((error) => {
                 toast.add({
@@ -207,13 +289,13 @@ const editUser = () => {
                     detail: `User gagal dibubah (errcode: ${error.response.status})`,
                     life: 3000
                 });
-                check.value.password = '';
-                authenticated.value = false;
+                check.value.password = null;
             });
     }
 };
 
 const confirmDeleteUser = (selectedUser) => {
+    passwordConfirmation.value = null;
     user.value = selectedUser;
     deleteUserDialog.value = true;
 };
@@ -225,7 +307,7 @@ const hideDeleteDialog = () => {
 
 const deleteUser = () => {
     //removes the data from the currently loaded data
-    loadedData.value = loadedData.value.filter((val) => val.id !== user.value.id);
+    loadedUsers.value = loadedUsers.value.filter((val) => val.id !== user.value.id);
     deleteUserDialog.value = false;
     // console.log(`http://localhost:8000/api/v1/admin/manage/users/${users.value.id}`);
     axios
@@ -262,6 +344,10 @@ const deleteUser = () => {
 
 const exportCSV = () => {
     dt.value.exportCSV();
+};
+
+const formatCurrency = (value) => {
+    return value.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' });
 };
 
 // const confirmDeleteSelected = () => {
@@ -301,7 +387,7 @@ const initFilters = () => {
 
                 <DataTable
                     ref="dt"
-                    :value="loadedData"
+                    :value="loadedUsers"
                     v-model:selection="selectedProducts"
                     dataKey="id"
                     :paginator="true"
@@ -309,7 +395,7 @@ const initFilters = () => {
                     :filters="filters"
                     paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                     :rowsPerPageOptions="[5, 10, 25]"
-                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
+                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} user accounts"
                     responsiveLayout="scroll"
                 >
                     <template #header>
@@ -328,42 +414,7 @@ const initFilters = () => {
                             {{ slotProps.data.username }}
                         </template>
                     </Column>
-                    <!-- <Column field="nama" header="Nama" :sortable="true" headerStyle="width:14%; min-width:8rem;">
-                        <template #body="slotProps">
-                            <span class="p-column-title">Nama</span>
-                            {{ slotProps.data.nama }}
-                        </template>
-                    </Column>
-                    <Column field="alamat" header="Alamat" :sortable="true" headerStyle="width:14%; min-width:10rem;">
-                        <template #body="slotProps">
-                            <span class="p-column-title">Alamat</span>
-                            {{ slotProps.data.alamat }}
-                        </template>
-                    </Column>
-                    <Column field="telp" header="No Telepon" :sortable="true" headerStyle="width:14%; min-width:10rem;">
-                        <template #body="slotProps">
-                            <span class="p-column-title">No Telepon</span>
-                            {{ slotProps.data.telp }}
-                        </template>
-                    </Column>
-                    <Column field="email" header="E-Mail" :sortable="true" headerStyle="width:14%; min-width:10rem;">
-                        <template #body="slotProps">
-                            <span class="p-column-title">E-Mail</span>
-                            {{ slotProps.data.email }}
-                        </template>
-                    </Column>
-                    <Column field="createdBy" header="Creator" :sortable="true" headerStyle="width:14%; min-width:10rem;">
-                        <template #body="slotProps">
-                            <span class="p-column-title">Creator</span>
-                            {{ slotProps.data.createdBy }}
-                        </template>
-                    </Column>
-                    <Column field="updatedBy" header="Updated By" :sortable="true" headerStyle="width:14%; min-width:10rem;">
-                        <template #body="slotProps">
-                            <span class="p-column-title">Updated By</span>
-                            {{ slotProps.data.updatedBy }}
-                        </template>
-                    </Column> -->
+
                     <Column header="Actions" headerStyle="width:30%; min-width:10rem;">
                         <template #body="slotProps">
                             <Button icon="pi pi-user-edit" class="p-button-secondary mt-2 mr-1 ml-1" label="Edit Information" @click="openEditUserInformationMenu(slotProps.data)" />
@@ -408,13 +459,42 @@ const initFilters = () => {
                     </div>
                     <div class="field">
                         <label for="email">Email</label>
-                        <InputText id="email" v-model.trim="user.email" required="true" autofocus :class="{ 'p-invalid': submitted && !user.email }" />
+                        <InputText id="email" type="email" v-model.trim="user.email" required="true" autofocus :class="{ 'p-invalid': submitted && !user.email }" />
                         <small class="p-invalid" v-if="submitted && !user.email">E-Mail tidak boleh kosong.</small>
                     </div>
                     <div class="field">
                         <label for="telp">No. Telepon</label>
                         <InputText id="telp" v-model.trim="user.telp" required="true" autofocus :class="{ 'p-invalid': submitted && !user.telp }" />
                         <small class="p-invalid" v-if="submitted && !user.telp">Nomor telepon tidak boleh kosong.</small>
+                    </div>
+                    <div class="field">
+                        <label for="Option"><b>User Account Settings</b></label>
+                        <div class="field-checkbox mb-2">
+                            <InputSwitch v-model="createNasabahQuerry" />
+                            <label for="createNasabah">Create Associated Bank Account</label>
+                        </div>
+                        <div v-if="createNasabahQuerry" class="field">
+                            <div class="field">
+                                <label for="saldo">Saldo</label>
+                                <InputNumber
+                                    v-model="saldoAwal.saldo"
+                                    inputId="currency-indonesia"
+                                    mode="currency"
+                                    currency="IDR"
+                                    locale="id-ID"
+                                    id="saldo"
+                                    required="true"
+                                    autofocus
+                                    :class="{ 'p-invalid': (submitted && !saldoAwal.saldo) || saldoAwal.saldo < 100000 }"
+                                />
+                                <small class="p-invalid" v-if="submitted && !saldoAwal.saldo">Saldo harus diisi</small>
+                                <small class="p-invalid" v-if="saldoAwal.saldo < 100000">Saldo minimal Rp.100.000.</small>
+                            </div>
+                        </div>
+                        <div class="field-checkbox mb-2">
+                            <InputSwitch v-model="createPelangganQuerry" />
+                            <label for="createPelanggan">Register as Pelanggan Telkom</label>
+                        </div>
                     </div>
 
                     <template #footer>
@@ -455,7 +535,7 @@ const initFilters = () => {
                     </div>
                     <div class="field">
                         <label for="email">Email</label>
-                        <InputText id="email" v-model.trim="user.email" required="true" autofocus :class="{ 'p-invalid': submitted && !user.email }" />
+                        <InputText id="email" type="email" v-model.trim="user.email" required="true" autofocus :class="{ 'p-invalid': submitted && !user.email }" />
                         <small class="p-invalid" v-if="submitted && !user.email">E-Mail tidak boleh kosong.</small>
                     </div>
                     <div class="field">
@@ -472,6 +552,18 @@ const initFilters = () => {
 
                 <!-- <Dialog v-model:visible="resetUserPasswordDialog" :style="{ width: '450px' }" header="Create User" :modal="true" class="p-fluid">
 
+                </Dialog> -->
+
+                <!-- <Dialog v-model:visible="createNasabahDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
+                    <div class="flex align-items-center justify-content-center">
+                        <i class="pi pi-question-circle mr-3" style="font-size: 2rem" />
+                        <span v-if="user">Do you also want to create a bank account linked to the user? </span>
+                    </div>
+                    <template #footer>
+                        <Button label="No" icon="pi pi-times" class="p-button-warning p-button-text" @click="" />
+                        <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="" />
+                        but
+                    </template>
                 </Dialog> -->
 
                 <Dialog v-model:visible="deleteUserDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
