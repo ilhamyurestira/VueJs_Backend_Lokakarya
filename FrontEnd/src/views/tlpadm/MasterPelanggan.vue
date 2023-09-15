@@ -215,32 +215,32 @@ const initFilters = () => {
                     </template>
 
                     <!-- <Column selectionMode="multiple" headerStyle="width: 3rem"></Column> -->
-                    <Column field="id" header="ID" :sortable="true"
+                    <!-- <Column field="id" header="ID" :sortable="true"
                         headerStyle="width:20%; min-width:10rem;has-text-centered">
                         <template #body="slotProps">
                             <span class="p-column-title">ID</span>
                             {{ slotProps.data.id }}
                         </template>
-                    </Column>
-                    <Column field="nama" header="Nama" :sortable="true" headerStyle="width20%; min-width:10rem;">
+                    </Column> -->
+                    <Column field="nama" header="Nama" :sortable="true" headerStyle="width35%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Nama</span>
                             {{ slotProps.data.nama }}
                         </template>
                     </Column>
-                    <Column field="noTlp" header="No Telpon" :sortable="true" headerStyle="width:20%; min-width:10rem;">
+                    <Column field="noTlp" header="No Telpon" :sortable="true" headerStyle="width:25%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">No Telpon</span>
                             {{ slotProps.data.no_telp }}
                         </template>
                     </Column>
-                    <Column field="alamat" header="Alamat" :sortable="true" headerStyle="width:20%; min-width:10rem;">
+                    <Column field="alamat" header="Alamat" :sortable="true" headerStyle="width:30%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Alamat</span>
                             {{ slotProps.data.alamat }}
                         </template>
                     </Column>
-                    <Column header="Action" headerStyle="width:20%;min-width:10rem;">
+                    <Column header="Action" headerStyle="width:10%;min-width:10rem;">
                         <template #body="slotProps">
                             <!-- <Button icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2"
                                 @click="editProduct(slotProps.data)" /> -->

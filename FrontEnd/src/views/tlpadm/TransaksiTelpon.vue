@@ -13,6 +13,7 @@ const productDialog = ref(false);
 const deleteProductDialog = ref(false);
 const deleteProductsDialog = ref(false);
 const product = ref({});
+const usersList = ref([]);
 const selectedProducts = ref(null);
 const dt = ref(null);
 const filters = ref({});
@@ -22,6 +23,7 @@ const statuses = ref([
     { label: 'LOWSTOCK', value: 'lowstock' },
     { label: 'OUTOFSTOCK', value: 'outofstock' }
 ]);
+const year = ref(new Date().getFullYear());
 
 const productService = new ProductService();
 
@@ -31,6 +33,7 @@ onBeforeMount(() => {
 onMounted(() => {
     // productService.getProducts().then((data) => (products.value = data));
     fetchData();
+    fetchUsers();
 });
 
 const formatCurrency = (value) => {
@@ -45,6 +48,20 @@ const fetchData = () => {
         .catch((error) => {
             console.error('Error fetching data:', error);
             toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to fetch data from the API', life: 3000 });
+        });
+};
+
+const fetchUsers = () => {
+    axios
+        .get('http://localhost:8000/api/v1/masterPelanggan')
+        .then((response) => {
+            // Response dari API berisi daftar pengguna
+            const users = response.data; // Asumsikan API mengembalikan array objek pengguna
+            // Assign daftar pengguna ke variabel di dalam data
+            usersList.value = users;
+        })
+        .catch((error) => {
+            console.error('Error fetching users:', error);
         });
 };
 
@@ -145,7 +162,7 @@ const initFilters = () => {
             <div class="card">
                 <Toast />
                 <!-- Button nambah data baru -->
-                <!-- <Toolbar class="mb-4">
+                <Toolbar class="mb-4">
                     <template v-slot:start>
                         <div class="my-2">
                             <Button label="Tambah Transaksi Telpon" icon="pi pi-plus" class="p-button-success mr-2"
@@ -153,7 +170,7 @@ const initFilters = () => {
                         </div>
                     </template>
 
-                </Toolbar> -->
+                </Toolbar>
 
                 <!-- Tabel data -->
                 <DataTable ref="dt" :value="products" v-model:selection="selectedProducts" dataKey="id" :paginator="true"
@@ -210,26 +227,50 @@ const initFilters = () => {
                     <!-- <img :src="'demo/images/product/' + product.image" :alt="product.image" v-if="product.image" width="150"
                         class="mt-0 mx-auto mb-5 block shadow-2" /> -->
                     <div class="field">
-                        <label for="idPelanggan">ID</label>
-                        <InputText id="idPelanggan" v-model.trim="product.idPelanggan" required="true" autofocus
-                            :class="{ 'p-invalid': submitted && !product.idPelanggan }" />
-                        <small class="p-invalid" v-if="submitted && !product.idPelanggan">ID harus di Isi.</small>
+                        <label for="id">ID Pelanggan</label>
+                        <Dropdown v-model.trim="product.userId" optionLabel="nama" optionValue="id" :options="usersList"
+                            placeholder="Pilih User" />
+                        <small class="p-invalid" v-if="submitted && !product.nama">ID Pelanggan harus di pilih</small>
                     </div>
-                    <div class="field">
+                    <!-- <div class="field">
                         <label for="nama">Nama</label>
                         <InputText id="nama" v-model.trim="product.nama" required="true" autofocus
                             :class="{ 'p-invalid': submitted && !product.nama }" />
                         <small class="p-invalid" v-if="submitted && !product.nama">Nama harus di Isi.</small>
+                    </div> -->
+                    <div class="field">
+                        <label for="noTelp">Bulan Tagihan</label>
+                        <InputText id="noTelp" v-model.trim="product.bulan_tagihan" required="true" autofocus
+                            :class="{ 'p-invalid': submitted && !product.tahun_tagihan }" />
+                        <small class="p-invalid" v-if="submitted && !product.bulan_tagihan">Bulan Tagihan harus di
+                            Isi.</small>
                     </div>
                     <div class="field">
-                        <label for="noTelp">No Telpon</label>
-                        <InputText id="noTelp" v-model.trim="product.noTelp" required="true" autofocus
-                            :class="{ 'p-invalid': submitted && !product.noTelp }" />
-                        <small class="p-invalid" v-if="submitted && !product.noTelp">No Telpon harus di Isi.</small>
+                        <label for="noTelp">Tahun Tagihan</label>
+                        <InputText id="noTelp" v-model.trim="product.tahun_tagihan" required="true" autofocus
+                            :class="{ 'p-invalid': submitted && !product.tahun_tagihan }" />
+                        <small class="p-invalid" v-if="submitted && !product.tahun_tagihan">Tahun Tagihan harus di
+                            Isi.</small>
                     </div>
                     <div class="field">
-                        <label for="alamat">Alamat</label>
-                        <Textarea id="alamat" v-model="product.alamat" required="true" rows="3" cols="20" />
+                        <label for="uang">Uang</label>
+                        <InputNumber id="uang" v-model="product.uang" mode="currency" currency="USD" locale="en-US"
+                            :class="{ 'p-invalid': submitted && !product.uang }" :required="true" />
+                        <small class="p-invalid" v-if="submitted && !product.uang">Uang harus di isi</small>
+                    </div>
+                    <div class="field">
+                        <label class="mb-3">Status</label>
+                        <div class="formgrid grid">
+                            <div class="field-radiobutton col-6">
+                                <RadioButton id="category1" name="category" value="Accessories"
+                                    v-model="product.category" />
+                                <label for="category1">Belum Bayar</label>
+                            </div>
+                            <div class="field-radiobutton col-6">
+                                <RadioButton id="category2" name="category" value="Clothing" v-model="product.category" />
+                                <label for="category2">Lunas</label>
+                            </div>
+                        </div>
                     </div>
                     <template #footer>
                         <Button label="Cancel" icon="pi pi-times" class="p-button-text" @click="hideDialog" />
