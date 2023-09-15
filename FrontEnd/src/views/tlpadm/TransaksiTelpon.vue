@@ -145,7 +145,7 @@ const initFilters = () => {
             <div class="card">
                 <Toast />
                 <!-- Button nambah data baru -->
-                <Toolbar class="mb-4">
+                <!-- <Toolbar class="mb-4">
                     <template v-slot:start>
                         <div class="my-2">
                             <Button label="Tambah Transaksi Telpon" icon="pi pi-plus" class="p-button-success mr-2"
@@ -153,7 +153,7 @@ const initFilters = () => {
                         </div>
                     </template>
 
-                </Toolbar>
+                </Toolbar> -->
 
                 <!-- Tabel data -->
                 <DataTable ref="dt" :value="products" v-model:selection="selectedProducts" dataKey="id" :paginator="true"

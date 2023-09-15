@@ -38,9 +38,15 @@ class TransaksiTelkomController implements IController {
     async create(req: Request, res: Response): Promise<Response> {
         const { id_pelanggan, bulan_tagihan, tahun_tagihan, uang, status } = req.body;
 
+        const pelanggan = await db.master_pelanggan.findByPk(id_pelanggan);
+
+        if (!pelanggan) {
+            return res.status(400).send(`Data pelanggan dengan userId: ${id_pelanggan} belum ada di tabel Master Pelanggan`);
+        }
+
         try {
             const newTransaksiTelkom = await db.transaksi_telkom.create({
-                id_pelanggan: id_pelanggan,
+                id_pelanggan: pelanggan.id,
                 bulan_tagihan: bulan_tagihan,
                 tahun_tagihan: tahun_tagihan,
                 uang: uang,
