@@ -38,13 +38,19 @@ class HistoryTransaksiTelponController implements IController {
     async create(req: Request, res: Response): Promise<Response> {
         const { id_pelanggan, tanggal_bayar, bulan_tagihan, tahun_tagihan, uang } = req.body;
 
+        const pelanggan = await db.master_pelanggan.findByPk(id_pelanggan);
+
+        if (!pelanggan) {
+            return res.status(400).send(`Data pelanggan dengan userId: ${id_pelanggan} belum ada di tabel Master Pelanggan`);
+        }
+
         try {
             const newHistoryTransaksiTelpon = await db.history_telkom.create({
-                id_pelanggan,
-                tanggal_bayar,
-                bulan_tagihan,
-                tahun_tagihan,
-                uang
+                id_pelanggan: pelanggan.id,
+                tanggal_bayar: tanggal_bayar,
+                bulan_tagihan: bulan_tagihan,
+                tahun_tagihan: tahun_tagihan,
+                uang: uang,
             });
 
             return res.status(200).json(newHistoryTransaksiTelpon);
