@@ -190,6 +190,13 @@ const initFilters = () => {
                     </template>
 
                     <!-- <Column selectionMode="multiple" headerStyle="width: 3rem"></Column> -->
+                    <Column field="idPelanggan" header="ID Pelanggan" :sortable="true"
+                        headerStyle="width20%; min-width:10rem;">
+                        <template #body="slotProps">
+                            <span class="p-column-title">ID Pelanggan</span>
+                            {{ slotProps.data.id }}
+                        </template>
+                    </Column>
                     <Column field="blnTagihan" header="Bulan Tagihan" :sortable="true"
                         headerStyle="width20%; min-width:10rem;">
                         <template #body="slotProps">
