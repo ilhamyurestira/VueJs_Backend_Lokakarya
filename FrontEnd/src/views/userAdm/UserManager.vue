@@ -13,6 +13,7 @@ const passwordConfirmation = ref(null);
 const authenticated = ref(false);
 const check = ref({ password: '' });
 const apiUrl = 'http://localhost:8000/api/v1/admin/manage/users';
+const adminCheckUrl = `http://localhost:8000/api/v1/admin/manage/users/check`;
 const createUserDialog = ref(false);
 const editUserDialog = ref(false);
 const editUserInformationDialog = ref(false);
@@ -118,7 +119,7 @@ const createUser = () => {
                 toast.add({
                     severity: 'error',
                     summary: 'Error',
-                    detail: `User gagal dibuat (errcode: ${error.status})`,
+                    detail: `User gagal dibuat (errcode: ${error.response.status})`,
                     life: 3000
                 });
             });
@@ -132,11 +133,12 @@ const openEditUserInformationMenu = (selectedUser) => {
 
 const confirmEditUser = () => {
     editUserDialog.value = true;
+    passwordConfirmation.value = null;
 };
 
 const checkAdminPassword = (PasswordCheck) => {
     axios
-        .post(`${apiUrl}/check`, PasswordCheck)
+        .post(`${adminCheckUrl}`, PasswordCheck)
         .then((response) => {
             if (response.status === 200) {
                 editUser();
@@ -202,7 +204,7 @@ const editUser = () => {
                 toast.add({
                     severity: 'error',
                     summary: 'Error',
-                    detail: `User gagal dibubah (errcode: ${error.status})`,
+                    detail: `User gagal dibubah (errcode: ${error.response.status})`,
                     life: 3000
                 });
                 check.value.password = '';
@@ -214,6 +216,11 @@ const editUser = () => {
 const confirmDeleteUser = (selectedUser) => {
     user.value = selectedUser;
     deleteUserDialog.value = true;
+};
+
+const hideDeleteDialog = () => {
+    deleteUserDialog.value = false;
+    passwordConfirmation.value = null;
 };
 
 const deleteUser = () => {
@@ -471,13 +478,28 @@ const initFilters = () => {
                     <div class="flex align-items-center justify-content-center">
                         <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
                         <span v-if="user"
-                            >Are you sure you want to delete <b>{{ user.username }}</b
-                            >?</span
+                            >Are you sure you want to delete user: <b>{{ user.username }}</b> ? <br />
+                            <small>Please enter the confirmation text below (lower case only)</small></span
                         >
                     </div>
+                    <div class="flex align-items-center mt-4 justify-content-center">
+                        <InputText
+                            id="confirmation"
+                            type="text"
+                            v-model="passwordConfirmation"
+                            required="true"
+                            placeholder="confirm delete user"
+                            autofocus
+                            :class="{ 'p-invalid': !passwordConfirmation || passwordConfirmation !== 'confirm delete user' }"
+                        />
+                    </div>
+                    <div class="flex align-items-center mt-1 justify-content-center">
+                        <small class="p-invalid" v-if="!passwordConfirmation">please enter the confirmation text</small>
+                        <small class="p-invalid" v-else-if="passwordConfirmation !== 'confirm delete user'">invalid confirmation text</small>
+                    </div>
                     <template #footer>
-                        <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteUserDialog = false" />
-                        <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteUser" />
+                        <Button label="No" icon="pi pi-times" class="p-button-text" @click="hideDeleteDialog()" />
+                        <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteUser" :class="{ 'p-disabled': !passwordConfirmation || passwordConfirmation !== 'confirm delete user' }" />
                     </template>
                 </Dialog>
             </div>
