@@ -122,8 +122,8 @@ const createRole = () => {
     }
 };
 
-const openEditRoleInformationMenu = (selectedUser) => {
-    role.value = selectedUser;
+const openEditRoleInformationMenu = (selectedRole) => {
+    role.value = selectedRole;
     editRoleInformationDialog.value = true;
 };
 
@@ -188,7 +188,7 @@ const editRole = () => {
                     toast.add({
                         severity: 'error',
                         summary: 'Error',
-                        detail: `role: ${role.value.nama} gagal diubah (errcode: ${response.status})`,
+                        detail: `Role: ${role.value.nama} gagal diubah (errcode: ${response.status})`,
                         life: 3000
                     });
                     check.value.password = '';
@@ -320,7 +320,7 @@ const initFilters = () => {
 
                     <Column field="roleName" header="RoleName" :sortable="true" headerStyle="width:70%; min-width:10rem;">
                         <template #body="slotProps">
-                            <span class="p-column-title">Username</span>
+                            <span class="p-column-title">Role Name</span>
                             {{ slotProps.data.nama }}
                         </template>
                     </Column>
@@ -350,7 +350,7 @@ const initFilters = () => {
                     <div class="flex align-items-center justify-content-center">
                         <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
                         <span v-if="role"
-                            >Are you sure you want to edit <b>{{ role.username }}</b> information ? please enter user admin password to confirm
+                            >Are you sure you want to edit <b>{{ role.nama }}</b> information ? please enter user admin password to confirm
                         </span>
                     </div>
                     <div class="flex align-items-center mt-4 justify-content-center">
@@ -368,7 +368,7 @@ const initFilters = () => {
 
                 <Dialog v-model:visible="editRoleInformationDialog" :style="{ width: '450px' }" header="Edit User Information" :modal="true" class="p-fluid">
                     <div class="field">
-                        <label for="nama">Nama</label>
+                        <label for="nama">Role Name</label>
                         <InputText id="name" v-model.trim="role.nama" required="true" autofocus :class="{ 'p-invalid': submitted && !role.nama }" />
                         <small class="p-invalid" v-if="submitted && !role.nama">Nama tidak boleh kosong.</small>
                     </div>
@@ -383,7 +383,7 @@ const initFilters = () => {
                     <div class="flex align-items-center justify-content-center">
                         <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
                         <span v-if="role"
-                            >Are you sure you want to delete user: <b>{{ role.username }}</b> ? <br />
+                            >Are you sure you want to delete user: <b>{{ role.nama }}</b> ? <br />
                             <small>Please enter the confirmation text below (lower case only)</small></span
                         >
                     </div>

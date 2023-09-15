@@ -38,7 +38,7 @@ class RoleController implements IController {
   };
 
   create = async (req: Request, res: Response): Promise<Response> => {
-    const { nama } = req.body;
+    const { nama, programName, createdBy } = req.body;
 
     try {
       if (!nama) {
@@ -52,8 +52,8 @@ class RoleController implements IController {
         } else {
           const newData = await dm.create({
             nama,
-            programName: 'System',
-            createdBy: 'System',
+            programName,
+            createdBy,
           });
           return res
             .status(201)
@@ -68,7 +68,7 @@ class RoleController implements IController {
 
   update = async (req: Request, res: Response): Promise<Response> => {
     const { id } = req.params;
-    const { nama } = req.body;
+    const { nama, programName, updatedBy } = req.body;
 
     try {
       if (!nama) {
@@ -80,7 +80,7 @@ class RoleController implements IController {
         }
 
         const current = data.nama;
-        await data.update({ nama, updatedBy: 'System' });
+        await data.update({ nama, programName, updatedBy });
         return res.status(200).send(`Role "${current}" telah berhasil diubah.`);
       }
     } catch (err) {
