@@ -25,10 +25,11 @@
     </div>
   </div>
 
-  <Dialog v-if="showModal" v-model:visible="showModal" modal header="Informasi Saldo" :style="{ width: '50vw' }">
+  <Dialog v-if="showModal" v-model:visible="showModal" modal header="Informasi Rekening" :style="{ width: '50vw' }">
     <div style="text-align: center; line-height: 1; font-size: 20px; margin-top: 10px;">
       <p>Nomor Rekening : {{ nasabah.norek }}</p>
       <p>Nama Nasabah : {{ nasabah.nama }}</p>
+      <p>Saldo saat ini: Rp. {{ numberWithDot(nasabah.saldo)}}</p>
       <div>
         <h3> Jumlah Tarik:</h3>
         <InputText type="text" v-model="jumlahTarik" class="custom-input" :class="{ 'p-invalid': jumlahTarikError}" required/>
@@ -56,6 +57,10 @@ export default {
     };
   },
   methods: {
+    numberWithDot(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  },
+  
     async tarikDana() {
       if (!this.norek) {
         this.nomorRekeningError = true;
@@ -72,12 +77,17 @@ export default {
           }
         );
         this.nasabah = response.data;
+        this.nasabah.saldo = parseFloat(this.nasabah.saldo)
         this.showModal = true; // Perbarui showModal untuk menampilkan modal
       } catch (error) {
         console.log(error);
         Swal.fire({
           icon: 'error',
-          text: error.response.data
+          text: error.response.data,
+          customClass: {
+            container: 'custom-class'
+          },
+          appendTo: 'body'
         });
       }
     },
@@ -90,6 +100,32 @@ export default {
         this.jumlahTarikError = false;
       }
 
+      // Periksa apakah jumlah penarikan dana kurang dari 50,000
+  if (this.jumlahTarik < 50000) {
+    Swal.fire({
+      icon: 'error',
+      text: 'Jumlah penarikan dana minimum Rp.50,000.',
+      customClass: {
+            container: 'custom-class'
+          },
+          appendTo: 'body'
+    });
+    return;
+  }
+
+      // memeriksa apakah saldo cukup
+      if (this.jumlahTarik > this.nasabah.saldo) {
+    Swal.fire({
+      icon: 'error',
+      text: 'Saldo tidak mencukupi untuk menarik dana.',
+      customClass: {
+            container: 'custom-class'
+          },
+          appendTo: 'body'
+    });
+    return;
+  }
+
       try {
         const response = await axios.post(
           `http://localhost:8000/api/v1/nasabah/tarik`,
@@ -101,7 +137,11 @@ export default {
 
         Swal.fire({
           icon: 'success',
-          text: 'Dana anda berhasil ditarik.'
+          text: 'Dana anda berhasil ditarik.',
+          customClass: {
+            container: 'custom-class'
+          },
+          appendTo: 'body'
         });
 
         // Setelah berhasil, Anda dapat mereset input
@@ -113,15 +153,32 @@ export default {
 
         Swal.fire({
           icon: 'error',
-          text: error.response.data
+          text: error.response.data,
+          customClass: {
+            container: 'custom-class'
+          },
+          appendTo: 'body'
         });
       }
     },
   },
+  filters: {
+    formatCurrency: function(value){
+      if (!isNaN(value)){
+        return `Rp. ${value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
+      }
+      return value;
+    }
+  }
 };
 </script>
 
 <style>
+
+.custom-class {
+  z-index: 10000; /* Pastikan pesan notifikasi ada di atas modal */
+}
+
 .custom-input {
   width: 200px;
   height: 40px;
@@ -156,4 +213,9 @@ export default {
   height: 1rem;
   color: black;
 }
+.custom-input {
+    width: 200px;
+    height: 40px;
+    font-size: 16px;
+  }
 </style>

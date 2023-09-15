@@ -28,7 +28,7 @@
         <div style="text-align: center; line-height: 1;font-size: 20px; margin-top: 10px;"> 
       <p>Nomor Rekening : {{ nasabah.norek }}</p>
       <p>Nama Nasabah : {{ nasabah.nama }}</p>
-      <p>Saldo Nasabah : {{ nasabah.saldo }}</p>
+      <p>Saldo Nasabah : Rp. {{ numberWithDot(nasabah.saldo) }}</p>
         </div>
     </Dialog>
   </template>
@@ -51,6 +51,10 @@
     },
   
     methods: {
+      numberWithDot(x) {
+      return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+      },
+
       async getSaldo() {
         if (!this.norek) {
           this.nomorRekeningError = true;
@@ -100,6 +104,12 @@
   .p-error {
     color: red;
   }
+
+  
+.p-dialog .p-dialog-header .p-dialog-title {
+    font-weight: 500;
+    font-size: 25px;
+}
 
   .p-dialog .p-dialog-header {
     border-bottom: 0 none;

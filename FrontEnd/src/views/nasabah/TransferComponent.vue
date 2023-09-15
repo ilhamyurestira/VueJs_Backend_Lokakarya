@@ -29,11 +29,11 @@
     <div style="text-align: center; line-height: 1;font-size: 20px; margin-top: 10px;"> 
     <p>Nomor Rekening: {{ accountInfo.nomorRekening }}</p>
     <p>Nama Pemilik Rekening: {{ accountInfo.namaPemilikRekening }}</p>
-    <p>Saldo Saat Ini: {{ accountInfo.saldo }}</p>
+    <p>Saldo Saat Ini: {{ numberWithDot(accountInfo.saldo) }}</p>
     <div>
-      <h5>Masukkan Nomor Penerima:</h5>
+      <h5>Masukkan Nomor Rekening Penerima:</h5>
       <InputText
-        type="number"
+        type="index"
         v-model="nomorRekeningPenerima"
         class="custom-input"
         :class="{'p-invalid': nomorRekeningPenerimaError}"
@@ -50,9 +50,8 @@
         :class="{'p-invalid': jumlahTransferError}"
         required
       />
-      <span v-if="jumlahTransferError" class="p-error">Jumlah transfer harus diisi</span>
     </div>&nbsp; &nbsp; &nbsp;
-    <Button label="Transfer" class="custom-button" @click="transfer" />
+    <Button style="margin-top: 10px; margin-right: 32px;" label="Transfer" class="custom-button" @click="transfer" />
     </div>
   </Dialog>
 </template>
@@ -74,10 +73,15 @@ export default {
       jumlahTransferError: false,
       showAccountInfo: false, // Tampilkan modal informasi rekening pemilik
       saldoPengirim: 0,
+      showModal: false
     };
   },
 
   methods: {
+    numberWithDot(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  },
+  
     async getAccountInfo() {
       // Validasi input nomor rekening pengirim
       this.nomorRekeningError = !this.nomorRekeningPengirim;
@@ -85,7 +89,23 @@ export default {
       if (this.nomorRekeningError) {
         Swal.fire({
           icon: 'error',
-          text: 'Nomor rekening harus diisi'
+          text: 'Nomor rekening harus diisi',
+          customClass: {
+            container: 'custom-class'
+          },
+          appendTo: 'body'
+        });
+        return;
+      }
+
+      if (this.jumlahTransferError) {
+        Swal.fire({
+          icon: 'error',
+          text: 'Jumlah transfer harus diisi',
+          customClass: {
+            container: 'custom-class'
+          },
+          appendTo: 'body'
         });
         return;
       }
@@ -107,7 +127,11 @@ export default {
         console.error(error);
         Swal.fire({
           icon: 'error',
-          text: 'Nomor rekening tidak ditemukan'
+          text: 'Nomor rekening tidak ditemukan',
+          customClass: {
+            container: 'custom-class'
+          },
+          appendTo: 'body'
         });
       }
     },
@@ -120,7 +144,24 @@ export default {
   if (this.nomorRekeningPenerimaError || this.jumlahTransferError) {
     Swal.fire({
       icon: 'error',
-      text: 'Data yang diperlukan tidak lengkap'
+      text: 'Data yang diperlukan tidak lengkap',
+      customClass: {
+            container: 'custom-class'
+          },
+          appendTo: 'body'
+    });
+    return;
+  }
+
+    // Periksa apakah jumlah transfer kurang dari 50,000
+    if (this.jumlahTransfer < 50000) {
+    Swal.fire({
+      icon: 'error',
+      text: 'Jumlah transfer minimum Rp.50,000.',
+      customClass: {
+            container: 'custom-class'
+          },
+          appendTo: 'body'
     });
     return;
   }
@@ -129,7 +170,11 @@ export default {
   if (this.jumlahTransfer > this.saldoPengirim) {
     Swal.fire({
       icon: 'error',
-      text: 'Saldo tidak cukup'
+      text: 'Saldo tidak cukup',
+      customClass: {
+            container: 'custom-class'
+          },
+          appendTo: 'body'
     });
     return;
   }
@@ -165,6 +210,7 @@ export default {
         this.nomorRekeningPenerima = "";
         this.jumlahTransfer = "";
         this.showAccountInfo = false;
+        this.showModal = false
       } catch (error) {
         console.error(error);
         // Tampilkan notifikasi saldo tidak cukup atau kesalahan lainnya
@@ -207,4 +253,15 @@ export default {
 .custom-class {
   z-index: 10000; /* Pastikan pesan notifikasi ada di atas modal */
 }
+
+.custom-button {
+    width: 200px;
+    height: 50px;
+    font-size: 20px;
+}
+.custom-input {
+    width: 200px;
+    height: 40px;
+    font-size: 16px;
+  }
 </style>
