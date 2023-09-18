@@ -4,7 +4,7 @@ import BaseRoutes from "./BaseRouter";
 class MasterBankRoutes extends BaseRoutes {
 
     public routes(): void {
-        this.router.get("/", MasterBankController.index);
+        this.router.post("/", MasterBankController.index);
         this.router.post("/tambah", MasterBankController.create);
         this.router.get("/:id", MasterBankController.show);
         this.router.put("/:id", MasterBankController.update);

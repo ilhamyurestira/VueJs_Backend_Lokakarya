@@ -114,7 +114,6 @@ const createRole = () => {
                         detail: `${data}`
                     });
                     hideCreateRoleDialog();
-                    fetchMainData();
                 } else {
                     toast.add({
                         severity: 'error',
@@ -132,6 +131,7 @@ const createRole = () => {
                     life: 3000
                 });
             });
+        fetchMainData();
     }
 };
 
@@ -194,7 +194,6 @@ const editRole = () => {
                     });
                     editRoleDialog.value = false;
                     hideEditRoleDialog();
-                    fetchMainData();
                 } else {
                     toast.add({
                         severity: 'error',
@@ -214,6 +213,7 @@ const editRole = () => {
                 });
                 check.value.password = null;
             });
+        fetchMainData();
     }
 };
 
@@ -237,12 +237,12 @@ const deleteRole = () => {
         .then((response) => {
             toast.add({ severity: 'success', summary: 'Successful', detail: `Role ${roleMenu.value.nama} has been deleted successfully`, life: 3000 });
             roleMenu.value = {};
-            fetchMainData();
         })
         .catch((error) => {
             console.error('Error fetching data:', error);
             toast.add({ severity: 'error', summary: 'Error', detail: `Failed to delete role (errcode: ${error.response.status})`, life: 3000 });
         });
+    fetchMainData();
 };
 
 // const findIndexById = (id) => {
