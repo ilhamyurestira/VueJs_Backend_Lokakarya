@@ -8,7 +8,10 @@ const dm = db.menu;
 class MenuController implements IController {
   index = async (req: Request, res: Response): Promise<Response> => {
     try {
-      const menuList = await dm.findAll({ exclude: ['programName'] });
+      const menuList = await dm.findAll({
+        exclude: ['programName'],
+        order: ['id'],
+      });
 
       if (menuList.length === 0) {
         return res.status(404).send('Belum ada data');
@@ -25,7 +28,10 @@ class MenuController implements IController {
     const { id } = req.params;
 
     try {
-      const data = await dm.findByPk(id, { exclude: ['programName'] });
+      const data = await dm.findByPk(id, {
+        exclude: ['programName'],
+        order: ['id'],
+      });
       if (!data) {
         return res.status(404).send(`Data dengan id: ${id} tidak ditemukan`);
       } else {

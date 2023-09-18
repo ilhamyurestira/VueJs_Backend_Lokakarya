@@ -19,6 +19,7 @@ class HakAksesController implements IController {
           { model: role, attributes: ['nama'] },
           { model: user, attributes: ['username'] },
         ],
+        order: ['id'],
       });
 
       if (hakAksesList.length === 0) {
@@ -42,6 +43,7 @@ class HakAksesController implements IController {
           { model: role, attributes: ['nama'] },
           { model: user, attributes: ['username'] },
         ],
+        order: ['id'],
       });
       if (!data) {
         return res.status(404).send(`Data dengan id: ${id} tidak ditemukan`);

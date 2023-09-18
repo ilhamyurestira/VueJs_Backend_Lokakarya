@@ -11,6 +11,7 @@ class UserController implements IController {
     try {
       const userList = await dm.findAll({
         exclude: ['password'],
+        order: ['id'],
       });
 
       if (userList.length === 0) {
@@ -66,7 +67,7 @@ class UserController implements IController {
         // if (newData) {
         //   return res.status(201).send('registrasi user sukses!');
         // }
-        return res.status(201).send('registrasi user sukses');
+        return res.status(201).send(`registrasi user: ${username} sukses`);
       }
     } catch (err) {
       console.log(err);
@@ -80,6 +81,7 @@ class UserController implements IController {
     try {
       const data = await dm.findByPk(id, {
         exclude: ['password'],
+        order: ['id'],
       });
 
       if (!data) {

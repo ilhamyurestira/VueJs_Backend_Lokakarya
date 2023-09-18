@@ -1,4 +1,5 @@
 <script setup>
+'use strict';
 import { FilterMatchMode } from 'primevue/api';
 import { ref, onMounted, onBeforeMount } from 'vue';
 import ProductService from '@/service/ProductService';
@@ -98,7 +99,7 @@ const createRole = () => {
                     toast.add({
                         severity: 'success',
                         summary: 'Sukses',
-                        detail: `Role: ${role.value.nama} telah berhasil dibuat.`
+                        detail: `${data}`
                     });
                     hideCreateRoleDialog();
                     fetchData();
@@ -179,8 +180,6 @@ const editRole = () => {
                         summary: 'Sukses',
                         detail: `Role: ${currentName} telah berhasil diubah.`
                     });
-                    check.value.password = '';
-                    authenticated.value = false;
                     editRoleDialog.value = false;
                     hideEditRoleDialog();
                     fetchData();
@@ -191,9 +190,8 @@ const editRole = () => {
                         detail: `Role: ${role.value.nama} gagal diubah (errcode: ${response.status})`,
                         life: 3000
                     });
-                    check.value.password = '';
-                    authenticated.value = false;
                 }
+                check.value.password = null;
             })
             .catch((error) => {
                 toast.add({
@@ -202,8 +200,7 @@ const editRole = () => {
                     detail: `Role: ${role.value.nama} gagal dibubah (errcode: ${error.response.status})`,
                     life: 3000
                 });
-                check.value.password = '';
-                authenticated.value = false;
+                check.value.password = null;
             });
     }
 };
@@ -226,8 +223,8 @@ const deleteRole = () => {
     axios
         .delete(`${apiUrl}/${role.value.id}`)
         .then((response) => {
-            role.value = {};
             toast.add({ severity: 'success', summary: 'Successful', detail: `Role ${role.value.nama} has been deleted successfully`, life: 3000 });
+            role.value = {};
             fetchData();
         })
         .catch((error) => {
@@ -285,14 +282,14 @@ const initFilters = () => {
                 <Toolbar class="mb-4">
                     <template v-slot:start>
                         <div class="my-2">
-                            <Button label="Create New User Role" icon="pi pi-user-plus" class="p-button-success mr-2" @click="openRoleCreationMenu" />
+                            <Button label="Create New User Role" icon="pi pi-plus" class="p-button-success mr-2" @click="openRoleCreationMenu" />
                         </div>
                     </template>
 
-                    <template v-slot:end>
-                        <!-- <FileUpload mode="basic" accept="image/*" :maxFileSize="1000000" label="Import" chooseLabel="Import" class="mr-2 inline-block" /> -->
+                    <!-- <template v-slot:end>
+                        <FileUpload mode="basic" accept="image/*" :maxFileSize="1000000" label="Import" chooseLabel="Import" class="mr-2 inline-block" />
                         <Button label="Export" icon="pi pi-upload" class="p-button-help" @click="exportCSV($event)" />
-                    </template>
+                    </template> -->
                 </Toolbar>
 
                 <DataTable
@@ -327,8 +324,8 @@ const initFilters = () => {
 
                     <Column header="Actions" headerStyle="width:30%; min-width:10rem;">
                         <template #body="slotProps">
-                            <Button icon="pi pi-user-edit" class="p-button-secondary mt-2 mr-1 ml-1" label="Edit" @click="openEditRoleInformationMenu(slotProps.data)" />
-                            <Button icon="pi pi-user-minus" class="p-button-danger mt-2 mr-1 ml-1" label="Delete" @click="confirmDeleteRole(slotProps.data)" />
+                            <Button icon="pi pi-pencil" class="p-button-secondary mt-2 mr-1 ml-1" label="Edit" @click="openEditRoleInformationMenu(slotProps.data)" />
+                            <Button icon="pi pi-trash" class="p-button-danger mt-2 mr-1 ml-1" label="Delete" @click="confirmDeleteRole(slotProps.data)" />
                         </template>
                     </Column>
                 </DataTable>
@@ -383,11 +380,11 @@ const initFilters = () => {
                     <div class="flex align-items-center justify-content-center">
                         <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
                         <span v-if="role"
-                            >Are you sure you want to delete user: <b>{{ role.nama }}</b> ? <br />
-                            <small>Please enter the confirmation text below (lower case only)</small></span
-                        >
+                            >Are you sure you want to delete role: <b>{{ role.nama }}</b> ? <br />
+                            <!-- <small>Please enter the confirmation text below (lower case only)</small> -->
+                        </span>
                     </div>
-                    <div class="flex align-items-center mt-4 justify-content-center">
+                    <!-- <div class="flex align-items-center mt-4 justify-content-center">
                         <InputText
                             id="confirmation"
                             type="text"
@@ -401,10 +398,10 @@ const initFilters = () => {
                     <div class="flex align-items-center mt-1 justify-content-center">
                         <small class="p-invalid" v-if="!passwordConfirmation">please enter the confirmation text</small>
                         <small class="p-invalid" v-else-if="passwordConfirmation !== 'confirm delete role'">invalid confirmation text</small>
-                    </div>
+                    </div> -->
                     <template #footer>
                         <Button label="No" icon="pi pi-times" class="p-button-text" @click="hideDeleteDialog()" />
-                        <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteRole" :class="{ 'p-disabled': !passwordConfirmation || passwordConfirmation !== 'confirm delete role' }" />
+                        <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteRole" />
                     </template>
                 </Dialog>
             </div>
