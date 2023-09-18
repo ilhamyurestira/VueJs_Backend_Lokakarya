@@ -29,6 +29,7 @@
     :style="{ width: '50vw' }">
     <div style="text-align: center; line-height: 1; font-size: 20px; margin-top: 10px;">
       <p>Nomor Rekening: {{ accountInfo.nomorRekening }}</p>
+      <p>Nomor Telepon: {{ accountInfo.nomorTelpon }}</p>
       <p>Nama Pemilik Rekening: {{ accountInfo.namaPemilikRekening }}</p>
       <p>Saldo: Rp. {{ numberWithDot(accountInfo.saldoPemilikRekening) }}</p>
       <p>

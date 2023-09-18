@@ -45,7 +45,14 @@ class BayarTelponController implements IController {
         return res.status(404).json({ message: 'Tidak ada tagihan telpon yang harus dibayar.', tagihan: 0 });
       }
 
-      return res.status(200).json({ message: 'Tagihan telpon ditemukan.', tagihan: transaksiBelumDibayar.uang });
+      return res.status(200).json({
+        message: 'Tagihan telpon ditemukan.',
+        tagihan: transaksiBelumDibayar.uang,
+        nomorRekening: nomorRekening,
+        namaPemilikRekening: pemilikRekening.nama,
+        saldoPemilikRekening: pemilikRekening.saldo,
+        noTelp: pemilikRekening.noTlp
+      });
     } catch (err) {
       console.error(err);
       return res.status(500).send('Terjadi kesalahan saat memeriksa tagihan.');
