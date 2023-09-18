@@ -41,7 +41,7 @@
       <p>Nama Pemilik Rekening: {{ accountInfo.namaPemilikRekening }}</p>
       <p>Saldo: {{ numberWithDot(accountInfo.saldoPemilikRekening) }}</p>
       <p>
-        Jumlah Tagihan:{{ numberWithDot(accountInfo.tagihan) }}
+        Jumlah Tagihan:{{ numberWithDot(accountInfo.tagihanTelpon) }}
       </p>
       <Button style="margin-top: 10px; margin-right: 32px;" label="Bayar" class="custom-button" @click="bayarTagihan" />
     </div>
@@ -102,17 +102,18 @@ export default {
           nomorRekening: response.data.nomorRekening,
           namaPemilikRekening: response.data.namaPemilikRekening,
           saldoPemilikRekening: response.data.saldoPemilikRekening,
-          tagihan: response.data.tagihan
+          tagihanTelpon: response.data.tagihanTelpon
         };
-
+        console.log(response)
         // Tampilkan modal pembayaran
         this.showPaymentModal = true; // Setelah mendapatkan informasi rekening
-
+console.log(this.showPaymentModal)
+console.log(this.accountInfo)
       } catch (error) {
         console.error(error);
         Swal.fire({
           icon: 'error',
-          text: 'Terjadi kesalahan saat memeriksa tagihan',
+          text: error.response.data,
           customClass: {
             container: 'custom-class'
           },
