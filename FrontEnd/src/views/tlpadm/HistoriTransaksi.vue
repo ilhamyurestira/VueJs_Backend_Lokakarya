@@ -164,10 +164,23 @@ const initFilters = () => {
                     </template>
 
                     <!-- <Column selectionMode="multiple" headerStyle="width: 3rem"></Column> -->
-                    <Column field="nama" header="ID Pelanggan" :sortable="true" headerStyle="width10%; min-width:10rem;">
+                    <!-- <Column field="nama" header="ID Pelanggan" :sortable="true" headerStyle="width5%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">ID Pelanggan</span>
                             {{ slotProps.data.id_pelanggan }}
+                        </template>
+                    </Column> -->
+                    <Column field="index" header="No" :sortable="false" headerStyle="width:5%; min-width:5rem;">
+                        <template #body="slotProps">
+                            <span class="p-column-title">N0</span>
+                            {{ slotProps.index + 1 }}
+                        </template>
+                    </Column>
+                    <Column field="nama" header="Nama" :sortable="true" headerStyle="width15%; min-width:10rem;">
+                        <template #body="slotProps">
+                            <span class="p-column-title">Nama</span>
+                            <!-- {{ slotProps.data["master_pelanggan.nama"] }} -->
+                            {{ slotProps.data.nama_pelanggan }}
                         </template>
                     </Column>
                     <Column field="tanggal" header="Tanggal Bayar" :sortable="true"

@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { sequelize } from '../db/models';
 import IController from "./Controller_Interface";
 const db = require('../db/models/');
 
@@ -6,7 +7,27 @@ class HistoryTransaksiTelponController implements IController {
 
     async index(req: Request, res: Response): Promise<Response> {
         try {
-            const historyTransaksiTelpon = await db.history_telkom.findAll();
+            const historyTransaksiTelpon = await db.history_telkom.findAll(
+                {
+                    attributes: {
+                        exclude: ['nama'],
+                        include: [
+                            [sequelize.col('master_pelanggan.nama'), 'nama_pelanggan'],
+                        ],
+                    },
+                    include: [
+                        {
+                            model: db.master_pelanggan,
+                            as: 'master_pelanggan',
+                            attributes: ['nama']
+
+                        },
+                    ],
+                    raw: true,
+                }
+
+
+            );
 
             if (historyTransaksiTelpon.length === 0) {
                 return res.status(200).send('Belum ada data.');
@@ -45,12 +66,17 @@ class HistoryTransaksiTelponController implements IController {
         }
 
         try {
+            const masterPelanggan = await db.master_pelanggan.findOne({ where: { id_pelanggan } });
+            if (!masterPelanggan) {
+                return res.status(400).send('Data master bank tidak ditemukan berdasarkan norek');
+            }
             const newHistoryTransaksiTelpon = await db.history_telkom.create({
                 id_pelanggan: pelanggan.id,
                 tanggal_bayar: tanggal_bayar,
                 bulan_tagihan: bulan_tagihan,
                 tahun_tagihan: tahun_tagihan,
                 uang: uang,
+                nama: masterPelanggan.nama,
             });
 
             return res.status(200).json(newHistoryTransaksiTelpon);

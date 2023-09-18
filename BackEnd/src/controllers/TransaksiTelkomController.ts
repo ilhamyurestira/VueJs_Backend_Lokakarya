@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { sequelize } from '../db/models';
 import IController from "./Controller_Interface";
 const db = require('../db/models/');
 
@@ -6,7 +7,26 @@ class TransaksiTelkomController implements IController {
 
     async index(req: Request, res: Response): Promise<Response> {
         try {
-            const transaksiTelkom = await db.transaksi_telkom.findAll();
+            const transaksiTelkom = await db.transaksi_telkom.findAll(
+                {
+                    attributes: {
+                        exclude: ['nama'],
+                        include: [
+                            [sequelize.col('master_pelanggan.nama'), 'nama_pelanggan'],
+                        ],
+                    },
+                    include: [
+                        {
+                            model: db.master_pelanggan,
+                            as: 'master_pelanggan',
+                            attributes: ['nama']
+
+                        },
+                    ],
+                    raw: true,
+                }
+
+            );
 
             if (transaksiTelkom.length === 0) {
                 return res.status(200).send('Belum ada data.');

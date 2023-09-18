@@ -78,7 +78,7 @@ const hideDialog = () => {
 };
 
 const saveProduct = () => {
-    // submitted.value = true;
+    submitted.value = true;
     // if (product.value.id) {
     // Produk baru, kirim permintaan POST hanya dengan mengirimkan userId
     const newData = {
@@ -191,7 +191,7 @@ const initFilters = () => {
             <div class="card">
                 <Toast />
                 <!-- Button nambah data baru -->
-                <Toolbar class="mb-4">
+                <!-- <Toolbar class="mb-4">
                     <template v-slot:start>
                         <div class="my-2">
                             <Button label="Tambah Transaksi Telpon" icon="pi pi-plus" class="p-button-success mr-2"
@@ -199,7 +199,7 @@ const initFilters = () => {
                         </div>
                     </template>
 
-                </Toolbar>
+                </Toolbar> -->
 
                 <!-- Tabel data -->
                 <DataTable ref="dt" :value="products" v-model:selection="selectedProducts" dataKey="id" :paginator="true"
@@ -219,11 +219,24 @@ const initFilters = () => {
                     </template>
 
                     <!-- <Column selectionMode="multiple" headerStyle="width: 3rem"></Column> -->
-                    <Column field="idPelanggan" header="ID Pelanggan" :sortable="true"
+                    <!-- <Column field="idPelanggan" header="ID Pelanggan" :sortable="true"
                         headerStyle="width20%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">ID Pelanggan</span>
                             {{ slotProps.data.id }}
+                        </template>
+                    </Column> -->
+                    <Column field="index" header="No" :sortable="false" headerStyle="width:5%; min-width:5rem;">
+                        <template #body="slotProps">
+                            <span class="p-column-title">N0</span>
+                            {{ slotProps.index + 1 }}
+                        </template>
+                    </Column>
+                    <Column field="nama" header="Nama" :sortable="true" headerStyle="width15%; min-width:10rem;">
+                        <template #body="slotProps">
+                            <span class="p-column-title">Nama</span>
+                            <!-- {{ slotProps.data["master_pelanggan.nama"] }} -->
+                            {{ slotProps.data.nama_pelanggan }}
                         </template>
                     </Column>
                     <Column field="blnTagihan" header="Bulan Tagihan" :sortable="true"
@@ -263,7 +276,7 @@ const initFilters = () => {
                     <!-- <img :src="'demo/images/product/' + product.image" :alt="product.image" v-if="product.image" width="150"
                         class="mt-0 mx-auto mb-5 block shadow-2" /> -->
                     <div class="field">
-                        <label for="id">ID Pelanggan</label>
+                        <label for="id_pelanggan">ID Pelanggan</label>
                         <Dropdown v-model.trim="product.id_pelanggan" optionLabel="id" optionValue="id" :options="usersList"
                             placeholder="Pilih User" />
                         <small class="p-invalid" v-if="submitted && !product.id_pelanggan">ID Pelanggan harus di
@@ -276,8 +289,8 @@ const initFilters = () => {
                         <small class="p-invalid" v-if="submitted && !product.nama">Nama harus di Isi.</small>
                     </div> -->
                     <div class="field">
-                        <label for="noTelp">Bulan Tagihan</label>
-                        <InputText id="noTelp" v-model.trim="product.bulan_tagihan" required="true" autofocus
+                        <label for="bulan_tagihan">Bulan Tagihan</label>
+                        <InputText id="bulan_tagihan" v-model.trim="product.bulan_tagihan" required="true" autofocus
                             :class="{ 'p-invalid': submitted && !product.tahun_tagihan }" />
                         <small class="p-invalid" v-if="submitted && !product.bulan_tagihan">Bulan Tagihan harus di
                             Isi.</small>
