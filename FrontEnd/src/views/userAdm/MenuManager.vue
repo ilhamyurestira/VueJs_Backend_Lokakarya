@@ -120,6 +120,7 @@ const createNew = () => {
                     life: 3000
                 });
             });
+        fetchData();
     }
 };
 
@@ -182,7 +183,6 @@ const runEdit = () => {
                     });
                     editConfirmationDialog.value = false;
                     hideEditDialog();
-                    fetchData();
                 } else {
                     toast.add({
                         severity: 'error',
@@ -202,6 +202,7 @@ const runEdit = () => {
                 });
                 check.value.password = null;
             });
+        fetchData();
     }
 };
 
@@ -225,12 +226,12 @@ const runDelete = () => {
         .then((response) => {
             toast.add({ severity: 'success', summary: 'Successful', detail: `Menu ${menu.value.nama} has been deleted successfully`, life: 3000 });
             menu.value = {};
-            fetchData();
         })
         .catch((error) => {
             console.error('Error fetching data:', error);
             toast.add({ severity: 'error', summary: 'Error', detail: `Failed to delete menu (errcode: ${error.response.status})`, life: 3000 });
         });
+    fetchData();
 };
 
 // const findIndexById = (id) => {

@@ -293,6 +293,7 @@ const editUser = () => {
                 });
                 check.value.password = null;
             });
+        fetchUserData();
     }
 };
 
