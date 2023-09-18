@@ -93,6 +93,7 @@ const saveProduct = () => {
                         detail: data,
                         life: 3000,
                     });
+                    fetchData();
                 } else {
                     toast.add({
                         severity: 'error',
@@ -133,6 +134,7 @@ const deleteProduct = () => {
         axios.delete(`${apiUrl}/` + product.value.id);
         productDialog.value = false;
         product.value = {};
+        fetchData();
     }
     // products.value = products.value.filter((val) => val.id !== product.value.id);
     deleteProductDialog.value = false;
