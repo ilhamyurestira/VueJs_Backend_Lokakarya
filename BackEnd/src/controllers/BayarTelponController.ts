@@ -7,7 +7,7 @@ const { master_bank, transaksi_nasabah, history_transaksi_bank, master_pelanggan
 
 class BayarTelponController implements IController {
   cekTagihanTelpon = async (req: Request, res: Response): Promise<Response> => {
-    const { nomorRekening, noTelp } = req.body;
+    const { nomorRekening, noTelp } = req.query;
 
     try {
       // Validasi input

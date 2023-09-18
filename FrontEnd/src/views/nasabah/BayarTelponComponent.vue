@@ -8,24 +8,14 @@
           <div>
             <div>
               <h5>Masukkan Nomor Rekening Anda:</h5>
-              <InputText
-                type="text"
-                v-model="nomorRekening"
-                class="custom-input"
-                :class="{'p-invalid': nomorRekeningError}"
-                required
-              />
+              <InputText type="text" v-model="nomorRekening" class="custom-input"
+                :class="{ 'p-invalid': nomorRekeningError }" required />
               <span v-if="nomorRekeningError" class="p-error">Nomor rekening harus diisi</span>
             </div>
             <div>
               <h5>Masukkan Nomor Telpon:</h5>
-              <InputText
-                type="text"
-                v-model="nomorTelpon"
-                class="custom-input"
-                :class="{'p-invalid': nomorTelponError}"
-                required
-              />
+              <InputText type="text" v-model="nomorTelpon" class="custom-input" :class="{ 'p-invalid': nomorTelponError }"
+                required />
               <span v-if="nomorTelponError" class="p-error">Nomor telpon harus diisi</span>
             </div>
           </div>
@@ -35,7 +25,8 @@
     </div>
   </div>
 
-  <Dialog v-if="showPaymentModal" v-model:visible="showPaymentModal" modal header="Informasi Rekening" :style="{ width: '50vw' }">
+  <Dialog v-if="showPaymentModal" v-model:visible="showPaymentModal" modal header="Informasi Rekening"
+    :style="{ width: '50vw' }">
     <div style="text-align: center; line-height: 1; font-size: 20px; margin-top: 10px;">
       <p>Nomor Rekening: {{ accountInfo.nomorRekening }}</p>
       <p>Nama Pemilik Rekening: {{ accountInfo.namaPemilikRekening }}</p>
@@ -91,8 +82,10 @@ export default {
         const response = await axios.get(
           `http://localhost:8000/api/v1/nasabah/cek-tagihan`,
           {
-            nomorRekening: this.nomorRekening,
-            noTelp: this.nomorTelpon
+            params: {
+              nomorRekening: this.nomorRekening,
+              noTelp: this.nomorTelpon
+            }
           }
         );
 
