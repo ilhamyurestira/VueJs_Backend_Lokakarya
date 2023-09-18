@@ -322,6 +322,7 @@ const deleteUser = () => {
             console.error('Error fetching data:', error);
             toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete user', life: 3000 });
         });
+    fetchUserData();
 };
 
 // const findIndexById = (id) => {
