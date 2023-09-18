@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import Authentication from '../utils/Authentication';
 import IController from './Controller_Interface';
+import { sequelize } from '../db/models';
 
 const db = require('../db/models');
 const dm = db.user;
@@ -61,7 +62,11 @@ class UserController implements IController {
           createdBy,
         });
 
-        return res.status(201).send('registrasi user sukses!');
+        // console.log('arrId', arrId);
+        // if (newData) {
+        //   return res.status(201).send('registrasi user sukses!');
+        // }
+        return res.status(201).send('registrasi user sukses');
       }
     } catch (err) {
       console.log(err);
@@ -170,16 +175,14 @@ class UserController implements IController {
     }
   };
 
-  pickByUsername = async (req: Request, res: Response): Promise<Response> => {
+  getMaxId = async (req: Request, res: Response): Promise<Response> => {
     const { username } = req.params;
 
     console.log(username);
 
     try {
-      const data = await dm.findOne({
-        where: { username },
-        attributes: ['id', 'username', 'nama', 'alamat', 'email', 'telp'],
-      });
+      const maxId = await dm.max('id');
+      const data = { id: maxId };
 
       if (!data) {
         return res.status(404).send('user tidak ditemukan.');
