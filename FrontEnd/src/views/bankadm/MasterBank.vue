@@ -9,6 +9,7 @@ const currentPage = ref(1);
 const totalPages = ref(0);
 const totalElements = ref(0);
 const limit = ref(5); // Nilai default limit
+const keyword = ref('');
 
 const toast = useToast();
 
@@ -52,27 +53,28 @@ const fetchUsers = () => {
 
 const fetchData = () => {
     axios
-        .get(apiUrl, {
-            params: {
-                page: currentPage.value, // Gunakan currentPage saat ini
-                limit: limit.value,
-            },
+        .post(apiUrl, {
+            page: currentPage.value,
+            limit: limit.value,
+            keyword: keyword.value
         })
         .then((response) => {
             const responseData = response.data;
-            const startIndex = (currentPage.value - 1) * limit.value + 1; // Calculate the start index for numbering
-            const masterBanksData = responseData.data.map((item, index) => ({
+            const data = responseData.data;
+            const status = responseData.status;
+            const startIndex = (currentPage.value - 1) * limit.value + 1;
+            const masterBanksData = data.list.map((item, index) => ({
                 ...item,
-                No: startIndex + index, // Calculate the "No" based on the index
+                No: startIndex + index,
             }));
 
             datas.value = masterBanksData;
-            totalPages.value = responseData.totalPages;
-            totalElements.value = responseData.totalElements;
+            totalPages.value = data.totalPages;
+            totalElements.value = data.totalElements;
         })
         .catch((error) => {
             console.error('Error fetching data:', error);
-            toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to fetch data from the API', life: 3000 });
+            toast.add({ severity: 'error', summary: 'Error', detail: 'Gagal mengambil data dari API', life: 3000 });
         });
 };
 
@@ -203,6 +205,15 @@ const exportCSV = () => {
     dt.value.exportCSV();
 };
 
+const search = () => {
+    fetchData();
+    data.value = {};
+};
+
+const clearInput = () => {
+    keyword.value = "";
+    }
+
 const initFilters = () => {
     filters.value = {
         global: { value: null, matchMode: FilterMatchMode.CONTAINS }
@@ -233,7 +244,8 @@ const initFilters = () => {
                             <h5 class="m-0">Data Nasabah</h5>
                             <span class="block mt-2 md:mt-0 p-input-icon-left">
                                 <i class="pi pi-search" />
-                                <InputText v-model="filters['global'].value" placeholder="Search..." />
+                                <InputText v-model="keyword" @keydown.enter="search" placeholder="Cari..." />
+                                <i class="pi pi-times" @click="clearInput" v-if="keyword" />
                             </span>
                         </div>
                     </template>
