@@ -106,6 +106,7 @@ export default {
           this.tagihan = response.data.tagihan;
           this.accountInfo = {
             nomorRekening: response.data.nomorRekening,
+            nomorTelpon: response.data.nomorTelpon,
             namaPemilikRekening: response.data.namaPemilikRekening,
             saldoPemilikRekening: response.data.saldoPemilikRekening,
             tagihanTelpon: response.data.tagihanTelpon
@@ -149,19 +150,28 @@ export default {
           }
         );
 
-        if (response.status === 404) {
+        if (response.status === 200) {
           Swal.fire({
             icon: 'success',
-            text: 'Tagihan sudah dibayar.',
+            text: 'Pembayaran berhasil.',
             customClass: {
               container: 'custom-class'
             },
             appendTo: 'body'
           });
+          // sembunyikan modal: 
+          this.showPaymentModal = false;
+
+          this.tagihan = null;
+      this.accountInfo = {};
+      this.nomorRekening = "";
+      this.nomorTelpon = "";
+      
         } else {
           this.tagihan = response.data.tagihan;
           this.accountInfo = {
             nomorRekening: response.data.nomorRekening,
+            nomorTelpon: response.data.nomorTelpon,
             namaPemilikRekening: response.data.namaPemilikRekening,
             saldoPemilikRekening: response.data.saldoPemilikRekening,
             tagihanTelpon: response.data.tagihanTelpon
