@@ -8,7 +8,10 @@ const dm = db.role;
 class RoleController implements IController {
   index = async (req: Request, res: Response): Promise<Response> => {
     try {
-      const roleList = await dm.findAll({ exclude: ['programName'] });
+      const roleList = await dm.findAll({
+        exclude: ['programName'],
+        order: ['id'],
+      });
 
       if (roleList.length === 0) {
         return res.status(404).send('Belum ada data');
@@ -25,7 +28,10 @@ class RoleController implements IController {
     const { id } = req.params;
 
     try {
-      const data = await dm.findByPk(id, { exclude: ['programName'] });
+      const data = await dm.findByPk(id, {
+        exclude: ['programName'],
+        order: ['id'],
+      });
       if (!data) {
         return res.status(404).send(`Data dengan id: ${id} tidak ditemukan`);
       } else {
@@ -57,7 +63,7 @@ class RoleController implements IController {
           });
           return res
             .status(201)
-            .send(`Role "${nama}" telah berhasil ditambahkan.`);
+            .send(`Role: "${nama}" telah berhasil ditambahkan.`);
         }
       }
     } catch (err) {

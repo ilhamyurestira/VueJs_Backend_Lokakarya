@@ -15,6 +15,7 @@ class RoleController implements IController {
           { model: Role, attributes: ['nama'] },
           { model: Menu, attributes: ['nama'] },
         ],
+        order: ['id'],
       });
 
       if (roleList.length === 0) {
@@ -37,6 +38,7 @@ class RoleController implements IController {
           { model: Role, attributes: ['nama'] },
           { model: Menu, attributes: ['nama'] },
         ],
+        order: ['id'],
       });
       if (!data) {
         return res.status(404).send(`Data dengan id: ${id} tidak ditemukan`);
@@ -53,6 +55,8 @@ class RoleController implements IController {
     const { roleId, menuId, isActive, programName, createdBy } = req.body;
 
     try {
+      const role = await Role.findByPk(roleId);
+      const menu = await Menu.findByPk(menuId);
       if (!roleId) {
         return res.status(400).send('role belum diisi');
       } else if (!menuId) {
@@ -72,7 +76,11 @@ class RoleController implements IController {
             createdBy,
           });
 
-          return res.status(201).send('Role menu berhasil dibuat');
+          return res
+            .status(201)
+            .send(
+              `Role menu: ${menu.nama} berhasil dibuat untuk role: ${role.nama}`
+            );
         }
       }
     } catch (err) {
