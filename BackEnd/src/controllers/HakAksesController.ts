@@ -4,21 +4,21 @@ import IController from './Controller_Interface';
 
 const db = require('../db/models/');
 const dm = require('../db/models/').hak_akses;
+const role = db.role;
+const user = db.user;
 
 class HakAksesController implements IController {
   index = async (req: Request, res: Response): Promise<Response> => {
     try {
-      // const role = db.role;
-      // const user = db.user;
       const hakAksesList = await dm.findAll({
         attributes: {
           exclude: ['programName'],
         },
         //ambil referensi data dari data model role dan user
-        // include: [
-        //   { model: role, attributes: ['nama'] },
-        //   { model: user, attributes: ['username'] },
-        // ],
+        include: [
+          { model: role, attributes: ['nama'] },
+          { model: user, attributes: ['username'] },
+        ],
       });
 
       if (hakAksesList.length === 0) {
@@ -36,7 +36,13 @@ class HakAksesController implements IController {
     const { id } = req.params;
 
     try {
-      const data = await dm.findByPk(id, { exclude: ['programName'] });
+      const data = await dm.findByPk(id, {
+        exclude: ['programName'],
+        include: [
+          { model: role, attributes: ['nama'] },
+          { model: user, attributes: ['username'] },
+        ],
+      });
       if (!data) {
         return res.status(404).send(`Data dengan id: ${id} tidak ditemukan`);
       } else {

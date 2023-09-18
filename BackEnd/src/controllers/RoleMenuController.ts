@@ -10,15 +10,12 @@ const Menu = require('../db/models').menu;
 class RoleController implements IController {
   index = async (req: Request, res: Response): Promise<Response> => {
     try {
-      const roleList = await dm
-        .findAll
-        // {
-        //   include: [
-        //     { model: Role, attributes: ['nama'] },
-        //     { model: Menu, attributes: ['nama'] },
-        //   ],
-        // }
-        ();
+      const roleList = await dm.findAll({
+        include: [
+          { model: Role, attributes: ['nama'] },
+          { model: Menu, attributes: ['nama'] },
+        ],
+      });
 
       if (roleList.length === 0) {
         return res.status(404).send('Belum ada data');
@@ -35,15 +32,12 @@ class RoleController implements IController {
     const { id } = req.params;
 
     try {
-      const data = await dm.findByPk(
-        id
-        // , {
-        //   include: [
-        //     { model: Role, attributes: ['nama'] },
-        //     { model: Menu, attributes: ['nama'] },
-        //   ],
-        // }
-      );
+      const data = await dm.findByPk(id, {
+        include: [
+          { model: Role, attributes: ['nama'] },
+          { model: Menu, attributes: ['nama'] },
+        ],
+      });
       if (!data) {
         return res.status(404).send(`Data dengan id: ${id} tidak ditemukan`);
       } else {
