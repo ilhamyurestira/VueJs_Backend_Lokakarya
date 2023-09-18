@@ -25,8 +25,8 @@ class BayarTelponController implements IController {
       }
 
       // Dapatkan data pelanggan telpon
-      const dataPelanggan = await db.master_pelanggan_telpon.findOne({
-        where: { no_tlp: noTelp },
+      const dataPelanggan = await db.master_pelanggan.findOne({
+        where: { no_telp: noTelp },
       });
 
       if (!dataPelanggan) {
@@ -71,8 +71,8 @@ class BayarTelponController implements IController {
       }
 
       // Dapatkan data pelanggan telpon
-      const dataPelanggan = await db.master_pelanggan_telpon.findOne({
-        where: { no_tlp: noTelp },
+      const dataPelanggan = await db.master_pelanggan.findOne({
+        where: { no_telp: noTelp },
       });
 
       if (!dataPelanggan) {
