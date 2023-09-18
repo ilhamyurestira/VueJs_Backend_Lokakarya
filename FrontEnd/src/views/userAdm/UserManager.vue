@@ -11,8 +11,7 @@ const toast = useToast();
 const loadedUsers = ref(null);
 // const adminData = ref(null);
 const newUser = ref({
-    id: null,
-    username: null
+    id: null
 });
 const passwordConfirmation = ref(null);
 const check = ref({ password: null });
@@ -93,13 +92,16 @@ const createUser = () => {
             programName: 'Web API',
             createdBy: 'User Admin'
         };
+        newUser.value.username = user.value.username;
         axios
             .post(`${apiUrl}`, newData)
             .then((response) => {
                 const data = response.data;
                 if (response.status === 201) {
+                    console.log(response.data);
+                    getNewId();
+                    user.value = {};
                     hideCreateUserDialog();
-                    // Produk berhasil dibuat di BE, tidak ada respons yang diharapkan dari BE
                     toast.add({
                         severity: 'success',
                         summary: 'Sukses',
@@ -123,43 +125,41 @@ const createUser = () => {
                 });
             });
     }
-    console.log(newUser.value);
-    if (createNasabahQuerry.value === true) {
-        createBankAccount();
-    }
-    if (createPelangganQuerry.value === true) {
-        registerPelanggan();
-    }
     user.value = {};
     fetchUserData();
 };
 
-const getNewUser = () => {
+const getNewId = () => {
     axios
-        .get(`${apiUrl}/${user.value.username}`)
+        .get(`${apiUrl}/maxId`)
         .then((response) => {
             const data = response.data;
-            console.log(data);
-            newUser.value.id = response.data.id;
-            newUser.value.username = response.data.id;
+            newUser.value.id = data.id;
+            if (createNasabahQuerry.value === true) {
+                createBankAccount(newUser);
+            }
+            if (createPelangganQuerry.value === true) {
+                registerPelanggan(newUser);
+            }
+            // console.log(newUser.value);
         })
         .catch((error) => {
-            console.log(error);
             toast.add({
                 severity: 'error',
                 summary: 'Error',
-                detail: `gagal mengambil user id baru (errcode: ${error.response.status})`,
+                detail: `User gagal dibuat (errcode: ${error.response.status})`,
                 life: 3000
             });
         });
 };
 
-const createBankAccount = () => {
+const createBankAccount = (createdUser) => {
+    // console.log(createdUser.value);
     const newData = {
-        userId: newUser.value.id,
+        userId: createdUser.value.id,
         saldo: saldoAwal.value.saldo
     };
-    console.log(newData);
+    // console.log(newData.value);
     axios
         .post('http://localhost:8000/api/v1/masterBank/tambah', newData)
         .then((response) => {
@@ -185,9 +185,12 @@ const createBankAccount = () => {
         });
 };
 
-const registerPelanggan = (newUser) => {
+const registerPelanggan = (createdUser) => {
+    const newData = {
+        userId: createdUser.value.id
+    };
     axios
-        .post('http://localhost:8000/api/v1/masterPelanggan/tambah', { userId: newUser.value.id })
+        .post('http://localhost:8000/api/v1/masterPelanggan/tambah', newData)
         .then((response) => {
             const data = response.data;
             console.log(data);

@@ -78,23 +78,52 @@ const hideDialog = () => {
 };
 
 const saveProduct = () => {
-    submitted.value = true;
-    if (product.value.name && product.value.name.trim() && product.value.price) {
-        if (product.value.id) {
-            product.value.inventoryStatus = product.value.inventoryStatus.value ? product.value.inventoryStatus.value : product.value.inventoryStatus;
-            products.value[findIndexById(product.value.id)] = product.value;
-            toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Updated', life: 3000 });
-        } else {
-            product.value.id = createId();
-            product.value.code = createId();
-            product.value.image = 'product-placeholder.svg';
-            product.value.inventoryStatus = product.value.inventoryStatus ? product.value.inventoryStatus.value : 'INSTOCK';
-            products.value.push(product.value);
-            toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Created', life: 3000 });
-        }
-        productDialog.value = false;
-        product.value = {};
-    }
+    // submitted.value = true;
+    // if (product.value.id) {
+    // Produk baru, kirim permintaan POST hanya dengan mengirimkan userId
+    const newData = {
+        id_pelanggan: product.value.id_pelanggan,
+        bulan_tagihan: product.value.bulan_tagihan,
+        tahun_tagihan: product.value.tahun_tagihan,
+        uang: product.value.uang,
+        status: product.value.status,
+        // Kirim hanya userId
+    };
+
+    // Kirim permintaan POST ke BE
+    axios
+        .post(`${apiUrl}/tambah`, newData) // Pastikan endpoint API sesuai
+        .then((response) => {
+            const data = response.data;
+            console.log('data', data)
+            if (response.status === 200) {
+                // Produk berhasil dibuat di BE, tidak ada respons yang diharapkan dari BE
+                toast.add({
+                    severity: 'success',
+                    summary: 'Sukses',
+                    detail: data,
+                    life: 3000,
+                });
+            } else {
+                toast.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: `Rekening gagal dibuat`,
+                    life: 3000,
+                });
+            }
+        })
+        .catch((error) => {
+            toast.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: `Rekening gagal dibuat`,
+                life: 3000,
+            });
+        });
+    productDialog.value = false;
+    product.value = {};
+    // }
 };
 
 const editProduct = (editProduct) => {
@@ -235,9 +264,10 @@ const initFilters = () => {
                         class="mt-0 mx-auto mb-5 block shadow-2" /> -->
                     <div class="field">
                         <label for="id">ID Pelanggan</label>
-                        <Dropdown v-model.trim="product.userId" optionLabel="nama" optionValue="id" :options="usersList"
+                        <Dropdown v-model.trim="product.id_pelanggan" optionLabel="id" optionValue="id" :options="usersList"
                             placeholder="Pilih User" />
-                        <small class="p-invalid" v-if="submitted && !product.nama">ID Pelanggan harus di pilih</small>
+                        <small class="p-invalid" v-if="submitted && !product.id_pelanggan">ID Pelanggan harus di
+                            pilih</small>
                     </div>
                     <!-- <div class="field">
                         <label for="nama">Nama</label>
@@ -261,7 +291,7 @@ const initFilters = () => {
                     </div>
                     <div class="field">
                         <label for="uang">Uang</label>
-                        <InputNumber id="uang" v-model="product.uang" mode="currency" currency="USD" locale="en-US"
+                        <InputNumber id="uang" v-model="product.uang" mode="currency" currency="IDR"
                             :class="{ 'p-invalid': submitted && !product.uang }" :required="true" />
                         <small class="p-invalid" v-if="submitted && !product.uang">Uang harus di isi</small>
                     </div>
@@ -269,13 +299,12 @@ const initFilters = () => {
                         <label class="mb-3">Status</label>
                         <div class="formgrid grid">
                             <div class="field-radiobutton col-6">
-                                <RadioButton id="category1" name="category" value="Accessories"
-                                    v-model="product.category" />
-                                <label for="category1">Belum Bayar</label>
+                                <RadioButton id="status1" name="status" value="1" v-model="product.status" />
+                                <label for="status1">Belum Bayar</label>
                             </div>
                             <div class="field-radiobutton col-6">
-                                <RadioButton id="category2" name="category" value="Clothing" v-model="product.category" />
-                                <label for="category2">Lunas</label>
+                                <RadioButton id="status2" name="status" value="2" v-model="product.status" />
+                                <label for="status1">Lunas</label>
                             </div>
                         </div>
                     </div>

@@ -88,7 +88,6 @@ const createNew = () => {
                         detail: `Role: ${menu.value.nama} telah berhasil dibuat.`
                     });
                     hideCreationDialog();
-                    fetchData();
                 } else {
                     toast.add({
                         severity: 'error',

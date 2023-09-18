@@ -2,7 +2,6 @@
 import { ref } from 'vue';
 
 import AppMenuItem from './AppMenuItem.vue';
-import 'font-awesome/css/font-awesome.min.css';
 import '@fortawesome/fontawesome-free/css/all.css';
 
 const model = ref([
@@ -19,9 +18,9 @@ const model = ref([
     {
         label: 'Bank Admin',
         items: [
-            { label: 'Master Bank', icon: 'fa fa-solid fa-building-columns', to: { name: 'masterBank' } },
-            { label: 'Transaksi Nasabah', icon: 'fa fa-solid fa-money-bill-transfer', to: { name: 'transaksiNasabah' } },
-            { label: 'Histori Nasabah', icon: 'fa fa-solid fa-clock-rotate-left', to: { name: 'historyBank' }, customIcon: 'fa-light fa-chevron-down' }
+            { label: 'Master Bank', icon: 'fa fa-fw fa-solid fa-building-columns', to: '/bankadm/masterBank' },
+            { label: 'Transaksi Nasabah', icon: 'fa fa-fw fa-solid fa-money-bill-transfer', to: '/bankadm/transaksiNasabah' },
+            { label: 'Histori Nasabah', icon: 'fa fa-fw fa-solid fa-clock-rotate-left', to: '/bankadm/historyBank' }
         ]
     },
     {

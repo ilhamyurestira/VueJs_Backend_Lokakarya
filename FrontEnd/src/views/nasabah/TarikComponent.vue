@@ -7,13 +7,8 @@
           <div>
             <div>
               <h5>Masukkan Nomor Rekening Anda:</h5>
-              <InputText
-                type="text"
-                v-model="norek"
-                class="custom-input"
-                :class="{ 'p-invalid': nomorRekeningError }"
-                required
-              />
+              <InputText type="text" v-model="norek" class="custom-input" :class="{ 'p-invalid': nomorRekeningError }"
+                required />
               <span v-if="nomorRekeningError" class="p-error">Nomor rekening harus diisi</span>
             </div>
           </div>
@@ -29,14 +24,15 @@
     <div style="text-align: center; line-height: 1; font-size: 20px; margin-top: 10px;">
       <p>Nomor Rekening : {{ nasabah.norek }}</p>
       <p>Nama Nasabah : {{ nasabah.nama }}</p>
-      <p>Saldo saat ini: Rp. {{ numberWithDot(nasabah.saldo)}}</p>
+      <p>Saldo saat ini: Rp. {{ numberWithDot(nasabah.saldo) }}</p>
       <div>
         <h3> Jumlah Tarik:</h3>
-        <InputText type="text" v-model="jumlahTarik" class="custom-input" :class="{ 'p-invalid': jumlahTarikError}" required/>
+        <InputText type="text" v-model="jumlahTarik" class="custom-input" :class="{ 'p-invalid': jumlahTarikError }"
+          required />
       </div>
-    <div style="margin: 20px;">
-      <Button label="Tarik Dana" class="custom-button" @click="prosesTarikDana" />
-    </div>
+      <div style="margin: 20px;">
+        <Button label="Tarik Dana" class="custom-button" @click="prosesTarikDana" />
+      </div>
     </div>
   </Dialog>
 </template>
@@ -58,9 +54,9 @@ export default {
   },
   methods: {
     numberWithDot(x) {
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-  },
-  
+      return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    },
+
     async tarikDana() {
       if (!this.norek) {
         this.nomorRekeningError = true;
@@ -91,7 +87,7 @@ export default {
         });
       }
     },
-    
+
     async prosesTarikDana() {
       if (!this.jumlahTarik) {
         this.jumlahTarikError = true;
@@ -101,30 +97,43 @@ export default {
       }
 
       // Periksa apakah jumlah penarikan dana kurang dari 50,000
-  if (this.jumlahTarik < 50000) {
-    Swal.fire({
-      icon: 'error',
-      text: 'Jumlah penarikan dana minimum Rp.50,000.',
-      customClass: {
+      if (this.jumlahTarik < 50000) {
+        Swal.fire({
+          icon: 'error',
+          text: 'Jumlah penarikan dana minimum Rp.50,000.',
+          customClass: {
             container: 'custom-class'
           },
           appendTo: 'body'
-    });
-    return;
-  }
+        });
+        return;
+      }
 
       // memeriksa apakah saldo cukup
       if (this.jumlahTarik > this.nasabah.saldo) {
-    Swal.fire({
-      icon: 'error',
-      text: 'Saldo tidak mencukupi untuk menarik dana.',
-      customClass: {
+        Swal.fire({
+          icon: 'error',
+          text: 'Saldo tidak mencukupi untuk menarik dana.',
+          customClass: {
             container: 'custom-class'
           },
           appendTo: 'body'
-    });
-    return;
-  }
+        });
+        return;
+      }
+
+      //Saldo tidak bisa kurang dari 50000
+      if (this.nasabah.saldo - this.jumlahTarik < 50000) {
+        Swal.fire({
+          icon: 'error',
+          text: 'Saldo tidak bisa kurang dari Rp 50.000.',
+          customClass: {
+            container: 'custom-class'
+          },
+          appendTo: 'body'
+        });
+        return;
+      }
 
       try {
         const response = await axios.post(
@@ -163,8 +172,8 @@ export default {
     },
   },
   filters: {
-    formatCurrency: function(value){
-      if (!isNaN(value)){
+    formatCurrency: function (value) {
+      if (!isNaN(value)) {
         return `Rp. ${value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
       }
       return value;
@@ -174,9 +183,9 @@ export default {
 </script>
 
 <style>
-
 .custom-class {
-  z-index: 10000; /* Pastikan pesan notifikasi ada di atas modal */
+  z-index: 10000;
+  /* Pastikan pesan notifikasi ada di atas modal */
 }
 
 .custom-input {
@@ -213,9 +222,10 @@ export default {
   height: 1rem;
   color: black;
 }
+
 .custom-input {
-    width: 200px;
-    height: 40px;
-    font-size: 16px;
-  }
+  width: 200px;
+  height: 40px;
+  font-size: 16px;
+}
 </style>
