@@ -191,7 +191,7 @@ const initFilters = () => {
             <div class="card">
                 <Toast />
                 <!-- Button nambah data baru -->
-                <Toolbar class="mb-4">
+                <!-- <Toolbar class="mb-4">
                     <template v-slot:start>
                         <div class="my-2">
                             <Button label="Tambah Transaksi Telpon" icon="pi pi-plus" class="p-button-success mr-2"
@@ -199,7 +199,7 @@ const initFilters = () => {
                         </div>
                     </template>
 
-                </Toolbar>
+                </Toolbar> -->
 
                 <!-- Tabel data -->
                 <DataTable ref="dt" :value="products" v-model:selection="selectedProducts" dataKey="id" :paginator="true"
@@ -230,6 +230,13 @@ const initFilters = () => {
                         <template #body="slotProps">
                             <span class="p-column-title">N0</span>
                             {{ slotProps.index + 1 }}
+                        </template>
+                    </Column>
+                    <Column field="nama" header="Nama" :sortable="true" headerStyle="width15%; min-width:10rem;">
+                        <template #body="slotProps">
+                            <span class="p-column-title">Nama</span>
+                            <!-- {{ slotProps.data["master_pelanggan.nama"] }} -->
+                            {{ slotProps.data.nama_pelanggan }}
                         </template>
                     </Column>
                     <Column field="blnTagihan" header="Bulan Tagihan" :sortable="true"
