@@ -25,7 +25,7 @@
     <div style="text-align: center; line-height: 1;font-size: 20px; margin-top: 10px;">
       <p>Nomor Rekening: {{ accountInfo.nomorRekening }}</p>
       <p>Nama Pemilik Rekening: {{ accountInfo.namaPemilikRekening }}</p>
-      <p>Saldo Saat Ini: {{ numberWithDot(accountInfo.saldo) }}</p>
+      <p>Saldo Saat Ini: Rp. {{ numberWithDot(accountInfo.saldo) }}</p>
       <div>
         <h5>Masukkan Nomor Rekening Penerima:</h5>
         <InputText type="index" v-model="nomorRekeningPenerima" class="custom-input"
