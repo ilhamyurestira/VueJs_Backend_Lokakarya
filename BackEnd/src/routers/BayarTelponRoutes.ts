@@ -6,6 +6,7 @@ import { Router } from "express";
 const BayarTelponRoutes = Router();
 
 // Rute untuk pembayaran telpon
-BayarTelponRoutes.post("/bayar-telpon", BayarTelponController.bayarTelpon);
+BayarTelponRoutes.post("/bayar-telpon", BayarTelponController.bayarTagihanTelpon);
+BayarTelponRoutes.get("/cek-tagihan", BayarTelponController.cekTagihanTelpon);
 
 export default BayarTelponRoutes;

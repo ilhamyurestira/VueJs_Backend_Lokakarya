@@ -6,12 +6,12 @@ const db = require('../db/models/');
 const { master_bank, transaksi_nasabah, history_transaksi_bank, master_pelanggan_telpon, transaksi_telkom, history_telkom } = require('../db/models/master_bank');
 
 class BayarTelponController implements IController {
-  bayarTelpon = async (req: Request, res: Response): Promise<Response> => {
-    const { nomorRekening, nomorPelanggan } = req.body;
+  cekTagihanTelpon = async (req: Request, res: Response): Promise<Response> => {
+    const { nomorRekening, noTelp } = req.body;
 
     try {
       // Validasi input
-      if (!nomorRekening || !nomorPelanggan) {
+      if (!nomorRekening || !noTelp) {
         return res.status(400).send('Data yang diperlukan tidak lengkap.');
       }
 
@@ -25,8 +25,8 @@ class BayarTelponController implements IController {
       }
 
       // Dapatkan data pelanggan telpon
-      const dataPelanggan = await db.transaksi_telkom.findOne({
-        where: { id_pelanggan: nomorPelanggan },
+      const dataPelanggan = await db.master_pelanggan_telpon.findOne({
+        where: { no_tlp: noTelp },
       });
 
       if (!dataPelanggan) {
@@ -36,7 +36,53 @@ class BayarTelponController implements IController {
       // Dapatkan data transaksi telpon yang belum dibayar (status 1)
       const transaksiBelumDibayar = await db.transaksi_telkom.findOne({
         where: {
-          id_pelanggan: nomorPelanggan,
+          id_pelanggan: dataPelanggan.id,
+          status: 1, // 1 adalah status belum dibayar
+        },
+      });
+
+      if (!transaksiBelumDibayar) {
+        return res.status(404).json({ message: 'Tidak ada tagihan telpon yang harus dibayar.', tagihan: 0 });
+      }
+
+      return res.status(200).json({ message: 'Tagihan telpon ditemukan.', tagihan: transaksiBelumDibayar.uang });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).send('Terjadi kesalahan saat memeriksa tagihan.');
+    }
+  };
+
+  bayarTagihanTelpon = async (req: Request, res: Response): Promise<Response> => {
+    const { nomorRekening, noTelp } = req.body;
+
+    try {
+      // Validasi input
+      if (!nomorRekening || !noTelp) {
+        return res.status(400).send('Data yang diperlukan tidak lengkap.');
+      }
+
+      // Dapatkan data pemilik rekening
+      const pemilikRekening = await db.master_bank.findOne({
+        where: { norek: nomorRekening },
+      });
+
+      if (!pemilikRekening) {
+        return res.status(404).send('Nomor rekening tidak ditemukan.');
+      }
+
+      // Dapatkan data pelanggan telpon
+      const dataPelanggan = await db.master_pelanggan_telpon.findOne({
+        where: { no_tlp: noTelp },
+      });
+
+      if (!dataPelanggan) {
+        return res.status(404).send('Nomor pelanggan telpon tidak ditemukan.');
+      }
+
+      // Dapatkan data transaksi telpon yang belum dibayar (status 1)
+      const transaksiBelumDibayar = await db.transaksi_telkom.findOne({
+        where: {
+          id_pelanggan: dataPelanggan.id,
           status: 1, // 1 adalah status belum dibayar
         },
       });
@@ -60,18 +106,6 @@ class BayarTelponController implements IController {
       transaksiBelumDibayar.status = 2; // 2 adalah status sudah dibayar
       await transaksiBelumDibayar.save();
 
-      // Tambahkan saldo rekening telkom
-      // const rekeningTelkom = await db.master_bank.findOne({
-      //   where: { norek: 'nomor_rekening_telkom' }, // Ganti dengan nomor rekening telkom yang sesuai
-      // });
-
-      // if (!rekeningTelkom) {
-      //   return res.status(500).send('Nomor rekening telkom tidak ditemukan.');
-      // }
-
-      // rekeningTelkom.saldo += transaksiBelumDibayar.uang;
-      // await rekeningTelkom.save();
-
       // Update tabel master pelanggan
       dataPelanggan.saldo -= transaksiBelumDibayar.uang; // Mengurangkan saldo pelanggan
       await dataPelanggan.save();
@@ -84,7 +118,7 @@ class BayarTelponController implements IController {
         status: 'K',
         uang: transaksiBelumDibayar.uang,
         status_ket: 4,
-        norek_dituju: nomorPelanggan,
+        norek_dituju: dataPelanggan.id.toString(),
         no_tlp: dataPelanggan.no_tlp,
         created_at: tanggalTransaksi,
         updated_at: tanggalTransaksi,
@@ -96,7 +130,7 @@ class BayarTelponController implements IController {
         tanggal: tanggalTransaksi,
         uang: transaksiBelumDibayar.uang,
         status_ket: 4,
-        norek_dituju: nomorPelanggan,
+        norek_dituju: dataPelanggan.id.toString(),
         no_tlp: dataPelanggan.no_tlp,
         nama: pemilikRekening.nama,
         created_at: tanggalTransaksi,
@@ -105,7 +139,7 @@ class BayarTelponController implements IController {
 
       // Simpan history transaksi telkom
       await db.history_telkom.create({
-        id_pelanggan: nomorPelanggan,
+        id_pelanggan: dataPelanggan.id,
         tanggal_bayar: tanggalTransaksi,
         bulan_tagihan: transaksiBelumDibayar.bulan_tagihan,
         tahun_tagihan: transaksiBelumDibayar.tahun_tagihan,
@@ -123,6 +157,32 @@ class BayarTelponController implements IController {
     } catch (err) {
       console.error(err);
       return res.status(500).send('Terjadi kesalahan saat melakukan pembayaran.');
+    }
+  };
+
+  getAccountInfo = async (req: Request, res: Response): Promise<Response> => {
+    const { nomorRekening, noTlp } = req.params; // Ambil nomor rekening dari parameter URL
+
+    try {
+      // Dapatkan data pemilik rekening berdasarkan nomor rekening
+      const pemilikRekening = await db.master_bank.findOne({
+        where: { norek: nomorRekening },
+      });
+
+      if (!pemilikRekening) {
+        return res.status(404).send('Nomor rekening tidak ditemukan.');
+      }
+
+
+      // Kirim informasi rekening sebagai respons JSON
+      return res.status(200).json({
+        nomorRekening: pemilikRekening.norek,
+        namaPemilikRekening: pemilikRekening.nama,
+        saldo: pemilikRekening.saldo,
+      });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).send('Terjadi kesalahan saat mengambil informasi rekening.');
     }
   };
 
