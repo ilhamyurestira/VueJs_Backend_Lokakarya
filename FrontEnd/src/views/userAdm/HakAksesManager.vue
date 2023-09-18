@@ -1,136 +1,290 @@
 <script setup>
+'use strict';
 import { FilterMatchMode } from 'primevue/api';
 import { ref, onMounted, onBeforeMount } from 'vue';
 import ProductService from '@/service/ProductService';
+import axios from 'axios';
 import { useToast } from 'primevue/usetoast';
-
-import axios from 'axios'; // Import Axios
 
 const toast = useToast();
 
-const products = ref([]);
-const apiUrl = 'http://localhost:8000/api/v1/admin/manage/hakAkses'; // Replace with your API URL
-const productDialog = ref(false);
-const deleteProductDialog = ref(false);
-const deleteProductsDialog = ref(false);
-const product = ref({});
-const selectedProducts = ref(null);
+const loadedData = ref(null);
+const loadedRoles = ref(null);
+const loadedUsers = ref(null);
+const passwordConfirmation = ref(null);
+const authenticated = ref(false);
+const check = ref({ password: '' });
+const apiUrl = 'http://localhost:8000/api/v1/admin/manage/hakAkses';
+const roleUrl = 'http://localhost:8000/api/v1/admin/manage/roles';
+const userUrl = 'http://localhost:8000/api/v1/admin/manage/users';
+const adminCheckUrl = `http://localhost:8000/api/v1/admin/manage/users/check`;
+const createNewDialog = ref(false);
+const editConfirmationDialog = ref(false);
+const editSelectedItemDialog = ref(false);
+const deleteConfirmationDialog = ref(false);
+const hakAkses = ref({});
+const role = ref({});
+const user = ref({});
+const selectedItems = ref(null);
 const dt = ref(null);
 const filters = ref({});
 const submitted = ref(false);
-const statuses = ref([
-    { label: 'INSTOCK', value: 'instock' },
-    { label: 'LOWSTOCK', value: 'lowstock' },
-    { label: 'OUTOFSTOCK', value: 'outofstock' }
-]);
 
 const productService = new ProductService();
 
 onBeforeMount(() => {
     initFilters();
 });
-// Fetch data from the API on component mount
 onMounted(() => {
-    fetchData();
+    fetchMainData();
+    fetchRoles();
+    fetchMenus();
 });
-const formatCurrency = (value) => {
-    return value.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' });
-};
 
-const fetchData = () => {
+const fetchMainData = () => {
     axios
         .get(apiUrl)
         .then((response) => {
-            products.value = response.data; // Assuming your API response is an array of products
+            loadedData.value = response.data; // Assuming your API response is an array of products
         })
         .catch((error) => {
-            console.error('Error fetching data:', error);
-            toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to fetch data from the API', life: 3000 });
+            console.error('Error fetching role menu data:', error);
+            toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to fetch role menu data from the API', life: 3000 });
         });
 };
 
-const openNew = () => {
-    product.value = {};
-    submitted.value = false;
-    productDialog.value = true;
+const fetchRoles = () => {
+    axios
+        .get(roleUrl)
+        .then((response) => {
+            loadedRoles.value = response.data;
+        })
+        .catch((error) => {
+            console.error('Error fetching role data:', error);
+            toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to fetch role data from the API', life: 3000 });
+        });
 };
 
-const hideDialog = () => {
-    productDialog.value = false;
+const fetchMenus = () => {
+    axios
+        .get(userUrl)
+        .then((response) => {
+            loadedUsers.value = response.data;
+        })
+        .catch((error) => {
+            console.error('Error fetching menu data:', error);
+            toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to fetch menu data from the API', lifr: 3000 });
+        });
+};
+
+const openCreationMenu = () => {
+    hakAkses.value = {};
+    passwordConfirmation.value = null;
+    submitted.value = false;
+    createNewDialog.value = true;
+};
+
+const hideCreationDialog = () => {
+    createNewDialog.value = false;
     submitted.value = false;
 };
 
-const saveProduct = () => {
+const hideEditDialog = () => {
+    editSelectedItemDialog.value = false;
+    submitted.value = false;
+};
+
+const createItem = () => {
     submitted.value = true;
-    if (product.value.name && product.value.name.trim() && product.value.price) {
-        if (product.value.id) {
-            product.value.inventoryStatus = product.value.inventoryStatus.value ? product.value.inventoryStatus.value : product.value.inventoryStatus;
-            products.value[findIndexById(product.value.id)] = product.value;
-            toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Updated', life: 3000 });
-        } else {
-            product.value.id = createId();
-            product.value.code = createId();
-            product.value.image = 'product-placeholder.svg';
-            product.value.inventoryStatus = product.value.inventoryStatus ? product.value.inventoryStatus.value : 'INSTOCK';
-            products.value.push(product.value);
-            toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Created', life: 3000 });
-        }
-        productDialog.value = false;
-        product.value = {};
+    if (hakAkses.value.roleId && hakAkses.value.userId) {
+        const newData = {
+            roleId: hakAkses.value.roleId,
+            userId: hakAkses.value.userId,
+            programName: 'Web API',
+            createdBy: 'User Admin'
+        };
+        axios
+            .post(`${apiUrl}`, newData)
+            .then((response) => {
+                const data = response.data;
+                if (response.status === 201) {
+                    // Produk berhasil dibuat di BE, tidak ada respons yang diharapkan dari BE
+                    toast.add({
+                        severity: 'success',
+                        summary: 'Sukses',
+                        detail: `${response.data}`
+                    });
+                    hideCreationDialog();
+                    fetchMainData();
+                } else {
+                    toast.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: `Hak Akses gagal dibuat (errcode: ${response.status})`,
+                        life: 3000
+                    });
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+                toast.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: `Hak Akses gagal dibuat (errcode: ${error.response.status})`,
+                    life: 3000
+                });
+            });
     }
 };
 
-const editProduct = (editProduct) => {
-    product.value = { ...editProduct };
-    console.log(product);
-    productDialog.value = true;
+const openEditSelectedMenu = (selected) => {
+    hakAkses.value = selected;
+    editSelectedItemDialog.value = true;
 };
 
-const confirmDeleteProduct = (editProduct) => {
-    product.value = editProduct;
-    deleteProductDialog.value = true;
+const confirmEdit = () => {
+    editConfirmationDialog.value = true;
+    passwordConfirmation.value = null;
 };
 
-const deleteProduct = () => {
-    products.value = products.value.filter((val) => val.id !== product.value.id);
-    deleteProductDialog.value = false;
-    product.value = {};
-    toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Deleted', life: 3000 });
+const checkAdminPassword = (PasswordCheck) => {
+    axios
+        .post(`${adminCheckUrl}`, PasswordCheck)
+        .then((response) => {
+            if (response.status === 200) {
+                editRole();
+            }
+        })
+        .catch((error) => {
+            // console.log(error);
+            if (error.response.status === 401) {
+                toast.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: `Password Admin Salah`,
+                    life: 3000
+                });
+            } else {
+                toast.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: `authentication error`,
+                    life: 3000
+                });
+            }
+        });
 };
 
-const findIndexById = (id) => {
-    let index = -1;
-    for (let i = 0; i < products.value.length; i++) {
-        if (products.value[i].id === id) {
-            index = i;
-            break;
-        }
+const editRole = () => {
+    submitted.value = true;
+    if (hakAkses.value.roleId && hakAkses.value.userId) {
+        const currentName = hakAkses.value.user.username;
+        const newData = {
+            roleId: hakAkses.value.roleId,
+            userId: hakAkses.value.userId,
+            programName: 'Web API',
+            updatedBy: 'User Admin'
+        };
+        axios
+            .put(`${apiUrl}/${hakAkses.value.id}`, newData)
+            .then((response) => {
+                if (response.status === 200) {
+                    // Produk berhasil diubah di BE, tidak ada respons yang diharapkan dari BE
+                    toast.add({
+                        severity: 'success',
+                        summary: 'Sukses',
+                        detail: `Hak Akses untuk user: ${currentName} telah berhasil diubah.`
+                    });
+                    editConfirmationDialog.value = false;
+                    hideEditDialog();
+                    fetchMainData();
+                } else {
+                    toast.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: `Role: ${hakAkses.value.nama} gagal diubah (errcode: ${response.status})`,
+                        life: 3000
+                    });
+                    authenticated.value = false;
+                }
+                check.value.password = null;
+            })
+            .catch((error) => {
+                toast.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: `Role: ${hakAkses.value.nama} gagal dibubah (errcode: ${error.response.status})`,
+                    life: 3000
+                });
+                check.value.password = null;
+                authenticated.value = false;
+            });
     }
-    return index;
 };
 
-const createId = () => {
-    let id = '';
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    for (let i = 0; i < 5; i++) {
-        id += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return id;
+const confirmDelete = (selected) => {
+    hakAkses.value = selected;
+    passwordConfirmation.value = null;
+    deleteConfirmationDialog.value = true;
 };
+
+const hideDeleteDialog = () => {
+    deleteConfirmationDialog.value = false;
+    passwordConfirmation.value = null;
+};
+
+const deleteRole = () => {
+    //removes the data from the currently loaded data
+    loadedData.value = loadedData.value.filter((val) => val.id !== hakAkses.value.id);
+
+    deleteConfirmationDialog.value = false;
+    // console.log(`http://localhost:8000/api/v1/admin/manage/users/${users.value.id}`);
+    axios
+        .delete(`${apiUrl}/${hakAkses.value.id}`)
+        .then((response) => {
+            toast.add({ severity: 'success', summary: 'Successful', detail: `Hak Akses: ${hakAkses.value.role.nama} has been revoked from the user: ${hakAkses.value.user.username} successfully`, life: 3000 });
+            hakAkses.value = {};
+            fetchMainData();
+        })
+        .catch((error) => {
+            console.error('Error fetching data:', error);
+            toast.add({ severity: 'error', summary: 'Error', detail: `Failed to delete role (errcode: ${error.response.status})`, life: 3000 });
+        });
+};
+
+// const findIndexById = (id) => {
+//     let index = -1;
+//     for (let i = 0; i < loadedData.value.length; i++) {
+//         if (loadedData.value[i].id === id) {
+//             index = i;
+//             break;
+//         }
+//     }
+//     return index;
+// };
+
+// const createId = () => {
+//     let id = '';
+//     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+//     for (let i = 0; i < 5; i++) {
+//         id += chars.charAt(Math.floor(Math.random() * chars.length));
+//     }
+//     return id;
+// };
 
 const exportCSV = () => {
     dt.value.exportCSV();
 };
 
-const confirmDeleteSelected = () => {
-    deleteProductsDialog.value = true;
-};
-const deleteSelectedProducts = () => {
-    products.value = products.value.filter((val) => !selectedProducts.value.includes(val));
-    deleteProductsDialog.value = false;
-    selectedProducts.value = null;
-    toast.add({ severity: 'success', summary: 'Successful', detail: 'Products Deleted', life: 3000 });
-};
+// const confirmDeleteSelected = () => {
+//     deleteProductsDialog.value = true;
+// };
+// const deleteSelectedProducts = () => {
+//     loadedData.value = loadedData.value.filter((val) => !selectedProducts.value.includes(val));
+//     deleteProductsDialog.value = false;
+//     selectedProducts.value = null;
+//     toast.add({ severity: 'success', summary: 'Successful', detail: 'Products Deleted', life: 3000 });
+// };
 
 const initFilters = () => {
     filters.value = {
@@ -144,20 +298,23 @@ const initFilters = () => {
         <div class="col-12">
             <div class="card">
                 <Toast />
-                <!-- Button nambah data baru -->
                 <Toolbar class="mb-4">
                     <template v-slot:start>
                         <div class="my-2">
-                            <Button label="Tambah Rekening" icon="pi pi-plus" class="p-button-success mr-2" @click="openNew" />
+                            <Button label="Create New Hak Akses" icon="pi pi-plus" class="p-button-success mr-2" @click="openCreationMenu" />
                         </div>
                     </template>
+
+                    <!-- <template v-slot:end>
+                        <FileUpload mode="basic" accept="image/*" :maxFileSize="1000000" label="Import" chooseLabel="Import" class="mr-2 inline-block" />
+                        <Button label="Export" icon="pi pi-upload" class="p-button-help" @click="exportCSV($event)" />
+                    </template> -->
                 </Toolbar>
 
-                <!-- Tabel data -->
                 <DataTable
                     ref="dt"
-                    :value="products"
-                    v-model:selection="selectedProducts"
+                    :value="loadedData"
+                    v-model:selection="selectedItems"
                     dataKey="id"
                     :paginator="true"
                     :rows="10"
@@ -169,7 +326,7 @@ const initFilters = () => {
                 >
                     <template #header>
                         <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-                            <h5 class="m-0">Data Nasabah</h5>
+                            <h5 class="m-0">Manage Hak Akses</h5>
                             <span class="block mt-2 md:mt-0 p-input-icon-left">
                                 <i class="pi pi-search" />
                                 <InputText v-model="filters['global'].value" placeholder="Search..." />
@@ -177,97 +334,110 @@ const initFilters = () => {
                         </div>
                     </template>
 
-                    <!-- <Column selectionMode="multiple" headerStyle="width: 3rem"></Column> -->
-                    <Column field="nama" header="Nama" :sortable="true" headerStyle="width20%; min-width:10rem;">
+                    <Column field="userName" header="UserName" :sortable="true" headerStyle="width:35%; min-width:10rem;">
                         <template #body="slotProps">
-                            <span class="p-column-title">Nama</span>
-                            {{ slotProps.data.nama }}
+                            <span class="p-column-title">Role Name</span>
+                            {{ slotProps.data.user.username }}
                         </template>
                     </Column>
-                    <Column field="noTlp" header="No Telpon" :sortable="true" headerStyle="width:20%; min-width:10rem;">
+                    <Column field="roleName" header="RoleName" :sortable="true" headerStyle="width:35%; min-width:10rem;">
                         <template #body="slotProps">
-                            <span class="p-column-title">No Telpon</span>
-                            {{ slotProps.data.noTlp }}
+                            <span class="p-column-title">Menu Name</span>
+                            {{ slotProps.data.role.nama }}
                         </template>
                     </Column>
-                    <Column field="alamat" header="Alamat" :sortable="true" headerStyle="width:20%; min-width:10rem;">
+
+                    <Column header="Actions" headerStyle="width:30%; min-width:10rem;">
                         <template #body="slotProps">
-                            <span class="p-column-title">Alamat</span>
-                            {{ slotProps.data.alamat }}
-                        </template>
-                    </Column>
-                    <Column field="norek" header="No Rekening" :sortable="true" headerStyle="width:20%; min-width:10rem;">
-                        <template #body="slotProps">
-                            <span class="p-column-title">No Rekening</span>
-                            {{ slotProps.data.norek }}
-                        </template>
-                    </Column>
-                    <Column field="saldo" header="Saldo" :sortable="true" headerStyle="width:20%; min-width:10rem;">
-                        <template #body="slotProps">
-                            <span class="p-column-title">Saldo</span>
-                            {{ formatCurrency(slotProps.data.saldo) }}
-                        </template>
-                    </Column>
-                    <Column header="Action" headerStyle="width:20%;min-width:10rem;">
-                        <template #body="slotProps">
-                            <Button icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" @click="editProduct(slotProps.data)" />
-                            <Button icon="pi pi-trash" class="p-button-rounded p-button-warning mt-2" @click="confirmDeleteProduct(slotProps.data)" />
+                            <Button icon="pi pi-pencil" class="p-button-secondary mt-2 mr-1 ml-1" label="Edit" @click="openEditSelectedMenu(slotProps.data)" />
+                            <Button icon="pi pi-trash" class="p-button-danger mt-2 mr-1 ml-1" label="Delete" @click="confirmDelete(slotProps.data)" />
                         </template>
                     </Column>
                 </DataTable>
 
-                <!-- Dialog untuk tambah dan edit data -->
-                <Dialog v-model:visible="productDialog" :style="{ width: '450px' }" header="Detail Pelanggan" :modal="true" class="p-fluid">
-                    <!-- <img :src="'demo/images/product/' + product.image" :alt="product.image" v-if="product.image" width="150"
-                        class="mt-0 mx-auto mb-5 block shadow-2" /> -->
+                <Dialog v-model:visible="createNewDialog" :style="{ width: '450px' }" header="Create Hak Akses" :modal="true" class="p-fluid">
                     <div class="field">
-                        <label for="idPelanggan">ID</label>
-                        <InputText id="idPelanggan" v-model.trim="product.idPelanggan" required="true" autofocus :class="{ 'p-invalid': submitted && !product.idPelanggan }" />
-                        <small class="p-invalid" v-if="submitted && !product.idPelanggan">ID harus di Isi.</small>
+                        <label for="userName">User</label>
+                        <Dropdown id="username" v-model="hakAkses.userId" optionLabel="username" optionValue="id" :options="loadedUsers" placeholder="Pilih User" required="true" autofocus :class="{ 'p-invalid': submitted && !hakAkses.userId }" />
+                        <small class="p-invalid" v-if="submitted && !hakAkses.userId">User is Required.</small>
                     </div>
                     <div class="field">
-                        <label for="nama">Nama</label>
-                        <InputText id="nama" v-model.trim="product.nama" required="true" autofocus :class="{ 'p-invalid': submitted && !product.nama }" />
-                        <small class="p-invalid" v-if="submitted && !product.nama">Nama harus di Isi.</small>
+                        <label for="roleName">Assigned Role</label>
+                        <Dropdown id="rolename" v-model="hakAkses.roleId" optionLabel="nama" optionValue="id" :options="loadedRoles" placeholder="Pilih Role" required="true" autofocus :class="{ 'p-invalid': submitted && !hakAkses.roleId }" />
+                        <small class="p-invalid" v-if="submitted && !hakAkses.roleId">Role is Required.</small>
                     </div>
-                    <div class="field">
-                        <label for="noTelp">No Telpon</label>
-                        <InputText id="noTelp" v-model.trim="product.noTelp" required="true" autofocus :class="{ 'p-invalid': submitted && !product.noTelp }" />
-                        <small class="p-invalid" v-if="submitted && !product.noTelp">No Telpon harus di Isi.</small>
-                    </div>
-                    <div class="field">
-                        <label for="alamat">Alamat</label>
-                        <Textarea id="alamat" v-model="product.alamat" required="true" rows="3" cols="20" />
-                    </div>
+
                     <template #footer>
-                        <Button label="Cancel" icon="pi pi-times" class="p-button-text" @click="hideDialog" />
-                        <Button label="Save" icon="pi pi-check" class="p-button-text" @click="saveProduct" />
+                        <Button label="Cancel" icon="pi pi-times" class="p-button-danger p-button-text" @click="hideCreationDialog" />
+                        <Button label="Create" icon="pi pi-check" class="p-button-text" @click="createItem" />
                     </template>
                 </Dialog>
 
-                <!-- Dialog untuk yakin hapus data -->
-                <Dialog v-model:visible="deleteProductDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
+                <Dialog v-model:visible="editConfirmationDialog" :style="{ width: '450px', height: '400px' }" header="Confirm" :modal="true">
                     <div class="flex align-items-center justify-content-center">
                         <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-                        <span v-if="product"
-                            >Are you sure you want to delete <b>{{ product.name }}</b
-                            >?</span
+                        <span v-if="HakAksesMenu"
+                            >Are you sure you want to edit hak akses for <b>{{ hakAkses.role.nama }}</b> information ? please enter user admin password to confirm
+                        </span>
+                    </div>
+                    <div class="flex align-items-center mt-4 justify-content-center">
+                        <InputText id="adminPassword" type="password" v-model="check.password" required="true" placeholder="Admin Password" autofocus :class="{ 'p-invalid': !check.password }" />
+                    </div>
+                    <div class="flex align-items-center mt-1 justify-content-center">
+                        <small class="p-invalid" v-if="!check.password">please enter the user admin password</small>
+                    </div>
+
+                    <template #footer>
+                        <Button label="Cancel" icon="pi pi-times" class="p-button-text" @click="editConfirmationDialog = false" />
+                        <Button label="Confirm" icon="pi pi-check" class="p-button-text" @click="checkAdminPassword(check)" :class="{ 'p-disabled': !check.password }" />
+                    </template>
+                </Dialog>
+
+                <Dialog v-model:visible="editSelectedItemDialog" :style="{ width: '450px' }" header="Edit User Information" :modal="true" class="p-fluid">
+                    <div class="field">
+                        <label for="userName">User</label>
+                        <Dropdown id="username" v-model="hakAkses.userId" optionLabel="username" optionValue="id" :options="loadedUsers" required="true" autofocus :class="{ 'p-invalid': submitted && !hakAkses.userId }" />
+                        <small class="p-invalid" v-if="submitted && !hakAkses.userId">User is Required.</small>
+                    </div>
+                    <div class="field">
+                        <label for="roleName">Assigned Role</label>
+                        <Dropdown id="rolename" v-model="hakAkses.roleId" optionLabel="nama" optionValue="id" :options="loadedRoles" required="true" autofocus :class="{ 'p-invalid': submitted && !hakAkses.roleId }" />
+                        <small class="p-invalid" v-if="submitted && !hakAkses.roleId">Role is Required.</small>
+                    </div>
+
+                    <template #footer>
+                        <Button label="Cancel" icon="pi pi-times" class="p-button-danger p-button-text" @click="hideEditDialog" />
+                        <Button label="Edit" icon="pi pi-check" class="p-button-success p-button-text" @click="confirmEdit" />
+                    </template>
+                </Dialog>
+
+                <Dialog v-model:visible="deleteConfirmationDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
+                    <div class="flex align-items-center justify-content-center">
+                        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
+                        <span v-if="hakAkses"
+                            >Are you sure you want to revoke Hak Akses: <b>{{ hakAkses.role.nama }}</b> for user: <b>{{ hakAkses.user.username }}</b
+                            >? <br />
+                            <small>Please enter the confirmation text below (lower case only)</small></span
                         >
                     </div>
-                    <template #footer>
-                        <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteProductDialog = false" />
-                        <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteProduct" />
-                    </template>
-                </Dialog>
-
-                <Dialog v-model:visible="deleteProductsDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
-                    <div class="flex align-items-center justify-content-center">
-                        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-                        <span v-if="product">Are you sure you want to delete the selected products?</span>
+                    <div class="flex align-items-center mt-4 justify-content-center">
+                        <InputText
+                            id="confirmation"
+                            type="text"
+                            v-model="passwordConfirmation"
+                            required="true"
+                            placeholder="confirm delete hak akses"
+                            autofocus
+                            :class="{ 'p-invalid': !passwordConfirmation || passwordConfirmation !== 'confirm delete hak akses' }"
+                        />
+                    </div>
+                    <div class="flex align-items-center mt-1 justify-content-center">
+                        <small class="p-invalid" v-if="!passwordConfirmation">please enter the confirmation text</small>
+                        <small class="p-invalid" v-else-if="passwordConfirmation !== 'confirm delete hak akses'">invalid confirmation text</small>
                     </div>
                     <template #footer>
-                        <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteProductsDialog = false" />
-                        <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteSelectedProducts" />
+                        <Button label="No" icon="pi pi-times" class="p-button-text" @click="hideDeleteDialog()" />
+                        <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteRole" :class="{ 'p-disabled': !passwordConfirmation || passwordConfirmation !== 'confirm delete hak akses' }" />
                     </template>
                 </Dialog>
             </div>
