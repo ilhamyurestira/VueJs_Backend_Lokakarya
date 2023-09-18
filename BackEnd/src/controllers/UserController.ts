@@ -145,7 +145,7 @@ class UserController implements IController {
     const { password } = req.body;
 
     try {
-if (!password) {
+      if (!password) {
         return res.status(400).send('password belum diisi');
       } else {
         const user = await dm.findOne({
@@ -160,7 +160,7 @@ if (!password) {
 
         // generate token
         if (compare) {
-          return res.status(200).send("Password Confirmed");
+          return res.status(200).send('Password Confirmed');
         }
         return res.status(401).send('Wrong Password');
       }
@@ -168,6 +168,27 @@ if (!password) {
       console.log(err);
       return res.status(500).send('authentication error');
     }
-  }
+  };
+
+  pickByUsername = async (req: Request, res: Response): Promise<Response> => {
+    const { username } = req.params;
+
+    console.log(username);
+
+    try {
+      const data = await dm.findOne({
+        where: { username },
+        attributes: ['id', 'username', 'nama', 'alamat', 'email', 'telp'],
+      });
+
+      if (!data) {
+        return res.status(404).send('user tidak ditemukan.');
+      }
+      return res.status(200).json(data);
+    } catch (err) {
+      console.log(err);
+      return res.status(500).send('pencarian user gagal.');
+    }
+  };
 }
 export default new UserController();

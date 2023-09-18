@@ -14,7 +14,10 @@ module.exports = (sequelize, DataTypes) => {
   }
   user.init(
     {
-      username: DataTypes.STRING,
+      username: {
+        type: DataTypes.STRING,
+        unique: true,
+      },
       password: DataTypes.STRING,
       nama: DataTypes.STRING,
       alamat: DataTypes.STRING,
@@ -47,7 +50,9 @@ module.exports = (sequelize, DataTypes) => {
 
     try {
       // Temukan semua entri master_bank yang terkait dengan userId
-      const masterBanks = await sequelize.models.master_bank.findAll({ where: { userId } });
+      const masterBanks = await sequelize.models.master_bank.findAll({
+        where: { userId },
+      });
 
       // Update nama, alamat, dan noTlp pada setiap entri master_bank
       for (const masterBank of masterBanks) {

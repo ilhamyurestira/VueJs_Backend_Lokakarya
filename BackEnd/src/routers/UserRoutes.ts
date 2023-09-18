@@ -5,6 +5,7 @@ import BaseRoutes from './BaseRouter';
 class UserRoutes extends BaseRoutes {
   public routes(): void {
     this.router.get('/', UserController.index);
+    this.router.get('/:username', UserController.pickByUsername);
     this.router.post('/', UserController.create);
     this.router.post('/check', UserController.userAdmin);
     this.router.get('/:id', UserController.show);
