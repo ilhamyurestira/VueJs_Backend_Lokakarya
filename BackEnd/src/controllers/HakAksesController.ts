@@ -58,18 +58,20 @@ class HakAksesController implements IController {
     const { userId, roleId, programName, createdBy } = req.body;
 
     try {
+      const newRole = await role.findByPk(roleId);
+      const newUser = await user.findByPk(userId);
       if (!userId) {
         return res.status(400).send('user belum diisi');
       } else if (!roleId) {
         return res.status(400).send('role belum diisi');
       } else {
         const existingUserRole = await dm.findOne({
-          where: { userId, roleId },
+          where: { userId },
         });
         if (existingUserRole) {
           return res
             .status(400)
-            .send('user yang sama dengan role yang sama telah ada');
+            .send('user yang dipilih sudah diberikan role sebelumnya');
         } else {
           const newData = await dm.create({
             userId,
@@ -77,7 +79,11 @@ class HakAksesController implements IController {
             programName,
             createdBy,
           });
-          return res.status(201).send(`Hak akses telah berhasil dibuat`);
+          return res
+            .status(201)
+            .send(
+              `Hak akses ${newRole.nama} untuk user: ${newUser.username} telah berhasil dibuat`
+            );
         }
       }
     } catch (err) {
