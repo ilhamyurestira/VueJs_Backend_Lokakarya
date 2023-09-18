@@ -5,6 +5,11 @@ import { useToast } from 'primevue/usetoast';
 
 import axios from 'axios'; // Import Axios
 
+const currentPage = ref(1);
+const totalPages = ref(0);
+const totalElements = ref(0);
+const limit = ref(5); // Nilai default limit
+
 const toast = useToast();
 
 const datas = ref([]);
@@ -46,9 +51,24 @@ const fetchUsers = () => {
 };
 
 const fetchData = () => {
-    axios.get(apiUrl)
+    axios
+        .get(apiUrl, {
+            params: {
+                page: currentPage.value, // Gunakan currentPage saat ini
+                limit: limit.value,
+            },
+        })
         .then((response) => {
-            datas.value = response.data; // Assuming your API response is an array of datas
+            const responseData = response.data;
+            const startIndex = (currentPage.value - 1) * limit.value + 1; // Calculate the start index for numbering
+            const masterBanksData = responseData.data.map((item, index) => ({
+                ...item,
+                No: startIndex + index, // Calculate the "No" based on the index
+            }));
+
+            datas.value = masterBanksData;
+            totalPages.value = responseData.totalPages;
+            totalElements.value = responseData.totalElements;
         })
         .catch((error) => {
             console.error('Error fetching data:', error);
@@ -56,10 +76,16 @@ const fetchData = () => {
         });
 };
 
+const handlePageChange = (event) => {
+    currentPage.value = event.page + 1; // Event.page dimulai dari 0, tambahkan 1
+    fetchData(); // Ambil data untuk halaman baru
+};
+
 const openNew = () => {
     data.value = {};
     submitted.value = false;
     dataDialog.value = true;
+    currentPage.value = 1; // Set currentPage kembali ke 1
 };
 
 const hideDialog = () => {
@@ -201,11 +227,7 @@ const initFilters = () => {
                 </Toolbar>
 
                 <!-- Tabel data -->
-                <DataTable ref="dt" :value="datas" v-model:selection="selecteddatas" dataKey="id" :paginator="true"
-                    :rows="10" :filters="filters"
-                    paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                    :rowsPerPageOptions="[5, 10, 25]"
-                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} datas" responsiveLayout="scroll">
+                <DataTable ref="dt" :value="datas" v-model:selection="selecteddatas" dataKey="id" @page="handlePageChange">
                     <template #header>
                         <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
                             <h5 class="m-0">Data Nasabah</h5>
@@ -217,10 +239,10 @@ const initFilters = () => {
                     </template>
 
                     <!-- <Column selectionMode="multiple" headerStyle="width: 3rem"></Column> -->
-                    <Column field="index" header="No" :sortable="false" headerStyle="width:5%; min-width:5rem;">
+                    <Column field="No" header="No" :sortable="false" headerStyle="width:5%; min-width:5rem;">
                         <template #body="slotProps">
-                            <span class="p-column-title">N0</span>
-                            {{ slotProps.index + 1 }}
+                            <span class="p-column-title">No</span>
+                            {{ slotProps.data.No }}
                         </template>
                     </Column>
                     <Column field="nama" header="Nama" :sortable="true" headerStyle="width20%; min-width:10rem;">
@@ -262,6 +284,10 @@ const initFilters = () => {
                         </template>
                     </Column>
                 </DataTable>
+                <Paginator :rows="limit" :totalRecords="totalElements" :rowsPerPageOptions="[10, 20, 30]"
+                    template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords}" @page="handlePageChange">
+                </Paginator>
 
                 <!-- Dialog untuk tambah dan edit data -->
                 <Dialog v-model:visible="dataDialog" :style="{ width: '450px' }" header="Buat Rekening Baru" :modal="true"
