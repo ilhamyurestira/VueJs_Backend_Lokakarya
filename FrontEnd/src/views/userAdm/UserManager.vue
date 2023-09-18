@@ -92,20 +92,19 @@ const createUser = () => {
             programName: 'Web API',
             createdBy: 'User Admin'
         };
-        newUser.value.username = user.value.username;
+        // newUser.value.username = user.value.username;
         axios
             .post(`${apiUrl}`, newData)
             .then((response) => {
                 const data = response.data;
                 if (response.status === 201) {
-                    console.log(response.data);
-                    getNewId();
-                    user.value = {};
+                    // console.log(response.data);
                     hideCreateUserDialog();
+                    getNewId();
                     toast.add({
                         severity: 'success',
                         summary: 'Sukses',
-                        detail: `User: ${user.value.username} telah berhasil dibuat.`
+                        detail: `${data}`
                     });
                 } else {
                     toast.add({
@@ -169,7 +168,7 @@ const createBankAccount = (createdUser) => {
                 toast.add({
                     severity: 'success',
                     summary: 'Sukses',
-                    detail: `Bank Account untuk user: ${user.value.username} telah berhasil dibuat.`
+                    detail: `Bank Account untuk user: ${data.nama} telah berhasil dibuat.`
                 });
             }
             createNasabahQuerry.value = false;
@@ -316,8 +315,8 @@ const deleteUser = () => {
     axios
         .delete(`${apiUrl}/${user.value.id}`)
         .then((response) => {
+            toast.add({ severity: 'success', summary: 'Successful', detail: `User: ${user.username} has been deleted successfully`, life: 3000 });
             user.value = {};
-            toast.add({ severity: 'success', summary: 'Successful', detail: 'User has been deleted successfully', life: 3000 });
         })
         .catch((error) => {
             console.error('Error fetching data:', error);
@@ -382,10 +381,10 @@ const initFilters = () => {
                         </div>
                     </template>
 
-                    <template v-slot:end>
-                        <!-- <FileUpload mode="basic" accept="image/*" :maxFileSize="1000000" label="Import" chooseLabel="Import" class="mr-2 inline-block" /> -->
+                    <!-- <template v-slot:end>
+                        <FileUpload mode="basic" accept="image/*" :maxFileSize="1000000" label="Import" chooseLabel="Import" class="mr-2 inline-block" />
                         <Button label="Export" icon="pi pi-upload" class="p-button-help" @click="exportCSV($event)" />
-                    </template>
+                    </template> -->
                 </Toolbar>
 
                 <DataTable
@@ -420,9 +419,9 @@ const initFilters = () => {
 
                     <Column header="Actions" headerStyle="width:30%; min-width:10rem;">
                         <template #body="slotProps">
-                            <Button icon="pi pi-user-edit" class="p-button-secondary mt-2 mr-1 ml-1" label="Edit Information" @click="openEditUserInformationMenu(slotProps.data)" />
+                            <Button icon="pi pi-user-edit" class="p-button-secondary mt-2 mr-1 ml-1" label="Edit" @click="openEditUserInformationMenu(slotProps.data)" />
                             <!-- <Button icon="pi pi-undo" class="p-button-warning mt-1 mr-1 ml-1" label="Reset Password" @click="resetUserPassword(slotProps.data)" /> -->
-                            <Button icon="pi pi-user-minus" class="p-button-danger mt-2 mr-1 ml-1" label="Delete User" @click="confirmDeleteUser(slotProps.data)" />
+                            <Button icon="pi pi-user-minus" class="p-button-danger mt-2 mr-1 ml-1" label="Delete" @click="confirmDeleteUser(slotProps.data)" />
                         </template>
                     </Column>
                 </DataTable>

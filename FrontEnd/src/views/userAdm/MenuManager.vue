@@ -8,6 +8,7 @@ import { useToast } from 'primevue/usetoast';
 const toast = useToast();
 
 const loadedData = ref(null);
+const icons = ref(null);
 // const adminData = ref(null);
 const passwordConfirmation = ref(null);
 const authenticated = ref(false);
@@ -36,6 +37,20 @@ onBeforeMount(() => {
     initFilters();
 });
 onMounted(() => {
+    fetch('/demo/data/icons.json', { headers: { 'Cache-Control': 'no-cache' } })
+        .then((res) => res.json())
+        .then((d) => {
+            let data = d.icons.filter((value) => {
+                return value.icon.tags.indexOf('deprecate') === -1;
+            });
+            data.sort((icon1, icon2) => {
+                if (icon1.properties.name < icon2.properties.name) return -1;
+                else if (icon1.properties.name > icon2.properties.name) return 1;
+                else return 0;
+            });
+
+            icons.value = data;
+        });
     fetchData();
 });
 
@@ -85,7 +100,7 @@ const createNew = () => {
                     toast.add({
                         severity: 'success',
                         summary: 'Sukses',
-                        detail: `Role: ${menu.value.nama} telah berhasil dibuat.`
+                        detail: `${data}`
                     });
                     hideCreationDialog();
                 } else {
@@ -165,8 +180,6 @@ const runEdit = () => {
                         summary: 'Sukses',
                         detail: `Menu: ${currentName} telah berhasil diubah.`
                     });
-                    check.value.password = '';
-                    authenticated.value = false;
                     editConfirmationDialog.value = false;
                     hideEditDialog();
                     fetchData();
@@ -177,9 +190,8 @@ const runEdit = () => {
                         detail: `Menu: ${menu.value.nama} gagal diubah (errcode: ${response.status})`,
                         life: 3000
                     });
-                    check.value.password = '';
-                    authenticated.value = false;
                 }
+                check.value.password = null;
             })
             .catch((error) => {
                 toast.add({
@@ -188,8 +200,7 @@ const runEdit = () => {
                     detail: `Menu: ${menu.value.nama} gagal dibubah (errcode: ${error.response.status})`,
                     life: 3000
                 });
-                check.value.password = '';
-                authenticated.value = false;
+                check.value.password = null;
             });
     }
 };
@@ -212,8 +223,8 @@ const runDelete = () => {
     axios
         .delete(`${apiUrl}/${menu.value.id}`)
         .then((response) => {
-            menu.value = {};
             toast.add({ severity: 'success', summary: 'Successful', detail: `Menu ${menu.value.nama} has been deleted successfully`, life: 3000 });
+            menu.value = {};
             fetchData();
         })
         .catch((error) => {
@@ -271,14 +282,14 @@ const initFilters = () => {
                 <Toolbar class="mb-4">
                     <template v-slot:start>
                         <div class="my-2">
-                            <Button label="Create New User Role" icon="pi pi-user-plus" class="p-button-success mr-2" @click="openCreationDialog" />
+                            <Button label="Create New Menu" icon="pi pi-plus" class="p-button-success mr-2" @click="openCreationDialog" />
                         </div>
                     </template>
 
-                    <template v-slot:end>
-                        <!-- <FileUpload mode="basic" accept="image/*" :maxFileSize="1000000" label="Import" chooseLabel="Import" class="mr-2 inline-block" /> -->
+                    <!-- <template v-slot:end>
+                        <FileUpload mode="basic" accept="image/*" :maxFileSize="1000000" label="Import" chooseLabel="Import" class="mr-2 inline-block" />
                         <Button label="Export" icon="pi pi-upload" class="p-button-help" @click="exportCSV($event)" />
-                    </template>
+                    </template> -->
                 </Toolbar>
 
                 <DataTable
@@ -324,8 +335,8 @@ const initFilters = () => {
 
                     <Column header="Actions" headerStyle="width:25%; min-width:10rem;">
                         <template #body="slotProps">
-                            <Button icon="pi pi-user-edit" class="p-button-secondary mt-2 mr-1 ml-1" label="Edit" @click="openEditDialog(slotProps.data)" />
-                            <Button icon="pi pi-user-minus" class="p-button-danger mt-2 mr-1 ml-1" label="Delete" @click="openConfirmDeleteDialog(slotProps.data)" />
+                            <Button icon="pi pi-pencil" class="p-button-secondary mt-2 mr-1 ml-1" label="Edit" @click="openEditDialog(slotProps.data)" />
+                            <Button icon="pi pi-trash" class="p-button-danger mt-2 mr-1 ml-1" label="Delete" @click="openConfirmDeleteDialog(slotProps.data)" />
                         </template>
                     </Column>
                 </DataTable>
@@ -409,18 +420,18 @@ const initFilters = () => {
                             type="text"
                             v-model="passwordConfirmation"
                             required="true"
-                            placeholder="confirm delete role"
+                            placeholder="confirm delete menu"
                             autofocus
-                            :class="{ 'p-invalid': !passwordConfirmation || passwordConfirmation !== 'confirm delete role' }"
+                            :class="{ 'p-invalid': !passwordConfirmation || passwordConfirmation !== 'confirm delete menu' }"
                         />
                     </div>
                     <div class="flex align-items-center mt-1 justify-content-center">
                         <small class="p-invalid" v-if="!passwordConfirmation">please enter the confirmation text</small>
-                        <small class="p-invalid" v-else-if="passwordConfirmation !== 'confirm delete role'">invalid confirmation text</small>
+                        <small class="p-invalid" v-else-if="passwordConfirmation !== 'confirm delete menu'">invalid confirmation text</small>
                     </div>
                     <template #footer>
                         <Button label="No" icon="pi pi-times" class="p-button-text" @click="hideDeleteDialog()" />
-                        <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="runDelete" :class="{ 'p-disabled': !passwordConfirmation || passwordConfirmation !== 'confirm delete role' }" />
+                        <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="runDelete" :class="{ 'p-disabled': !passwordConfirmation || passwordConfirmation !== 'confirm delete menu' }" />
                     </template>
                 </Dialog>
             </div>
