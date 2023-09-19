@@ -18,7 +18,7 @@
                 required />
               <span v-if="nomorTelponError" class="p-error">Nomor telpon harus diisi</span>
             </div>
-          </div>
+          </div> &nbsp;&nbsp;
           <Button label="Cek Tagihan" class="custom-button" type="submit" />
         </form>
       </div>
@@ -195,7 +195,7 @@ export default {
         console.error(error);
         Swal.fire({
           icon: 'error',
-          text: 'Terjadi kesalahan saat melakukan pembayaran',
+          text: error.response.data,
           customClass: {
             container: 'custom-class'
           },
@@ -253,5 +253,9 @@ export default {
   color: black;
   text-decoration: none;
   cursor: pointer;
+}
+
+.custom-class {
+  z-index: 10000;
 }
 </style>
