@@ -44,14 +44,19 @@ class NasabahController {
 
   // Setor saldo nasabah
   tambahSaldo = async (req: Request, res: Response): Promise<Response> => {
-    const { norek, jumlah } = req.body;
-    console.log('Nilai jumlah:', jumlah);
+    const { norek } = req.body;
+    let {jumlah} = req.body
+    // console.log('Nilai jumlah:', jumlah);
 
     try {
       const nasabah = await db.master_bank.findOne({ where: { norek } });
 
       if (!nasabah) {
         return res.status(404).json({ error: 'Nasabah tidak ditemukan' });
+      }
+
+      if(nasabah.saldo - jumlah < 50000){
+        return res.status(400).json({error: 'Jumlah setoran minimum adalah Rp 50,000.'});
       }
 
       const updatedSaldo = nasabah.saldo + jumlah;
@@ -81,7 +86,7 @@ class NasabahController {
         status_ket: 1,
         norek_dituju: null,
         no_tlp: nasabah.no_tlp,
-        nama: null,
+        nama: nasabah.nama,
         created_at: tanggalTransaksi,
         updated_at: tanggalTransaksi,
       });
@@ -96,8 +101,9 @@ class NasabahController {
 
   // Tarik saldo nasabah
   tarikSaldo = async (req: Request, res: Response): Promise<Response> => {
-    const { norek, jumlah } = req.body;
-    // const { jumlah } = req.body;
+    const { norek } = req.body;
+    let { jumlah } = req.body;
+
 
     try {
       const nasabah = await db.master_bank.findOne({ where: { norek } });
@@ -106,7 +112,15 @@ class NasabahController {
         return res.status(404).send(`Nasabah dengan nomor rekening: ${norek} tidak ditemukan.`);
       }
 
-      if (nasabah.saldo >= jumlah) {
+      if (jumlah < 50000) {
+        return res.status(400).json({ error: 'Jumlah penarikan dana minimum Rp.50,000.' });
+      }
+
+      if (!isNaN(jumlah) && nasabah.saldo >= jumlah) {
+
+        if(nasabah.saldo - jumlah < 50000){
+          return res.status(400).json({error: 'Saldo tidak bisa kurang dari Rp 50.000.' })
+        }
         // Mengurangkan saldo nasabah di database
         nasabah.saldo -= jumlah;
         await nasabah.save();
@@ -133,7 +147,7 @@ class NasabahController {
         status_ket: 2,
         norek_dituju: null,
         no_tlp: nasabah.no_tlp,
-        nama: null,
+        nama: nasabah.nama,
         created_at: tanggalTransaksi,
         updated_at: tanggalTransaksi,
       });

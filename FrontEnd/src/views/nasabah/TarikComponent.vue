@@ -12,7 +12,7 @@
               <span v-if="nomorRekeningError" class="p-error">Nomor rekening harus diisi</span>
             </div>
           </div>
-          <div> &nbsp
+          <div> &nbsp;
             <Button label="Cek Rekening" class="custom-button" type="submit" />
           </div>
         </form>
@@ -25,10 +25,10 @@
     <div style="text-align: center; line-height: 1; font-size: 20px; margin-top: 10px;">
       <p>Nomor Rekening : {{ nasabah.norek }}</p>
       <p>Nama Nasabah : {{ nasabah.nama }}</p>
-      <p>Saldo saat ini: Rp. {{ numberWithDot(nasabah.saldo) }}</p>
+      <p>Saldo saat ini: Rp. {{ nasabah.saldo !== null ? numberWithDot(nasabah.saldo) : '-' }}</p>
       <div>
         <h3> Jumlah Tarik:</h3>
-        <InputText type="text" v-model="jumlahTarik" class="custom-input" :class="{ 'p-invalid': jumlahTarikError }"
+        <InputText type="text" v-model="jumlahTarik" @input="formatJumlahTarik" class="custom-input" :class="{ 'p-invalid': jumlahTarikError }"
           required />
       </div>
       <div style="margin: 20px;">
@@ -53,9 +53,18 @@ export default {
       nasabah: {},
     };
   },
+
   methods: {
     numberWithDot(x) {
       return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    },
+
+    formatJumlahTarik() {
+      // Fungsi ini akan memformat input jumlah tarik dana dengan format "Rp. xxx.xxx"
+      this.jumlahTarik = this.jumlahTarik.replace(/\D/g, ""); // Hapus karakter selain angka
+      if (this.jumlahTarik) {
+        this.jumlahTarik = `Rp. ${parseInt(this.jumlahTarik, 10).toLocaleString()}`;
+      }
     },
 
     async tarikDana() {
@@ -90,6 +99,13 @@ export default {
     },
 
     async prosesTarikDana() {
+
+
+// Menghilangkan karakter "Rp." dan "," dari input jumlah tarik dana
+  const formattedJumlah = this.jumlahTarik.replace(/[^\d]/g, '');
+// Konversi ke tipe data angka
+  const jumlahTarik = parseInt(formattedJumlah, 10);
+
       if (!this.jumlahTarik) {
         this.jumlahTarikError = true;
         return;
@@ -97,11 +113,13 @@ export default {
         this.jumlahTarikError = false;
       }
 
+
+
       // Periksa apakah jumlah penarikan dana kurang dari 50,000
       if (this.jumlahTarik < 50000) {
         Swal.fire({
           icon: 'error',
-          text: 'Jumlah penarikan dana minimum Rp.50,000.',
+          text: error.response.data.error,
           customClass: {
             container: 'custom-class'
           },
@@ -114,7 +132,7 @@ export default {
       if (this.jumlahTarik > this.nasabah.saldo) {
         Swal.fire({
           icon: 'error',
-          text: 'Saldo tidak mencukupi untuk menarik dana.',
+          text: error.response.data.error,
           customClass: {
             container: 'custom-class'
           },
@@ -141,7 +159,7 @@ export default {
           `http://localhost:8000/api/v1/nasabah/tarik`,
           {
             norek: Number(this.norek),
-            jumlah: Number(this.jumlahTarik)
+            jumlah: Number(jumlahTarik)
           }
         );
 
@@ -159,11 +177,11 @@ export default {
         this.showModal = false;
 
       } catch (error) {
-        console.error(error);
+        console.error("test", error);
 
         Swal.fire({
           icon: 'error',
-          text: error.response.data,
+          text: error.response.data.error,
           customClass: {
             container: 'custom-class'
           },
@@ -172,14 +190,6 @@ export default {
       }
     },
   },
-  filters: {
-    formatCurrency: function (value) {
-      if (!isNaN(value)) {
-        return `Rp. ${value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`
-      }
-      return value;
-    }
-  }
 };
 </script>
 
@@ -195,7 +205,7 @@ export default {
 }
 
 .custom-button {
-  width: 100px;
+  width: 500px;
   height: 40px;
   font-size: 16px;
 }

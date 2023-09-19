@@ -228,7 +228,7 @@ export default {
 }
 
 .custom-button {
-  width: 100px;
+  width: 200px;
   height: 40px;
   font-size: 16px;
 }
