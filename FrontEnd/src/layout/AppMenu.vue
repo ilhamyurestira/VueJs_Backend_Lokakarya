@@ -1,8 +1,11 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 
 import AppMenuItem from './AppMenuItem.vue';
 import '@fortawesome/fontawesome-free/css/all.css';
+
+const roleMenu = ref(null);
 
 const model = ref([
     {
@@ -40,7 +43,7 @@ const model = ref([
             { label: 'Transfer', icon: 'pi pi-arrow-right-arrow-left', to: { name: 'transfer' } },
             { label: 'Bayar Telpon', icon: 'pi pi-mobile', to: { name: 'bayarTelpon' } }
         ]
-    },
+    }
     // {
     //     //comment this section when done building
     //     label: 'Development Kit',

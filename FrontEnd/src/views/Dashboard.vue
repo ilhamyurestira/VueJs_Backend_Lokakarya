@@ -1,9 +1,13 @@
 <script setup>
-import { onMounted, reactive, ref, watch } from 'vue';
+import { onMounted, reactive, ref, watch, onBeforeMount } from 'vue';
+import { useRouter } from 'vue-router';
+
 import ProductService from '@/service/ProductService';
 import { useLayout } from '@/layout/composables/layout';
 
 const { isDarkTheme } = useLayout();
+const router = useRouter();
+const now = new Date();
 
 const products = ref(null);
 const lineData = reactive({
@@ -34,9 +38,26 @@ const items = ref([
 const lineOptions = ref(null);
 const productService = new ProductService();
 
+onBeforeMount(()=>{
+    checkLogin();
+}
+
 onMounted(() => {
     productService.getProductsSmall().then((data) => (products.value = data));
 });
+
+const checkLogin = () => {
+    const Token = JSON.parse(localStorage.getItem('token'));
+    // console.log(Token);
+    if (!Token) {
+        router.push('/auth/login');
+    } else if (Token.expiry < now.getTime()) {
+        alert('token has expired');
+        localStorage.removeItem('userPrevilage');
+        localeStorage.removeItem('token');
+        router.push('/auth/login');
+    }
+};
 
 const formatCurrency = (value) => {
     return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });

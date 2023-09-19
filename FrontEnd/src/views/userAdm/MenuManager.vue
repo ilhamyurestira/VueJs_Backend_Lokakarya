@@ -4,8 +4,11 @@ import { ref, onMounted, onBeforeMount } from 'vue';
 import ProductService from '@/service/ProductService';
 import axios from 'axios';
 import { useToast } from 'primevue/usetoast';
+import { useRouter } from 'vue-router';
 
 const toast = useToast();
+const router = useRouter();
+const now = new Date();
 
 const loadedData = ref(null);
 const icons = ref(null);
@@ -35,6 +38,8 @@ const productService = new ProductService();
 
 onBeforeMount(() => {
     initFilters();
+    checkLogin();
+    checkAdminPrevilage();
 });
 onMounted(() => {
     fetch('/demo/data/icons.json', { headers: { 'Cache-Control': 'no-cache' } })
@@ -53,6 +58,29 @@ onMounted(() => {
         });
     fetchData();
 });
+
+const checkLogin = () => {
+    const Token = JSON.parse(localStorage.getItem('token'));
+    // console.log(Token);
+    if (!Token) {
+        router.push('/auth/login');
+    } else if (Token.expiry < now.getTime()) {
+        alert('token has expired');
+        localStorage.removeItem('userPrevilage');
+        localeStorage.removeItem('token');
+        router.push('/auth/login');
+    }
+};
+
+const checkAdminPrevilage = () => {
+    const previlage = JSON.parse(localStorage.getItem('userPrevilage'));
+    // console.log(previlage);
+    if (!previlage) {
+        router.push('/auth/denied');
+    } else if (previlage.roleId !== 1) {
+        router.push('/auth/denied');
+    }
+};
 
 const fetchData = () => {
     axios
