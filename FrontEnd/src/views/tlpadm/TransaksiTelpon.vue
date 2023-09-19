@@ -77,6 +77,10 @@ const hideDialog = () => {
     submitted.value = false;
 };
 
+const getStatusText = (status) => {
+    return status === 1 ? 'Belum Bayar' : (status === 2 ? 'Lunas' : '');
+};
+
 const saveProduct = () => {
     submitted.value = true;
     // if (product.value.id) {
@@ -259,13 +263,10 @@ const initFilters = () => {
                             {{ formatCurrency(slotProps.data.uang) }}
                         </template>
                     </Column>
-                    <Column field="inventoryStatus" header="Status" :sortable="true"
-                        headerStyle="width:14%; min-width:10rem;">
+                    <Column field="status" header="Status" :sortable="false" headerStyle="width:20%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Status</span>
-                            <span
-                                :class="'product-badge status-' + (slotProps.data.inventoryStatus ? slotProps.data.inventoryStatus.toLowerCase() : '')">{{
-                                    slotProps.data.status }}</span>
+                            {{ getStatusText(slotProps.data.status) }}
                         </template>
                     </Column>
                 </DataTable>
