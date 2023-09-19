@@ -35,11 +35,36 @@ const productService = new ProductService();
 
 onBeforeMount(() => {
     initFilters();
+    checkLogin();
+    checkAdminPrevilage();
 });
 onMounted(() => {
     fetchData();
     // getAdminData();
 });
+
+const checkLogin = () => {
+    const Token = JSON.parse(localStorage.getItem('token'));
+    // console.log(Token);
+    if (!Token) {
+        router.push({ name: 'login' });
+    } else if (Token.expiry < now.getTime()) {
+        alert('token has expired');
+        localStorage.removeItem('userPrevilage');
+        localeStorage.removeItem('token');
+        router.push({ name: 'login' });
+    }
+};
+
+const checkAdminPrevilage = () => {
+    const previlage = JSON.parse(localStorage.getItem('userPrevilage'));
+    // console.log(previlage);
+    if (!previlage) {
+        router.push({ name: 'accessDenied' });
+    } else if (previlage.roleId !== 1) {
+        router.push({ name: 'accessDenied' });
+    }
+};
 
 const fetchData = () => {
     axios

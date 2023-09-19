@@ -150,14 +150,7 @@ class HakAksesController implements IController {
       if (!user) {
         return res.status(404).send('user not found');
       }
-      const hakAkses = await dm.findByPk(user.id, {
-        exclude: ['programName', 'createdBy', 'updatedBy'],
-        include: [
-          { model: role, attributes: ['nama'] },
-          { model: user, attributes: ['username'] },
-        ],
-        order: ['id'],
-      });
+      const hakAkses = await dm.findByPk(user.id);
       if (!hakAkses) {
         return res
           .status(200)

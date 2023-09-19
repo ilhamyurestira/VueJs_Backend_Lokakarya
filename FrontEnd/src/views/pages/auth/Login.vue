@@ -36,9 +36,9 @@ const checkRemember = () => {
 
 const checkLogin = () => {
     const cekToken = localStorage.getItem('token');
-    console.log(cekToken);
+    // console.log(cekToken);
     if (!cekToken) {
-        router.push('/auth/login');
+        router.push({ name: 'login' });
     }
 };
 
@@ -49,38 +49,34 @@ const tryLogin = () => {
             username: username.value,
             password: password.value
         };
-
-        axios.post(`${apiUrl}/login`, userLoginData).then((response) => {
-            const resData = response.data;
-            if (response.status === 200) {
-                submitted.value = false;
-                if (checked.value === true) {
-                    localStorage.setItem('user', userLoginData.username);
-                } else {
-                    username.value = null;
-                    localStorage.removeItem('user');
-                }
+        axios
+            .post(`${apiUrl}/login`, userLoginData)
+            .then((response) => {
                 password.value = null;
-
-                const data = {
-                    token: resData.token,
-                    expiry: now.getTime() + 1000 * 60 * 60 * 24
-                };
-                localStorage.setItem('token', JSON.stringify(data));
-                getUserRole(userLoginData);
-                router.push('/dashboard');
-            } else {
+                const resData = response.data;
+                if (response.status === 200) {
+                    submitted.value = false;
+                    const data = {
+                        token: resData.token,
+                        expiry: now.getTime() + 86400000 //24h in miliseconds (1000ms/s * 60s/M * 60M/H * 24H = 86,400,000ms)
+                    };
+                    localStorage.setItem('token', JSON.stringify(data));
+                    getUserRole(userLoginData);
+                    router.push({ name: 'dashboard' });
+                } else {
+                    message.value = [{ severity: 'error', detail: 'Login Failed', content: 'Message sent', id: count.value++ }];
+                }
+            })
+            .catch((error) => {
+                console.log(error);
                 message.value = [{ severity: 'error', detail: 'Login Failed', content: 'Message sent', id: count.value++ }];
-            }
-        });
+            });
+    }
+    if (checked.value === true) {
+        localStorage.setItem('user', username.value);
     } else {
-        if (checked.value === true) {
-            localStorage.setItem('user', userLoginData.username);
-        } else {
-            username.value = null;
-            localStorage.removeItem('user');
-        }
-        password.value = null;
+        username.value = null;
+        localStorage.removeItem('user');
     }
 };
 
@@ -88,8 +84,14 @@ const getUserRole = (User) => {
     axios
         .post(`http://localhost:8000/api/v1/admin/manage/hakAkses/access`, User)
         .then((response) => {
-            const hakAkses = response.data;
-            localStorage.setItem('userPrevilage', JSON.stringify(hakAkses));
+            const res = response.data;
+            localStorage.setItem(
+                'userPrevilage',
+                JSON.stringify({
+                    userId: res.userId,
+                    roleId: res.roleId
+                })
+            );
         })
         .catch((error) => {
             console.log(error);
@@ -100,7 +102,7 @@ const getUserRole = (User) => {
 <template>
     <div class="surface-ground flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden">
         <div class="flex flex-column align-items-center justify-content-center">
-            <img :src="logoUrl" alt="Sakai logo" class="mb-5 w-6rem flex-shrink-0" />
+            <!-- <img :src="logoUrl" alt="Sakai logo" class="mb-5 w-6rem flex-shrink-0" /> -->
             <div style="border-radius: 56px; padding: 0.3rem; background: linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 30%)">
                 <div class="w-full surface-card py-8 px-5 sm:px-8" style="border-radius: 53px">
                     <div class="text-center mb-5">

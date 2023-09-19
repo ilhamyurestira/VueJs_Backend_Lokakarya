@@ -63,12 +63,12 @@ const checkLogin = () => {
     const Token = JSON.parse(localStorage.getItem('token'));
     // console.log(Token);
     if (!Token) {
-        router.push('/auth/login');
+        router.push({ name: 'login' });
     } else if (Token.expiry < now.getTime()) {
         alert('token has expired');
         localStorage.removeItem('userPrevilage');
         localeStorage.removeItem('token');
-        router.push('/auth/login');
+        router.push({ name: 'login' });
     }
 };
 
@@ -76,9 +76,9 @@ const checkAdminPrevilage = () => {
     const previlage = JSON.parse(localStorage.getItem('userPrevilage'));
     // console.log(previlage);
     if (!previlage) {
-        router.push('/auth/denied');
+        router.push({ name: 'accessDenied' });
     } else if (previlage.roleId !== 1) {
-        router.push('/auth/denied');
+        router.push({ name: 'accessDenied' });
     }
 };
 
