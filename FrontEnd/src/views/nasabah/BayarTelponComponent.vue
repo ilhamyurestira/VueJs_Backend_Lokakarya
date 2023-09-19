@@ -25,6 +25,7 @@
     </div>
   </div>
 
+  <!-- modal info tagihan -->
   <Dialog v-if="showPaymentModal" v-model:visible="showPaymentModal" modal header="Informasi Rekening"
     :style="{ width: '50vw' }">
     <div style="text-align: center; line-height: 1; font-size: 20px; margin-top: 10px;">
@@ -90,7 +91,7 @@ export default {
           }
         );
 
-        console.log(response); // Log respons dari server
+        console.log(response);
 
         if (response.status === 404) {
           // Menangani kasus tidak ada tagihan
@@ -115,7 +116,6 @@ export default {
             });
           }
         } else {
-          // Memperbarui tagihan dan menampilkan modal pembayaran
           this.tagihan = response.data.tagihan;
           this.accountInfo = {
             nomorRekening: response.data.nomorRekening,
@@ -169,8 +169,8 @@ export default {
         return;
       }
 
-      const minimumBalance = 50000;
-      if (saldo - this.tagihan < minimumBalance) {
+      const saldoMinimum = 50000;
+      if (saldo - this.tagihan < saldoMinimum) {
         Swal.fire({
           icon: 'error',
           text: 'Saldo tidak boleh kurang dari Rp 50.000.',
@@ -185,7 +185,6 @@ export default {
       }
 
       try {
-        // Proceed with the payment
         const response = await axios.post(
           `http://localhost:8000/api/v1/nasabah/bayar-telpon`,
           {
@@ -203,21 +202,18 @@ export default {
             },
             appendTo: 'body'
           });
-          // Hide the modal and reset data
           this.showPaymentModal = false;
           this.tagihan = null;
           this.accountInfo = {};
           this.nomorRekening = "";
           this.nomorTelpon = "";
 
-        } else {
-          // Handle other response scenarios as needed
         }
       } catch (error) {
         console.error(error);
         Swal.fire({
           icon: 'error',
-          text: 'Terjadi kesalahan saat melakukan pembayaran',
+          text: error.response.data,
           customClass: {
             container: 'custom-class'
           },
@@ -276,5 +272,9 @@ export default {
   color: black;
   text-decoration: none;
   cursor: pointer;
+}
+
+.custom-class {
+  z-index: 10000;
 }
 </style>
