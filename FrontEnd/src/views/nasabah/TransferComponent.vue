@@ -34,7 +34,7 @@
       </div>
       <div> &nbsp;
         <h5>Jumlah Transfer:</h5>
-        <InputText type="text" v-model="jumlahTransfer" class="custom-input" :class="{ 'p-invalid': jumlahTransferError }"
+        <InputText type="text" v-model="jumlahTransfer"  @input="formatJumlahTransfer" class="custom-input" :class="{ 'p-invalid': jumlahTransferError }"
           required />
       </div>&nbsp; &nbsp; &nbsp;
       <Button style="margin-top: 10px; margin-right: 32px;" label="Transfer" class="custom-button" @click="transfer" />
@@ -68,6 +68,13 @@ export default {
       return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
     },
 
+    formatJumlahTransfer() {
+    // Fungsi ini akan memformat input jumlah transfer dengan format "Rp. xxx.xxx"
+    this.jumlahTransfer = this.jumlahTransfer.replace(/\D/g, ""); // Hapus karakter selain angka
+    if (this.jumlahTransfer) {
+      this.jumlahTransfer = `Rp. ${parseInt(this.jumlahTransfer, 10).toLocaleString()}`;
+    }
+  },
     async getAccountInfo() {
       // Validasi input nomor rekening pengirim
       this.nomorRekeningError = !this.nomorRekeningPengirim;
@@ -136,7 +143,9 @@ export default {
       }
 
       // Periksa apakah jumlah transfer kurang dari 50,000
-      if (this.jumlahTransfer < 50000) {
+        // Perhatikan bahwa kami menggunakan this.jumlahTransfer yang sudah diformat
+      const jumlahTransfer = parseInt(this.jumlahTransfer.replace(/\D/g, ""), 10);
+      if (jumlahTransfer < 50000) {
         Swal.fire({
           icon: 'error',
           text: 'Jumlah transfer minimum Rp.50,000.',
@@ -162,7 +171,7 @@ export default {
       }
 
       //Saldo tidak bisa kurang dari 50000
-      if (this.saldoPengirim - this.jumlahTransfer < 50000) {
+      if (this.saldoPengirim - jumlahTransfer < 50000) {
         Swal.fire({
           icon: 'error',
           text: 'Saldo tidak bisa kurang dari Rp 50.000.',
@@ -181,7 +190,7 @@ export default {
           {
             nomorRekeningPengirim: Number(this.nomorRekeningPengirim),
             nomorRekeningPenerima: Number(this.nomorRekeningPenerima),
-            jumlahTransfer: Number(this.jumlahTransfer),
+            jumlahTransfer: Number(jumlahTransfer),
           }
         );
 

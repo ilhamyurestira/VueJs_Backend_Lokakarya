@@ -89,7 +89,7 @@ export default {
         console.log(error);
         Swal.fire({
           icon: 'error',
-          text: error.response.data,
+          text:'Nomor rekening yang anda masukkan salah.',
           customClass: {
             container: 'custom-class'
           },
