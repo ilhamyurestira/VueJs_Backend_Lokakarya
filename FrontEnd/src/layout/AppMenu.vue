@@ -41,65 +41,65 @@ const model = ref([
             { label: 'Bayar Telpon', icon: 'pi pi-mobile', to: { name: 'bayarTelpon' } }
         ]
     },
-    {
-        //comment this section when done building
-        label: 'Development Kit',
-        items: [
-            {
-                label: 'Utilities',
-                items: [
-                    { label: 'Icons', to: { name: 'icons' } },
-                    { label: 'Blocks', to: { name: 'blocks' } },
-                    { label: 'Documentation', to: { name: 'documentation' } }
-                ]
-            },
-            {
-                label: 'UI Kit',
-                items: [
-                    { label: 'Form Layout', to: { name: 'formlayout' } },
-                    { label: 'Input', to: { name: 'input' } },
-                    { label: 'Float Label', to: { name: 'floatlabel' } },
-                    { label: 'Button', to: { name: 'button' } },
-                    { label: 'Table', to: { name: 'table' } },
-                    { label: 'Message', to: { name: 'message' } },
-                    { label: 'Chart', to: { name: 'charts' } },
-                    { label: 'File', to: { name: 'file' } },
-                    { label: 'Invalid State', to: { name: 'invalidState' } },
-                    { label: 'List', to: { name: 'lists' } },
-                    { label: 'Pick', to: { name: 'picks' } },
-                    {
-                        label: 'Menus',
-                        items: [
-                            { label: 'Demo', to: { name: 'menuDemo' } },
-                            { label: 'Personal', to: { name: 'personalMenu' } },
-                            { label: 'Seat', to: { name: 'seatMenu' } },
-                            { label: 'Payment', to: { name: 'paymentMenu' } },
-                            { label: 'Confirmation', to: { name: 'confirmationMenu' } }
-                        ]
-                    },
-                    { label: 'Miscellanious', to: { name: 'misc' } }
-                ]
-            },
-            {
-                label: 'Pages',
-                items: [
-                    {
-                        label: 'Authorization',
-                        items: [
-                            { label: 'Access', to: { name: 'accessDenied' } },
-                            { label: 'Error', to: { name: 'error' } },
-                            { label: 'Login', to: { name: 'login' } }
-                        ]
-                    },
-                    { label: 'Empty', to: { name: 'emptyPage' } },
-                    { label: 'Landing', to: { name: 'landing' } },
-                    { label: 'NotFound', to: { name: 'notfound' } },
-                    { label: 'Timeline', to: { name: 'timeline' } },
-                    { label: 'CRUD', to: { name: 'crud' } }
-                ]
-            }
-        ]
-    }
+    // {
+    //     //comment this section when done building
+    //     label: 'Development Kit',
+    //     items: [
+    //         {
+    //             label: 'Utilities',
+    //             items: [
+    //                 { label: 'Icons', to: { name: 'icons' } },
+    //                 { label: 'Blocks', to: { name: 'blocks' } },
+    //                 { label: 'Documentation', to: { name: 'documentation' } }
+    //             ]
+    //         },
+    //         {
+    //             label: 'UI Kit',
+    //             items: [
+    //                 { label: 'Form Layout', to: { name: 'formlayout' } },
+    //                 { label: 'Input', to: { name: 'input' } },
+    //                 { label: 'Float Label', to: { name: 'floatlabel' } },
+    //                 { label: 'Button', to: { name: 'button' } },
+    //                 { label: 'Table', to: { name: 'table' } },
+    //                 { label: 'Message', to: { name: 'message' } },
+    //                 { label: 'Chart', to: { name: 'charts' } },
+    //                 { label: 'File', to: { name: 'file' } },
+    //                 { label: 'Invalid State', to: { name: 'invalidState' } },
+    //                 { label: 'List', to: { name: 'lists' } },
+    //                 { label: 'Pick', to: { name: 'picks' } },
+    //                 {
+    //                     label: 'Menus',
+    //                     items: [
+    //                         { label: 'Demo', to: { name: 'menuDemo' } },
+    //                         { label: 'Personal', to: { name: 'personalMenu' } },
+    //                         { label: 'Seat', to: { name: 'seatMenu' } },
+    //                         { label: 'Payment', to: { name: 'paymentMenu' } },
+    //                         { label: 'Confirmation', to: { name: 'confirmationMenu' } }
+    //                     ]
+    //                 },
+    //                 { label: 'Miscellanious', to: { name: 'misc' } }
+    //             ]
+    //         },
+    //         {
+    //             label: 'Pages',
+    //             items: [
+    //                 {
+    //                     label: 'Authorization',
+    //                     items: [
+    //                         { label: 'Access', to: { name: 'accessDenied' } },
+    //                         { label: 'Error', to: { name: 'error' } },
+    //                         { label: 'Login', to: { name: 'login' } }
+    //                     ]
+    //                 },
+    //                 { label: 'Empty', to: { name: 'emptyPage' } },
+    //                 { label: 'Landing', to: { name: 'landing' } },
+    //                 { label: 'NotFound', to: { name: 'notfound' } },
+    //                 { label: 'Timeline', to: { name: 'timeline' } },
+    //                 { label: 'CRUD', to: { name: 'crud' } }
+    //             ]
+    //         }
+    //     ]
+    // }
 ]);
 </script>
 
