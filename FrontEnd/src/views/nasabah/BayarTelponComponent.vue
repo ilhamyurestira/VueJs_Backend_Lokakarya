@@ -25,6 +25,7 @@
     </div>
   </div>
 
+  <!-- modal info tagihan  -->
   <Dialog v-if="showPaymentModal" v-model:visible="showPaymentModal" modal header="Informasi Rekening"
     :style="{ width: '50vw' }">
     <div style="text-align: center; line-height: 1; font-size: 20px; margin-top: 10px;">
@@ -90,7 +91,7 @@ export default {
           }
         );
 
-        console.log(response); // Log respons dari server
+        console.log(response);
 
         if (response.status === 404) {
           Swal.fire({
@@ -102,7 +103,6 @@ export default {
             appendTo: 'body'
           });
         } else {
-          // Memperbarui tagihan dan menampilkan modal pembayaran
           this.tagihan = response.data.tagihan;
           this.accountInfo = {
             nomorRekening: response.data.nomorRekening,
@@ -159,14 +159,13 @@ export default {
             },
             appendTo: 'body'
           });
-          // sembunyikan modal: 
           this.showPaymentModal = false;
 
           this.tagihan = null;
-      this.accountInfo = {};
-      this.nomorRekening = "";
-      this.nomorTelpon = "";
-      
+          this.accountInfo = {};
+          this.nomorRekening = "";
+          this.nomorTelpon = "";
+
         } else {
           this.tagihan = response.data.tagihan;
           this.accountInfo = {

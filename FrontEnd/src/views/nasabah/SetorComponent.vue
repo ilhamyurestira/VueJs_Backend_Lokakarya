@@ -19,19 +19,19 @@
   </div>
 
   <Dialog v-if="showModal" v-model:visible="showModal" modal header="Setor" :style="{ width: '50vw' }">
-    <div style="text-align: center; line-height: 1;font-size: 20px; margin-top: 10px;"> 
-    <p>Nomor Rekening : {{ infoNasabah.norek }}</p>
-    <p>Nama Pemilik Rekening : {{ infoNasabah.nama }}</p>
-    <p>Saldo : {{ numberWithDot(infoNasabah.saldo) }}</p>
-    <div>
-      <h3>Nominal Setor:</h3>
-      <InputText type="text" v-model="jumlah" class="custom-input" :class="{ 'p-invalid': jumlahSetorError }"
-        required />
+    <div style="text-align: center; line-height: 1;font-size: 20px; margin-top: 10px;">
+      <p>Nomor Rekening : {{ infoNasabah.norek }}</p>
+      <p>Nama Pemilik Rekening : {{ infoNasabah.nama }}</p>
+      <p>Saldo : {{ numberWithDot(infoNasabah.saldo) }}</p>
+      <div>
+        <h3>Nominal Setor:</h3>
+        <InputText type="text" v-model="jumlah" class="custom-input" :class="{ 'p-invalid': jumlahSetorError }"
+          required />
         <!-- <span v-if="jumlahSetorError" class="p-error"> Nilai minimum setoran adalah Rp 10.000</span> -->
-    </div>
-    <div style="margin: 10px;">
-      <Button label="Setor" class="custom-button" @click="handleSetor" type="submit"/>
-    </div>
+      </div>
+      <div style="margin: 10px;">
+        <Button label="Setor" class="custom-button" @click="handleSetor" type="submit" />
+      </div>
     </div>
   </Dialog>
 </template>
@@ -60,9 +60,9 @@ export default {
   },
   methods: {
     numberWithDot(x) {
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-  },
-  
+      return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    },
+
     async setor() {
 
       if (!this.norek) {
@@ -101,18 +101,18 @@ export default {
       }
 
       // Periksa apakah jumlah setoran kurang dari 50,000
-  if (this.jumlah < 50000) {
-    Swal.fire({
-      icon: 'error',
-      text: 'Jumlah setoran minimum adalah Rp 50,000.',
-      customClass: {
+      if (this.jumlah < 50000) {
+        Swal.fire({
+          icon: 'error',
+          text: 'Jumlah setoran minimum adalah Rp 50,000.',
+          customClass: {
             container: 'custom-class'
           },
           appendTo: 'body'
-    });
-    return;
-  }
-      
+        });
+        return;
+      }
+
       try {
         const response = await axios.post(
           `http://localhost:8000/api/v1/nasabah/tambah`,
@@ -128,14 +128,14 @@ export default {
           icon: 'success',
           text: 'Setoran anda berhasil dikirim.',
           customClass: {
-            container: 'custom-class', // Anda perlu menambahkan gaya ini
+            container: 'custom-class',
           },
           allowOutsideClick: false,
           allowEscapeKey: false,
           allowEnterKey: false,
           showConfirmButton: true,
           confirmButtonText: 'OK',
-          appendTo: 'body' // Anda perlu menambahkan ini agar pesan notifikasi muncul di depan modal
+          appendTo: 'body'
         });
 
         this.norek = "";
@@ -149,9 +149,9 @@ export default {
           icon: 'error',
           text: error.response.data,
           customClass: {
-            container: 'custom-class', // Anda perlu menambahkan gaya ini
+            container: 'custom-class',
           },
-          appendTo: 'body' // Anda perlu menambahkan ini agar pesan notifikasi muncul di depan modal
+          appendTo: 'body'
         });
       }
     },
@@ -180,14 +180,13 @@ export default {
   color: red;
 }
 
-/* Gaya khusus untuk pesan notifikasi */
 .custom-class {
-  z-index: 10000; /* Pastikan pesan notifikasi ada di atas modal */
+  z-index: 10000;
 }
 
 .custom-input {
-    width: 200px;
-    height: 40px;
-    font-size: 16px;
-  }
+  width: 200px;
+  height: 40px;
+  font-size: 16px;
+}
 </style>
