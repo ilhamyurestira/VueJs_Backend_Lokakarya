@@ -115,7 +115,6 @@ const createItem = () => {
                         detail: `${response.data}`
                     });
                     hideCreationDialog();
-                    fetchMainData();
                 } else {
                     toast.add({
                         severity: 'error',
@@ -134,6 +133,7 @@ const createItem = () => {
                     life: 3000
                 });
             });
+        fetchMainData();
     }
 };
 
@@ -197,7 +197,6 @@ const editRole = () => {
                     });
                     editConfirmationDialog.value = false;
                     hideEditDialog();
-                    fetchMainData();
                 } else {
                     toast.add({
                         severity: 'error',
@@ -219,6 +218,7 @@ const editRole = () => {
                 check.value.password = null;
                 authenticated.value = false;
             });
+        fetchMainData();
     }
 };
 
@@ -244,12 +244,12 @@ const deleteRole = () => {
         .then((response) => {
             toast.add({ severity: 'success', summary: 'Successful', detail: `Hak Akses: ${hakAkses.value.role.nama} has been revoked from the user: ${hakAkses.value.user.username} successfully`, life: 3000 });
             hakAkses.value = {};
-            fetchMainData();
         })
         .catch((error) => {
             console.error('Error fetching data:', error);
             toast.add({ severity: 'error', summary: 'Error', detail: `Failed to delete role (errcode: ${error.response.status})`, life: 3000 });
         });
+    fetchMainData();
 };
 
 // const findIndexById = (id) => {

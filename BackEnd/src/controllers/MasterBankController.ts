@@ -1,41 +1,56 @@
 import { Request, Response } from "express";
 import IController from "./Controller_Interface";
+import { Op } from "sequelize";
 const db = require('../db/models/');
 
 class MasterBankController implements IController {
 
     async index(req: Request, res: Response): Promise<Response> {
         try {
-            const page = parseInt(req.query.page as string) || 1;
-            const pageSize = parseInt(req.query.pageSize as string) || 10;
-            const limit = parseInt(req.query.limit as string) || pageSize; // Menggunakan pageSize jika limit tidak diberikan
+            const { page, pageSize, limit, keyword, sortBy } = req.body; // Menggunakan req.body untuk mendapatkan parameter
 
-            const offset = (page - 1) * limit;
-            const totalCount = await db.master_bank.count();
+            // Jika tidak disediakan, gunakan nilai default
+            const currentPage = page || 1;
+            const pageSizeValue = pageSize || 10;
+            const limitValue = limit || pageSizeValue; // Gunakan pageSize jika limit tidak disediakan
 
-            // Menghitung totalPages berdasarkan jumlah limit yang diminta
-            const totalPages = Math.ceil(totalCount / limit);
+            const offset = (currentPage - 1) * limitValue;
+            const whereClause: { [key: string]: any } = {};
 
-            const masterBanks = await db.master_bank.findAll({
-                offset,
-                limit,
-            });
-
-            if (masterBanks.length === 0) {
-                return res.status(200).json({
-                    currentPage: page,
-                    totalPages,
-                    totalElements: totalCount, // Add totalElements here
-                    data: [],
-                });
+            if (keyword) {
+                whereClause.nama = {
+                    [Op.iLike]: `%${keyword}%` // Menggunakan Op.iLike untuk pencarian case-insensitive
+                };
             }
 
-            return res.status(200).json({
-                currentPage: page,
-                totalPages,
-                totalElements: totalCount, // Add totalElements here
-                data: masterBanks,
+            const totalCount = await db.master_bank.count({ where: whereClause });
+
+            // Menghitung totalPages berdasarkan limit yang diminta
+            const totalPages = Math.ceil(totalCount / limitValue);
+
+            const order = sortBy ? [[sortBy, 'ASC']] : [['id', 'ASC']];
+
+            const masterBanks = await db.master_bank.findAll({
+                where: whereClause,
+                offset,
+                limit: limitValue,
+                order,
             });
+
+            const responseData = {
+                data: {
+                    list: masterBanks,
+                    currentPage,
+                    totalPages,
+                    totalElements: totalCount,
+                },
+                status: {
+                    code: "00",
+                    message: "success"
+                }
+            };
+
+            return res.status(200).json(responseData);
         } catch (error) {
             console.error(error);
             return res.status(500).send('Data tidak ditemukan');
