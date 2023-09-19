@@ -141,6 +141,36 @@ class HakAksesController implements IController {
       return res.status(500).send(`Gagal menghapus menu.`);
     }
   };
+
+  getAccess = async (req: Request, res: Response): Promise<Response> => {
+    const { username } = req.body;
+
+    try {
+      const user = await db.user.findOne({ where: { username } });
+      if (!user) {
+        return res.status(404).send('user not found');
+      }
+      const hakAkses = await dm.findByPk(user.id, {
+        exclude: ['programName', 'createdBy', 'updatedBy'],
+        include: [
+          { model: role, attributes: ['nama'] },
+          { model: user, attributes: ['username'] },
+        ],
+        order: ['id'],
+      });
+      if (!hakAkses) {
+        return res
+          .status(200)
+          .json({ userId: user.id, roleId: 5 })
+          .send('hak akses is unassigned');
+      }
+
+      return res.status(200).json(hakAkses);
+    } catch (err) {
+      console.log(err);
+      return res.status(500).send(`failed to get user previlages`);
+    }
+  };
 }
 
 export default new HakAksesController();

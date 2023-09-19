@@ -2,12 +2,16 @@
 'use strict';
 import { FilterMatchMode } from 'primevue/api';
 import { ref, onMounted, onBeforeMount } from 'vue';
+import { useRouter } from 'vue-router';
 import ProductService from '@/service/ProductService';
 import axios from 'axios';
 import { useToast } from 'primevue/usetoast';
 
 const toast = useToast();
+const router = useRouter();
+const now = new Date();
 
+const pageName = 'Manage Role Menu';
 const loadedData = ref(null);
 const loadedRoles = ref(null);
 const loadedMenus = ref(null);
@@ -31,16 +35,42 @@ const dt = ref(null);
 const filters = ref({});
 const submitted = ref(false);
 
-// const productService = new ProductService();
+const productService = new ProductService();
 
 onBeforeMount(() => {
     initFilters();
+    checkLogin();
+    checkAdminPrevilage();
 });
+
 onMounted(() => {
     fetchMainData();
     fetchRoles();
     fetchMenus();
 });
+
+const checkLogin = () => {
+    const Token = JSON.parse(localStorage.getItem('token'));
+    // console.log(Token);
+    if (!Token) {
+        router.push('/auth/login');
+    } else if (Token.expiry < now.getTime()) {
+        alert('token has expired');
+        localStorage.removeItem('userPrevilage');
+        localeStorage.removeItem('token');
+        router.push('/auth/login');
+    }
+};
+
+const checkAdminPrevilage = () => {
+    const previlage = JSON.parse(localStorage.getItem('userPrevilage'));
+    // console.log(previlage);
+    if (!previlage) {
+        router.push('/auth/denied');
+    } else if (previlage.roleId !== 1) {
+        router.push('/auth/denied');
+    }
+};
 
 const fetchMainData = () => {
     axios
@@ -289,7 +319,7 @@ const confirmDeleteSelected = () => {
 
 const deleteSelectedProducts = () => {
     loadedData.value = loadedData.value.filter((val) => !selectedItems.value.includes(val));
-    console.log(selectedItems.value);
+    // console.log(selectedItems.value);
     selectedItems.value.forEach((item) => {
         axios
             .delete(`${apiUrl}/${item.id}`)

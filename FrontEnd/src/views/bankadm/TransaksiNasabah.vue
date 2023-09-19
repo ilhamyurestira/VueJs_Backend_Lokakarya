@@ -9,6 +9,7 @@ const totalElements = ref(0);
 const limit = ref(10); // Nilai default limit
 const keyword = ref('');
 const searchBy = ref('status');
+const isLoading = ref(true);
 
 const showPaginator = ref(false);
 
@@ -39,6 +40,7 @@ const formatCurrency = (value) => {
 };
 
 const fetchData = () => {
+    isLoading.value = true;
 
     // let searchValue = keyword.value;
     // let selectedSearchBy = 'status';
@@ -85,10 +87,13 @@ const fetchData = () => {
             totalElements.value = data.totalElements;
 
             showPaginator.value = datas.value.length > 0;
+
+            isLoading.value = false;
         })
         .catch((error) => {
             console.error('Error fetching data:', error);
             toast.add({ severity: 'error', summary: 'Error', detail: 'Gagal mengambil data dari API', life: 3000 });
+            isLoading.value = false;
         });
 };
 
@@ -247,8 +252,13 @@ const clearInput = () => {
 
                 </Toolbar> -->
 
+                <div v-if="isLoading" class="text-center mt-4">
+                    <i class="pi pi-spin pi-spinner" style="font-size: 2rem;"></i>
+                </div>
+
                 <!-- Tabel data -->
-                <DataTable ref="dt" :value="datas" v-model:selection="selectedDatas" dataKey="id" responsiveLayout="scroll">
+                <DataTable ref="dt" :value="datas" v-model:selection="selectedDatas" dataKey="id" responsiveLayout="scroll"
+                    :rowHover="true" v-else>
                     <template #header>
                         <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
                             <h5 class="m-0">Transaksi Nasabah</h5>
@@ -324,11 +334,13 @@ const clearInput = () => {
                         </div>
                     </template>
                 </DataTable>
-                <Paginator :rows="limit" :totalRecords="totalElements" v-if="showPaginator"
-                    :rowsPerPageOptions="[10, 20, 30]"
-                    template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
-                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords}" @page="handlePageChange">
-                </Paginator>
+                <div v-if="!isLoading">
+                    <Paginator :rows="limit" :totalRecords="totalElements" v-if="showPaginator"
+                        :rowsPerPageOptions="[10, 20, 30]"
+                        template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords}" @page="handlePageChange">
+                    </Paginator>
+                </div>
 
                 <!-- Dialog untuk tambah dan edit data -->
                 <Dialog v-model:visible="productDialog" :style="{ width: '450px' }" header="Detail Pelanggan" :modal="true"
@@ -391,7 +403,7 @@ const clearInput = () => {
 </template>
 
 <style scoped lang="scss">
-.p-datatable .p-datatable-tbody > tr > td {
+.p-datatable .p-datatable-tbody>tr>td {
     height: 70px;
 }
 

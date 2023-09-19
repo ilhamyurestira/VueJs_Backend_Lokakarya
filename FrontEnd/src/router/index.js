@@ -9,7 +9,7 @@ const router = createRouter({
             component: AppLayout,
             children: [
                 {
-                    path: '/',
+                    path: '/dashboard',
                     name: 'dashboard',
                     component: () => import('@/views/Dashboard.vue')
                 },
@@ -218,7 +218,7 @@ const router = createRouter({
             ]
         },
         {
-            path: '/landing',
+            path: '/',
             name: 'landing',
             component: () => import('@/views/pages/Landing.vue')
         },
@@ -248,7 +248,7 @@ const router = createRouter({
             component: () => import('@/views/pages/auth/Login.vue')
         },
         {
-            path: '/auth/access',
+            path: '/auth/denied',
             name: 'accessDenied',
             component: () => import('@/views/pages/auth/Access.vue')
         },

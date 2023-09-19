@@ -1,36 +1,26 @@
 <script setup>
 import { FilterMatchMode } from 'primevue/api';
 import { ref, onMounted, onBeforeMount } from 'vue';
-import ProductService from '@/service/ProductService';
 import { useToast } from 'primevue/usetoast';
 import axios from 'axios'; // Import Axios
 
 const toast = useToast();
 
-const products = ref(null);
 const apiUrl = 'http://localhost:8000/api/v1/masterPelanggan'; // Replace with your API URL
-const productDialog = ref(false);
-const deleteProductDialog = ref(false);
-const deleteProductsDialog = ref(false);
-const product = ref({});
+const dataPelanggan = ref(null);
+const tambahPelangganDialog = ref(false);
+const deletePelangganDialog = ref(false);
+const pelanggan = ref({});
 const usersList = ref([]);
 const selectedProducts = ref(null);
 const dt = ref(null);
 const filters = ref({});
 const submitted = ref(false);
-const statuses = ref([
-    { label: 'INSTOCK', value: 'instock' },
-    { label: 'LOWSTOCK', value: 'lowstock' },
-    { label: 'OUTOFSTOCK', value: 'outofstock' }
-]);
-
-const productService = new ProductService();
 
 onBeforeMount(() => {
     initFilters();
 });
 onMounted(() => {
-    // productService.getProducts().then((data) => (products.value = data));
     fetchData();
     fetchUsers();
 });
@@ -38,7 +28,7 @@ onMounted(() => {
 const fetchData = () => {
     axios.get(apiUrl)
         .then((response) => {
-            products.value = response.data; // Assuming your API response is an array of products
+            dataPelanggan.value = response.data;
         })
         .catch((error) => {
             console.error('Error fetching data:', error);
@@ -61,22 +51,22 @@ const fetchUsers = () => {
 };
 
 const openNew = () => {
-    product.value = {};
+    pelanggan.value = {};
     submitted.value = false;
-    productDialog.value = true;
+    tambahPelangganDialog.value = true;
 };
 
 const hideDialog = () => {
-    productDialog.value = false;
+    tambahPelangganDialog.value = false;
     submitted.value = false;
 };
 
-const saveProduct = () => {
+const savePelanggan = () => {
     submitted.value = true;
-    if (product.value.userId) {
+    if (pelanggan.value.userId) {
         // Produk baru, kirim permintaan POST hanya dengan mengirimkan userId
         const newData = {
-            userId: product.value.userId, // Kirim hanya userId
+            userId: pelanggan.value.userId, // Kirim hanya userId
         };
 
         // Kirim permintaan POST ke BE
@@ -111,28 +101,27 @@ const saveProduct = () => {
                     life: 3000,
                 });
             });
-        productDialog.value = false;
-        product.value = {};
+        tambahPelangganDialog.value = false;
+        pelanggan.value = {};
     }
 };
 
 const editProduct = (editProduct) => {
     product.value = { ...editProduct };
     console.log(product);
-    productDialog.value = true;
+    tambahPelangganDialog.value = true;
 };
 
-const confirmDeleteProduct = (editProduct) => {
-    product.value = editProduct;
-    deleteProductDialog.value = true;
+const confirmDeletePelanggan = (deletePelanggan) => {
+    pelanggan.value = deletePelanggan;
+    deletePelangganDialog.value = true;
 };
 
-const deleteProduct = () => {
-    deletePelangganById(product.value.id);
-    deleteProductDialog.value = false;
-    product.value = {};
+const deletePelanggan = () => {
+    deletePelangganById(pelanggan.value.id);
+    deletePelangganDialog.value = false;
+    pelanggan.value = {};
 };
-
 
 const deletePelangganById = (id) => {
     axios
@@ -169,40 +158,6 @@ const deletePelangganById = (id) => {
 };
 
 
-const findIndexById = (id) => {
-    let index = -1;
-    for (let i = 0; i < products.value.length; i++) {
-        if (products.value[i].id === id) {
-            index = i;
-            break;
-        }
-    }
-    return index;
-};
-
-const createId = () => {
-    let id = '';
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    for (let i = 0; i < 5; i++) {
-        id += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return id;
-};
-
-const exportCSV = () => {
-    dt.value.exportCSV();
-};
-
-const confirmDeleteSelected = () => {
-    deleteProductsDialog.value = true;
-};
-const deleteSelectedProducts = () => {
-    products.value = products.value.filter((val) => !selectedProducts.value.includes(val));
-    deleteProductsDialog.value = false;
-    selectedProducts.value = null;
-    toast.add({ severity: 'success', summary: 'Successful', detail: 'Products Deleted', life: 3000 });
-};
-
 const initFilters = () => {
     filters.value = {
         global: { value: null, matchMode: FilterMatchMode.CONTAINS }
@@ -227,8 +182,8 @@ const initFilters = () => {
                 </Toolbar>
 
                 <!-- Tabel data -->
-                <DataTable ref="dt" :value="products" v-model:selection="selectedProducts" dataKey="id" :paginator="true"
-                    :rows="10" :filters="filters"
+                <DataTable ref="dt" :value="dataPelanggan" v-model:selection="selectedProducts" dataKey="id"
+                    :paginator="true" :rows="10" :filters="filters"
                     paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                     :rowsPerPageOptions="[5, 10, 25]"
                     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
@@ -243,14 +198,6 @@ const initFilters = () => {
                         </div>
                     </template>
 
-                    <!-- <Column selectionMode="multiple" headerStyle="width: 3rem"></Column> -->
-                    <!-- <Column field="id" header="ID" :sortable="true"
-                        headerStyle="width:20%; min-width:10rem;has-text-centered">
-                        <template #body="slotProps">
-                            <span class="p-column-title">ID</span>
-                            {{ slotProps.data.id }}
-                        </template>
-                    </Column> -->
                     <Column field="nama" header="Nama" :sortable="true" headerStyle="width35%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Nama</span>
@@ -274,66 +221,39 @@ const initFilters = () => {
                             <!-- <Button icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2"
                                 @click="editProduct(slotProps.data)" /> -->
                             <Button icon="pi pi-trash" class="p-button-rounded p-button-warning mt-2"
-                                @click="confirmDeleteProduct(slotProps.data)" />
+                                @click="confirmDeletePelanggan(slotProps.data)" />
                         </template>
                     </Column>
                 </DataTable>
 
                 <!-- Dialog untuk tambah dan edit data -->
-                <Dialog v-model:visible="productDialog" :style="{ width: '450px' }" header="Detail Pelanggan" :modal="true"
-                    class="p-fluid">
-                    <!-- <img :src="'demo/images/product/' + product.image" :alt="product.image" v-if="product.image" width="150"
-                        class="mt-0 mx-auto mb-5 block shadow-2" /> -->
+                <Dialog v-model:visible="tambahPelangganDialog" :style="{ width: '450px' }" header="Detail Pelanggan"
+                    :modal="true" class="p-fluid">
                     <div class="field">
                         <label for="id">Nama User</label>
-                        <Dropdown v-model.trim="product.userId" optionLabel="nama" optionValue="id" :options="usersList"
+                        <Dropdown v-model.trim="pelanggan.userId" optionLabel="nama" optionValue="id" :options="usersList"
                             placeholder="Pilih User" />
-                        <small class="p-invalid" v-if="submitted && !product.nama">Nama User harus di pilih</small>
+                        <small class="p-invalid" v-if="submitted && !pelanggan.nama">Nama User harus di pilih</small>
                     </div>
-                    <!-- <div class="field">
-                        <label for="nama">Nama</label>
-                        <InputText id="nama" v-model.trim="product.nama" required="true" autofocus
-                            :class="{ 'p-invalid': submitted && !product.nama }" />
-                        <small class="p-invalid" v-if="submitted && !product.nama">Nama harus di Isi.</small>
-                    </div>
-                    <div class="field">
-                        <label for="noTelp">No Telpon</label>
-                        <InputText id="noTelp" v-model.trim="product.noTelp" required="true" autofocus
-                            :class="{ 'p-invalid': submitted && !product.noTelp }" />
-                        <small class="p-invalid" v-if="submitted && !product.noTelp">No Telpon harus di Isi.</small>
-                    </div>
-                    <div class="field">
-                        <label for="alamat">Alamat</label>
-                        <Textarea id="alamat" v-model="product.alamat" required="true" rows="3" cols="20" />
-                    </div> -->
                     <template #footer>
                         <Button label="Cancel" icon="pi pi-times" class="p-button-text" @click="hideDialog" />
-                        <Button label="Save" icon="pi pi-check" class="p-button-text" @click="saveProduct" />
+                        <Button label="Save" icon="pi pi-check" class="p-button-text" @click="savePelanggan" />
                     </template>
                 </Dialog>
 
                 <!-- Dialog untuk yakin hapus data -->
-                <Dialog v-model:visible="deleteProductDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
+                <Dialog v-model:visible="deletePelangganDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
                     <div class="flex align-items-center justify-content-center">
                         <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-                        <span v-if="product">Are you sure you want to delete <b>{{ product.name }}</b>?</span>
+                        <span v-if="pelanggan">Are you sure you want to delete <b>{{ pelanggan.name }}</b>?</span>
                     </div>
                     <template #footer>
-                        <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteProductDialog = false" />
-                        <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteProduct" />
+                        <Button label="No" icon="pi pi-times" class="p-button-text"
+                            @click="deletePelangganDialog = false" />
+                        <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deletePelanggan" />
                     </template>
                 </Dialog>
 
-                <Dialog v-model:visible="deleteProductsDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
-                    <div class="flex align-items-center justify-content-center">
-                        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-                        <span v-if="product">Are you sure you want to delete the selected products?</span>
-                    </div>
-                    <template #footer>
-                        <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteProductsDialog = false" />
-                        <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteSelectedProducts" />
-                    </template>
-                </Dialog>
             </div>
         </div>
     </div>

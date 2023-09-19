@@ -1,28 +1,99 @@
 <script setup>
 import { useLayout } from '@/layout/composables/layout';
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, onBeforeMount } from 'vue';
+import { useRouter } from 'vue-router';
 import AppConfig from '@/layout/AppConfig.vue';
 import axios from 'axios';
 
 const { layoutConfig } = useLayout();
+const router = useRouter();
+const now = new Date();
+
 const username = ref('');
 const password = ref('');
 const checked = ref(false);
-const apiUrl = `http://localhost:8000/api/v1/auth/`;
+const message = ref([]);
+const count = ref(0);
+const submitted = ref(false);
+const apiUrl = `http://localhost:8000/api/v1/auth`;
 
 const logoUrl = computed(() => {
     return `layout/images/${layoutConfig.darkTheme.value ? 'logo-white' : 'logo-dark'}.svg`;
 });
 
-const tryLogin = () => {
-    const userLoginData = {
-        username: username.value,
-        password: password.value
-    };
+onBeforeMount(() => {
+    checkRemember();
+    checkLogin();
+});
 
-    axios.post(`${apuUrl}/login`, userLoginData).then((response) => {
-        const resData = response.data;
-    });
+const checkRemember = () => {
+    const lastUser = localStorage.getItem('user');
+    checked.value = true;
+    if (lastUser) {
+        username.value = lastUser;
+    }
+};
+
+const checkLogin = () => {
+    const cekToken = localStorage.getItem('token');
+    console.log(cekToken);
+    if (!cekToken) {
+        router.push('/auth/login');
+    }
+};
+
+const tryLogin = () => {
+    submitted.value = true;
+    if (username.value.length > 0 && password.value.length >= 6) {
+        const userLoginData = {
+            username: username.value,
+            password: password.value
+        };
+
+        axios.post(`${apiUrl}/login`, userLoginData).then((response) => {
+            const resData = response.data;
+            if (response.status === 200) {
+                submitted.value = false;
+                if (checked.value === true) {
+                    localStorage.setItem('user', userLoginData.username);
+                } else {
+                    username.value = null;
+                    localStorage.removeItem('user');
+                }
+                password.value = null;
+
+                const data = {
+                    token: resData.token,
+                    expiry: now.getTime() + 1000 * 60 * 60 * 24
+                };
+                localStorage.setItem('token', JSON.stringify(data));
+                getUserRole(userLoginData);
+                router.push('/dashboard');
+            } else {
+                message.value = [{ severity: 'error', detail: 'Login Failed', content: 'Message sent', id: count.value++ }];
+            }
+        });
+    } else {
+        if (checked.value === true) {
+            localStorage.setItem('user', userLoginData.username);
+        } else {
+            username.value = null;
+            localStorage.removeItem('user');
+        }
+        password.value = null;
+    }
+};
+
+const getUserRole = (User) => {
+    axios
+        .post(`http://localhost:8000/api/v1/admin/manage/hakAkses/access`, User)
+        .then((response) => {
+            const hakAkses = response.data;
+            localStorage.setItem('userPrevilage', JSON.stringify(hakAkses));
+        })
+        .catch((error) => {
+            console.log(error);
+        });
 };
 </script>
 
@@ -35,15 +106,23 @@ const tryLogin = () => {
                     <div class="text-center mb-5">
                         <!-- <img src="/demo/images/login/avatar.png" alt="Image" height="50" class="mb-3" />
                         <div class="text-900 text-3xl font-medium mb-3">Welcome, Isabel!</div> -->
-                        <span class="text-600 font-medium">Sign in to continue</span>
+                        <!-- <span class="text-600 font-medium">Sign in to continue</span> -->
                     </div>
 
                     <div>
-                        <label for="username1" class="block text-900 text-xl font-medium mb-2">Username</label>
-                        <InputText id="username1" type="text" placeholder="Username" class="w-full md:w-30rem mb-5" style="padding: 1rem" v-model="username" />
+                        <div class="field mt-0 mb-5">
+                            <label for="username" class="block text-900 text-xl font-medium mb-2">Username</label>
+                            <InputText id="username" type="text" placeholder="Username" class="w-full md:w-30rem mb-1" style="padding: 1rem" v-model.trim="username" :class="{ 'p-invalid': submitted && (!username || username === '') }" />
+                            <br />
+                            <small class="p-invalid" v-if="submitted && (!username || username === '')">Please enter your Username or no.Rekening.</small>
+                        </div>
 
-                        <label for="password1" class="block text-900 font-medium text-xl mb-2">Password</label>
-                        <Password id="password1" v-model="password" placeholder="Password" :toggleMask="true" class="w-full mb-3" inputClass="w-full" :inputStyle="{ padding: '1rem' }"></Password>
+                        <div class="field mt-0 mb-3">
+                            <label for="password" class="block text-900 font-medium text-xl mb-2">Password</label>
+                            <InputText id="password" type="password" placeholder="Password" class="w-full mb-1" style="padding: 1rem" v-model.trim="password" :class="{ 'p-invalid': submitted && (!password || password === '') }" />
+                            <br />
+                            <small class="p-invalid" v-if="submitted && (!password || password === '')">Please enter your password.</small>
+                        </div>
 
                         <div class="flex align-items-center justify-content-between mb-5 gap-5">
                             <div class="flex align-items-center">
@@ -52,7 +131,11 @@ const tryLogin = () => {
                             </div>
                             <a class="font-medium no-underline ml-2 text-right cursor-pointer" style="color: var(--primary-color)">Forgot password?</a>
                         </div>
+
                         <Button label="Sign In" class="w-full p-3 text-xl" @click="tryLogin"></Button>
+                        <transition-group name="p-message" tag="div">
+                            <Message v-for="msg of message" :severity="msg.severity" :key="msg.content">{{ msg.content }}</Message>
+                        </transition-group>
                     </div>
                 </div>
             </div>
