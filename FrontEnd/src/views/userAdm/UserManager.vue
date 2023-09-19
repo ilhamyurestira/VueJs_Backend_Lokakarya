@@ -75,6 +75,7 @@ const hideCreateUserDialog = () => {
 };
 
 const hideEditUserDialog = () => {
+    fetchUserData();
     editUserInformationDialog.value = false;
     submitted.value = false;
 };

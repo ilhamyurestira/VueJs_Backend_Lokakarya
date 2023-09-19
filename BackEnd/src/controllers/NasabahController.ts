@@ -44,19 +44,14 @@ class NasabahController {
 
   // Setor saldo nasabah
   tambahSaldo = async (req: Request, res: Response): Promise<Response> => {
-    const { norek } = req.body;
-    let {jumlah} = req.body
-    // console.log('Nilai jumlah:', jumlah);
+    const { norek, jumlah } = req.body;
+    console.log('Nilai jumlah:', jumlah);
 
     try {
       const nasabah = await db.master_bank.findOne({ where: { norek } });
 
       if (!nasabah) {
         return res.status(404).json({ error: 'Nasabah tidak ditemukan' });
-      }
-
-      if(nasabah.saldo - jumlah < 50000){
-        return res.status(400).json({error: 'Jumlah setoran minimum adalah Rp 50,000.'});
       }
 
       const updatedSaldo = nasabah.saldo + jumlah;
