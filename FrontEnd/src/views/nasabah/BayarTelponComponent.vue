@@ -18,7 +18,7 @@
                 required />
               <span v-if="nomorTelponError" class="p-error">Nomor telpon harus diisi</span>
             </div>
-          </div>
+          </div><br />
           <Button label="Cek Tagihan" class="custom-button" type="submit" />
         </form>
       </div>
@@ -80,31 +80,54 @@ export default {
 
       // Memeriksa tagihan
       try {
-    const response = await axios.get(
-      `http://localhost:8000/api/v1/nasabah/cek-tagihan`,
-      {
-        params: {
-          nomorRekening: this.nomorRekening,
-          noTelp: this.nomorTelpon
+        const response = await axios.get(
+          `http://localhost:8000/api/v1/nasabah/cek-tagihan`,
+          {
+            params: {
+              nomorRekening: this.nomorRekening,
+              noTelp: this.nomorTelpon
+            }
+          }
+        );
+
+        console.log(response); // Log respons dari server
+
+        if (response.status === 404) {
+          // Menangani kasus tidak ada tagihan
+          const responseData = response.data;
+          if (responseData && responseData.message) {
+            Swal.fire({
+              icon: 'error',
+              text: responseData.message,
+              customClass: {
+                container: 'custom-class'
+              },
+              appendTo: 'body'
+            });
+          } else {
+            Swal.fire({
+              icon: 'error',
+              text: error.response.data.message,
+              customClass: {
+                container: 'custom-class'
+              },
+              appendTo: 'body'
+            });
+          }
+        } else {
+          // Memperbarui tagihan dan menampilkan modal pembayaran
+          this.tagihan = response.data.tagihan;
+          this.accountInfo = {
+            nomorRekening: response.data.nomorRekening,
+            nomorTelpon: response.data.noTelp,
+            namaPemilikRekening: response.data.namaPemilikRekening,
+            saldoPemilikRekening: response.data.saldoPemilikRekening,
+            tagihanTelpon: response.data.tagihanTelpon
+          };
+          this.showPaymentModal = true;
         }
-      }
-    );
-
-    console.log(response); // Log respons dari server
-
-    if (response.status === 404) {
-      // Menangani kasus tidak ada tagihan
-      const responseData = response.data;
-      if (responseData && responseData.message) {
-        Swal.fire({
-          icon: 'error',
-          text: responseData.message,
-          customClass: {
-            container: 'custom-class'
-          },
-          appendTo: 'body'
-        });
-      } else {
+      } catch (error) {
+        console.error(error);
         Swal.fire({
           icon: 'error',
           text: error.response.data.message,
@@ -114,30 +137,7 @@ export default {
           appendTo: 'body'
         });
       }
-    } else {
-      // Memperbarui tagihan dan menampilkan modal pembayaran
-      this.tagihan = response.data.tagihan;
-      this.accountInfo = {
-        nomorRekening: response.data.nomorRekening,
-        nomorTelpon: response.data.noTelp,
-        namaPemilikRekening: response.data.namaPemilikRekening,
-        saldoPemilikRekening: response.data.saldoPemilikRekening,
-        tagihanTelpon: response.data.tagihanTelpon
-      };
-      this.showPaymentModal = true;
-    }
-  } catch (error) {
-    console.error(error);
-    Swal.fire({
-      icon: 'error',
-      text: error.response.data.message,
-      customClass: {
-        container: 'custom-class'
-      },
-      appendTo: 'body'
-    });
-  }
-},
+    },
 
     async bayarTagihan() {
       if (!this.tagihan) {
@@ -154,7 +154,38 @@ export default {
         return;
       }
 
+      const saldo = this.accountInfo.saldoPemilikRekening;
+      if (saldo < this.tagihan) {
+        Swal.fire({
+          icon: 'error',
+          text: 'Saldo tidak mencukupi untuk membayar tagihan.',
+          customClass: {
+            container: 'custom-class'
+          },
+          appendTo: 'body'
+        });
+
+        this.showPaymentModal = false;
+        return;
+      }
+
+      const minimumBalance = 50000;
+      if (saldo - this.tagihan < minimumBalance) {
+        Swal.fire({
+          icon: 'error',
+          text: 'Saldo tidak boleh kurang dari Rp 50.000.',
+          customClass: {
+            container: 'custom-class'
+          },
+          appendTo: 'body'
+        });
+
+        this.showPaymentModal = false;
+        return;
+      }
+
       try {
+        // Proceed with the payment
         const response = await axios.post(
           `http://localhost:8000/api/v1/nasabah/bayar-telpon`,
           {
@@ -172,24 +203,15 @@ export default {
             },
             appendTo: 'body'
           });
-          // sembunyikan modal: 
+          // Hide the modal and reset data
           this.showPaymentModal = false;
-
           this.tagihan = null;
-      this.accountInfo = {};
-      this.nomorRekening = "";
-      this.nomorTelpon = "";
+          this.accountInfo = {};
+          this.nomorRekening = "";
+          this.nomorTelpon = "";
 
         } else {
-          this.tagihan = response.data.tagihan;
-          this.accountInfo = {
-            nomorRekening: response.data.nomorRekening,
-            nomorTelpon: response.data.noTelp,
-            namaPemilikRekening: response.data.namaPemilikRekening,
-            saldoPemilikRekening: response.data.saldoPemilikRekening,
-            tagihanTelpon: response.data.tagihanTelpon
-          };
-          this.showPaymentModal = true;
+          // Handle other response scenarios as needed
         }
       } catch (error) {
         console.error(error);
@@ -203,6 +225,7 @@ export default {
         });
       }
     },
+
   }
 };
 </script>
