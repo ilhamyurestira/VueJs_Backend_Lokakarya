@@ -103,6 +103,10 @@ class BayarTelponController implements IController {
         return res.status(400).send('Saldo tidak cukup.');
       }
 
+      if (pemilikRekening.saldo - transaksiBelumDibayar.uang < 50000) {
+        return res.status(400).send('Saldo tidak boleh kurang dari Rp 50.000.')
+      }
+
       // Lakukan pembayaran
       pemilikRekening.saldo -= transaksiBelumDibayar.uang;
 
