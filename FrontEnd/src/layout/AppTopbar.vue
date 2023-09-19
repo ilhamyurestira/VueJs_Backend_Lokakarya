@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, onBeforeMount } from 'vue';
 import { useLayout } from '@/layout/composables/layout';
 import { useRouter } from 'vue-router';
 
@@ -8,6 +8,11 @@ const { layoutConfig, onMenuToggle } = useLayout();
 const outsideClickListener = ref(null);
 const topbarMenuActive = ref(false);
 const router = useRouter();
+const haveToken = ref(false);
+
+onBeforeMount(() => {
+    checkLogin();
+});
 
 onMounted(() => {
     bindOutsideClickListener();
@@ -16,6 +21,19 @@ onMounted(() => {
 onBeforeUnmount(() => {
     unbindOutsideClickListener();
 });
+
+const checkLogin = () => {
+    const Token = localStorage.getItem('token');
+    if (Token) {
+        haveToken.value = true;
+    }
+};
+
+const logout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userPrevilage');
+    router.push('/auth/login');
+};
 
 const logoUrl = computed(() => {
     return `layout/images/${layoutConfig.darkTheme.value ? 'logo-white' : 'logo-dark'}.svg`;
@@ -87,6 +105,10 @@ const isOutsideClicked = (event) => {
             <button @click="onSettingsClick()" class="p-link layout-topbar-button">
                 <i class="pi pi-cog"></i>
                 <span>Settings</span>
+            </button>
+            <button v-if="haveToken" @click="logout()" class="p-link layout-topbar-button">
+                <i class="pi pi-sign-out"></i>
+                <span>Sign Out</span>
             </button>
         </div>
     </div>
