@@ -39,6 +39,11 @@ class TransferController implements IController {
     // return res.status(404).send('Nomor rekening pengirim dan penerima tidak ditemukan.');
 //   }
 
+      // Validasi bahwa nomor rekening pengirim dan penerima tidak sama
+      if (nomorRekeningPengirim === nomorRekeningPenerima) {
+        return res.status(400).send('Tidak dapat mentransfer ke nomor rekening yang sama.');
+      }
+
   // Periksa apakah saldo pemilik rekening cukup
   if (pemilikRekening.saldo < jumlahTransfer) {
     return res.status(400).send('Saldo tidak cukup.');

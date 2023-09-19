@@ -25,7 +25,7 @@
       <p>Saldo : {{ numberWithDot(infoNasabah.saldo) }}</p>
       <div>
         <h3>Nominal Setor:</h3>
-        <InputText type="text" v-model="jumlah" class="custom-input" :class="{ 'p-invalid': jumlahSetorError }"
+        <InputText type="text" v-model="formattedJumlah" class="custom-input" :class="{ 'p-invalid': jumlahSetorError }"
           required />
         <!-- <span v-if="jumlahSetorError" class="p-error"> Nilai minimum setoran adalah Rp 10.000</span> -->
       </div>
@@ -50,7 +50,7 @@ export default {
       showModal: false,
       nama: "",
       saldo: "",
-      jumlah: "",
+      formattedJumlah: "",
       infoNasabah: {},
       setorSuccess: false,
       setorErrorMessage: "",
@@ -62,6 +62,23 @@ export default {
     numberWithDot(x) {
       return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
     },
+
+    computed: {
+    // Buat computed property untuk mengatur format jumlah
+    formattedJumlah: {
+      get() {
+        // Mengambil nilai jumlah dari data dan mengatur formatnya
+        return this.jumlah ? `Rp. ${this.numberWithDot(this.jumlah)}` : "";
+      },
+      set(newValue) {
+        // Mengubah format ke angka saat input berubah
+        const formattedValue = newValue.replace(/[^\d]/g, "");
+        this.jumlah = formattedValue;
+      },
+    },
+  },
+
+  
 
     async setor() {
 
@@ -93,7 +110,7 @@ export default {
 
     async handleSetor() {
 
-      if (!this.jumlah || isNaN(this.jumlah)) {
+      if (!this.formattedJumlah || isNaN(this.formattedJumlah)) {
         this.jumlahSetorError = true;
         return;
       } else {
@@ -101,7 +118,7 @@ export default {
       }
 
       // Periksa apakah jumlah setoran kurang dari 50,000
-      if (this.jumlah < 50000) {
+      if (this.formattedJumlah < 50000) {
         Swal.fire({
           icon: 'error',
           text: 'Jumlah setoran minimum adalah Rp 50,000.',
@@ -118,7 +135,7 @@ export default {
           `http://localhost:8000/api/v1/nasabah/tambah`,
           {
             norek: Number(this.norek),
-            jumlah: Number(this.jumlah)
+            jumlah: Number(this.formattedJumlah)
           }
         );
 
@@ -139,7 +156,7 @@ export default {
         });
 
         this.norek = "";
-        this.jumlah = "";
+        this.formattedJumlah = "";
         this.showModal = false;
 
       } catch (error) {
