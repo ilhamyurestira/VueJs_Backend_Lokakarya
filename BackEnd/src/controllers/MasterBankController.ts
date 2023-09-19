@@ -7,36 +7,30 @@ class MasterBankController implements IController {
 
     async index(req: Request, res: Response): Promise<Response> {
         try {
-            const { page, pageSize, limit, keyword, sortBy } = req.body; // Menggunakan req.body untuk mendapatkan parameter
-
-            // Jika tidak disediakan, gunakan nilai default
+            const { page, pageSize, limit, keyword, sortBy } = req.body;
             const currentPage = page || 1;
             const pageSizeValue = pageSize || 10;
-            const limitValue = limit || pageSizeValue; // Gunakan pageSize jika limit tidak disediakan
-
+            const limitValue = limit || pageSizeValue;
             const offset = (currentPage - 1) * limitValue;
             const whereClause: { [key: string]: any } = {};
-
+    
             if (keyword) {
                 whereClause.nama = {
-                    [Op.iLike]: `%${keyword}%` // Menggunakan Op.iLike untuk pencarian case-insensitive
+                    [Op.iLike]: `%${keyword}%`
                 };
             }
-
+    
             const totalCount = await db.master_bank.count({ where: whereClause });
-
-            // Menghitung totalPages berdasarkan limit yang diminta
             const totalPages = Math.ceil(totalCount / limitValue);
-
             const order = sortBy ? [[sortBy, 'ASC']] : [['id', 'ASC']];
-
+    
             const masterBanks = await db.master_bank.findAll({
                 where: whereClause,
                 offset,
                 limit: limitValue,
                 order,
             });
-
+    
             const responseData = {
                 data: {
                     list: masterBanks,
@@ -49,13 +43,13 @@ class MasterBankController implements IController {
                     message: "success"
                 }
             };
-
+    
             return res.status(200).json(responseData);
         } catch (error) {
             console.error(error);
             return res.status(500).send('Data tidak ditemukan');
         }
-    }
+    }    
 
     async show(req: Request, res: Response): Promise<Response> {
         const { id } = req.params;

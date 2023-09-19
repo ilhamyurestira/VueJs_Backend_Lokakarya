@@ -11,6 +11,8 @@ const totalElements = ref(0);
 const limit = ref(5); // Nilai default limit
 const keyword = ref('');
 
+const showPaginator = ref(false);
+
 const toast = useToast();
 
 const datas = ref([]);
@@ -71,6 +73,8 @@ const fetchData = () => {
             datas.value = masterBanksData;
             totalPages.value = data.totalPages;
             totalElements.value = data.totalElements;
+
+            showPaginator.value = datas.value.length > 0;
         })
         .catch((error) => {
             console.error('Error fetching data:', error);
@@ -230,8 +234,8 @@ const initFilters = () => {
                             <span class="block mt-2 md:mt-0 p-input-icon-left">
                                 <i class="pi pi-search" />
                                 <InputText v-model="keyword" @keydown.enter="search" placeholder="Cari Nama..." />
-                                <!-- <i class="pi pi-times" @click="clearInput" v-if="keyword" /> -->
-                                <Button icon="pi pi-times" @click="clearInput" severity="secondary" v-if="keyword" text />
+                                <Button icon="pi pi-times" @click="clearInput" severity="secondary" v-if="keyword" text
+                                    class="clear-icon" />
                             </span>
                         </div>
                     </template>
@@ -281,8 +285,15 @@ const initFilters = () => {
                                 @click="confirmDeleteRekening(slotProps.data)" />
                         </template>
                     </Column>
+
+                    <template #empty>
+                        <div class="p-datatable-emptymessage">
+                            Tidak ada hasil yang ditemukan.
+                        </div>
+                    </template>
                 </DataTable>
-                <Paginator :rows="limit" :totalRecords="totalElements" :rowsPerPageOptions="[10, 20, 30]"
+                <Paginator :rows="limit" :totalRecords="totalElements" v-if="showPaginator"
+                    :rowsPerPageOptions="[10, 20, 30]"
                     template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
                     currentPageReportTemplate="Showing {first} to {last} of {totalRecords}" @page="handlePageChange">
                 </Paginator>
@@ -342,9 +353,21 @@ const initFilters = () => {
 </template>
 
 <style scoped lang="scss">
-button.p-button-secondary.p-button-icon-only .pi-times {
-    margin-left: -40px;
-    transition: background-color 0.3s ease;
+button.p-button-secondary.p-button-icon-only.clear-icon {
+    position: absolute;
+    right: 0px;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
+.p-datatable .p-datatable-tbody > tr > td {
+    height: 70px;
+}
+
+.p-datatable-emptymessage {
+    height: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 </style>

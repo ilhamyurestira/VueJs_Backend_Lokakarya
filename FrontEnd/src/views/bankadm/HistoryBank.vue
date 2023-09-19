@@ -3,6 +3,14 @@ import { FilterMatchMode } from 'primevue/api';
 import { ref, onMounted, onBeforeMount } from 'vue';
 import { useToast } from 'primevue/usetoast';
 
+const currentPage = ref(1);
+const totalPages = ref(0);
+const totalElements = ref(0);
+const limit = ref(10); // Nilai default limit
+const keyword = ref('');
+
+const showPaginator = ref(false);
+
 import axios from 'axios'; // Import Axios
 
 const toast = useToast();
@@ -35,13 +43,31 @@ const formatCurrency = (value) => {
 };
 
 const fetchData = () => {
-    axios.get(apiUrl)
+    axios
+        .post(apiUrl, {
+            page: currentPage.value,
+            limit: limit.value,
+            keyword: keyword.value
+        })
         .then((response) => {
-            datas.value = response.data; // Assuming your API response is an array of datas
+            const responseData = response.data;
+            const data = responseData.data;
+            const status = responseData.status;
+            const startIndex = (currentPage.value - 1) * limit.value + 1;
+            const historyBanksData = data.list.map((item, index) => ({
+                ...item,
+                No: startIndex + index,
+            }));
+
+            datas.value = historyBanksData;
+            totalPages.value = data.totalPages;
+            totalElements.value = data.totalElements;
+
+            showPaginator.value = datas.value.length > 0;
         })
         .catch((error) => {
             console.error('Error fetching data:', error);
-            toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to fetch data from the API', life: 3000 });
+            toast.add({ severity: 'error', summary: 'Error', detail: 'Gagal mengambil data dari API', life: 3000 });
         });
 };
 
@@ -163,6 +189,11 @@ const getKeteranganText = (keterangan) => {
     }
 };
 
+const handlePageChange = (event) => {
+    currentPage.value = event.page + 1; // Event.page dimulai dari 0, tambahkan 1
+    fetchData(); // Ambil data untuk halaman baru
+};
+
 </script>
 
 <template>
@@ -182,42 +213,39 @@ const getKeteranganText = (keterangan) => {
                 </Toolbar> -->
 
                 <!-- Tabel data -->
-                <DataTable ref="dt" :value="datas" v-model:selection="selectedDatas" dataKey="id" :paginator="true"
-                    :rows="10" :filters="filters"
-                    paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                    :rowsPerPageOptions="[5, 10, 25]"
-                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} datas"
-                    responsiveLayout="scroll">
+                <DataTable ref="dt" :value="datas" v-model:selection="selectedDatas" dataKey="id" responsiveLayout="scroll">
                     <template #header>
                         <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-                            <h5 class="m-0">Data Nasabah</h5>
-                            <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <h5 class="m-0">Histori Nasabah</h5>
+                            <!-- <span class="block mt-2 md:mt-0 p-input-icon-left">
                                 <i class="pi pi-search" />
                                 <InputText v-model="filters['global'].value" placeholder="Search..." />
-                            </span>
+                            </span> -->
                         </div>
                     </template>
 
                     <!-- <Column selectionMode="multiple" headerStyle="width: 3rem"></Column> -->
-                    <Column field="index" header="No" :sortable="false" headerStyle="width:5%; min-width:5rem;">
+                    <Column field="No" header="No" :sortable="false" headerStyle="width:5%; min-width:5rem;">
                         <template #body="slotProps">
-                            <span class="p-column-title">N0</span>
-                            {{ slotProps.index + 1 }}
+                            <span class="p-column-title">No</span>
+                            {{ slotProps.data.No }}
                         </template>
                     </Column>
-                    <Column field="nama" header="Nama" :sortable="false" headerStyle="width:20%; min-width:10rem;">
+                    <Column field="nama" header="Nama" :sortable="false" headerStyle="width:20%; min-width:8rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Nama</span>
                             {{ slotProps.data.nama }}
                         </template>
                     </Column>
-                    <Column field="norek" header="Nomor Rekening" :sortable="false" headerStyle="width20%; min-width:10rem;">
+                    <Column field="norek" header="Nomor Rekening" :sortable="false"
+                        headerStyle="width20%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Nomor Rekening</span>
                             {{ slotProps.data.norek }}
                         </template>
                     </Column>
-                    <Column field="tanggal" header="Tanggal Transaksi" :sortable="false" headerStyle="width:20%; min-width:10rem;">
+                    <Column field="tanggal" header="Tanggal Transaksi" :sortable="false"
+                        headerStyle="width:20%; min-width:12rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Tanggal Transaksi</span>
                             {{ formatDateTime(slotProps.data.tanggal) }}
@@ -229,19 +257,22 @@ const getKeteranganText = (keterangan) => {
                             {{ formatCurrency(slotProps.data.uang) }}
                         </template>
                     </Column>
-                    <Column field="status_ket" header="Keterangan" :sortable="false" headerStyle="width:20%; min-width:10rem;">
+                    <Column field="status_ket" header="Keterangan" :sortable="false"
+                        headerStyle="width:20%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Keterangan</span>
                             {{ getKeteranganText(slotProps.data.status_ket) }}
                         </template>
                     </Column>
-                    <Column field="norek_dituju" header="Rekening Tujuan" :sortable="false" headerStyle="width:20%; min-width:10rem;">
+                    <Column field="norek_dituju" header="Rekening Tujuan" :sortable="false"
+                        headerStyle="width:20%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Rekening Tujuan</span>
                             {{ slotProps.data.norek_dituju !== null ? slotProps.data.norek_dituju : '-' }}
                         </template>
                     </Column>
-                    <Column field="no_tlp" header="Nomor Telepon" :sortable="false" headerStyle="width:20%; min-width:10rem;">
+                    <Column field="no_tlp" header="Nomor Telepon" :sortable="false"
+                        headerStyle="width:20%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Nomor Telepon</span>
                             {{ slotProps.data.no_tlp !== null ? slotProps.data.no_tlp : '-' }}
@@ -255,7 +286,17 @@ const getKeteranganText = (keterangan) => {
                                 @click="confirmDeleteProduct(slotProps.data)" />
                         </template>
                     </Column> -->
+                    <template #empty>
+                        <div class="p-datatable-emptymessage">
+                            Tidak ada hasil yang ditemukan.
+                        </div>
+                    </template>
                 </DataTable>
+                <Paginator :rows="limit" :totalRecords="totalElements" v-if="showPaginator"
+                    :rowsPerPageOptions="[10, 20, 30]"
+                    template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords}" @page="handlePageChange">
+                </Paginator>
 
                 <!-- Dialog untuk tambah dan edit data -->
                 <Dialog v-model:visible="productDialog" :style="{ width: '450px' }" header="Detail Pelanggan" :modal="true"
@@ -317,4 +358,15 @@ const getKeteranganText = (keterangan) => {
     </div>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+
+.p-datatable .p-datatable-tbody > tr > td {
+    height: 70px;
+}
+.p-datatable-emptymessage {
+    height: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+</style>
