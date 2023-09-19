@@ -38,9 +38,9 @@ const items = ref([
 const lineOptions = ref(null);
 const productService = new ProductService();
 
-onBeforeMount(()=>{
+onBeforeMount(() => {
     checkLogin();
-}
+});
 
 onMounted(() => {
     productService.getProductsSmall().then((data) => (products.value = data));

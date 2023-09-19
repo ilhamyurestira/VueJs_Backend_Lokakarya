@@ -32,7 +32,7 @@ const checkLogin = () => {
 const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('userPrevilage');
-    router.push('/auth/login');
+    router.push({ name: 'login' });
 };
 
 const logoUrl = computed(() => {
@@ -44,7 +44,7 @@ const onTopBarMenuButton = () => {
 };
 const onSettingsClick = () => {
     topbarMenuActive.value = false;
-    router.push('/documentation');
+    router.push({ name: 'documentation' });
 };
 const topbarMenuClasses = computed(() => {
     return {

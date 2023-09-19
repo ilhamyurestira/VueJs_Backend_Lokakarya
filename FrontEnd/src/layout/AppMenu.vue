@@ -1,11 +1,45 @@
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, onMounted, onBeforeMount } from 'vue';
 
 import AppMenuItem from './AppMenuItem.vue';
 import '@fortawesome/fontawesome-free/css/all.css';
+import axios from 'axios';
 
-const roleMenu = ref(null);
+const currentAccess = ref(null);
+const isUserAdmin = ref(false);
+const isBankAdmin = ref(false);
+const isTelpAdmin = ref(false);
+const isBankUser = ref(false);
+const isUser = ref(false);
+
+onBeforeMount(() => {});
+
+onMounted(() => {
+    checkAccess();
+});
+
+const checkAccess = () => {
+    const current = JSON.parse(localStorage.getItem('userPrevilage'));
+
+    currentAccess.value = current;
+    console.log(currentAccess.value);
+    switch (currentAccess.value.roleId) {
+        case 1:
+            isUserAdmin.value = true;
+            break;
+        case 2:
+            isBankAdmin.value = true;
+            break;
+        case 3:
+            isTelpAdmin.value = true;
+            break;
+        case 4:
+            isBankUser.value = true;
+            break;
+        default:
+            isUser.value = true;
+    }
+};
 
 const model = ref([
     {
@@ -21,9 +55,9 @@ const model = ref([
     {
         label: 'Bank Admin',
         items: [
-            { label: 'Master Bank', icon: 'fa fa-fw fa-solid fa-building-columns', to: '/bankadm/masterBank' },
-            { label: 'Transaksi Nasabah', icon: 'fa fa-fw fa-solid fa-money-bill-transfer', to: '/bankadm/transaksiNasabah' },
-            { label: 'Histori Nasabah', icon: 'fa fa-fw fa-solid fa-clock-rotate-left', to: '/bankadm/historyBank' }
+            { label: 'Master Bank', icon: 'fa fa-fw fa-solid fa-building-columns', to: { name: 'masterBank' } },
+            { label: 'Transaksi Nasabah', icon: 'fa fa-fw fa-solid fa-money-bill-transfer', to: { name: 'transaksiNasabah' } },
+            { label: 'Histori Nasabah', icon: 'fa fa-fw fa-solid fa-clock-rotate-left', to: { name: 'historyBank' } }
         ]
     },
     {
@@ -109,8 +143,26 @@ const model = ref([
 <template>
     <ul class="layout-menu">
         <template v-for="(item, i) in model" :key="item">
-            <app-menu-item v-if="!item.separator" :item="item" :index="i"></app-menu-item>
-            <li v-if="item.separator" class="menu-separator"></li>
+            <div v-if="item.label === 'User Admin' && isUserAdmin === true">
+                <app-menu-item v-if="!item.separator" :item="item" :index="i"></app-menu-item>
+                <li v-if="item.separator" class="menu-separator"></li>
+            </div>
+            <div v-if="item.label === 'Bank Admin' && isBankAdmin === true">
+                <app-menu-item v-if="!item.separator" :item="item" :index="i"></app-menu-item>
+                <li v-if="item.separator" class="menu-separator"></li>
+            </div>
+            <div v-if="item.label === 'Telpon Admin' && isTelpAdmin">
+                <app-menu-item v-if="!item.separator" :item="item" :index="i"></app-menu-item>
+                <li v-if="item.separator" class="menu-separator"></li>
+            </div>
+            <div v-if="item.label === 'Nasabah' && isBankUser">
+                <app-menu-item v-if="!item.separator" :item="item" :index="i"></app-menu-item>
+                <li v-if="item.separator" class="menu-separator"></li>
+            </div>
+            <!-- <div v-if="item.label === 'Nasabah' && isBankUser">
+                <app-menu-item v-if="!item.separator" :item="item" :index="i"></app-menu-item>
+                <li v-if="item.separator" class="menu-separator"></li>
+            </div> -->
         </template>
         <!-- <li>
             <a href="https://www.primefaces.org/primeblocks-vue/#/" target="_blank">
