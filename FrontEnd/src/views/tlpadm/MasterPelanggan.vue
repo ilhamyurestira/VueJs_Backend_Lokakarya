@@ -128,19 +128,46 @@ const confirmDeleteProduct = (editProduct) => {
 };
 
 const deleteProduct = () => {
-    if (product.value.id) {
-
-        // Kirim permintaan POST ke BE
-        axios.delete(`${apiUrl}/` + product.value.id);
-        productDialog.value = false;
-        product.value = {};
-        fetchData();
-    }
-    // products.value = products.value.filter((val) => val.id !== product.value.id);
+    deletePelangganById(product.value.id);
     deleteProductDialog.value = false;
     product.value = {};
-    toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Deleted', life: 3000 });
 };
+
+
+const deletePelangganById = (id) => {
+    axios
+        .delete(`${apiUrl}/${id}`)
+        .then((response) => {
+            if (response.status === 200) {
+                // Successful deletion
+                toast.add({
+                    severity: 'success',
+                    summary: 'Success',
+                    detail: 'Pelanggan berhasil di hapus',
+                    life: 3000,
+                });
+                fetchData(); // Refresh the data after deletion
+            } else {
+                // Handle deletion failure
+                toast.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Gagal hapus pelanggan',
+                    life: 3000,
+                });
+            }
+        })
+        .catch((error) => {
+            // Handle API request error
+            toast.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Gagal hapus pelanggan',
+                life: 3000,
+            });
+        });
+};
+
 
 const findIndexById = (id) => {
     let index = -1;
