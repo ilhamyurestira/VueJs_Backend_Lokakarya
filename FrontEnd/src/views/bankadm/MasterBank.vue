@@ -227,7 +227,8 @@ const initFilters = () => {
                 </Toolbar>
 
                 <!-- Tabel data -->
-                <DataTable ref="dt" :value="datas" v-model:selection="selectedDatas" dataKey="id" @page="handlePageChange">
+                <DataTable ref="dt" :value="datas" v-model:selection="selectedDatas" dataKey="id" @page="handlePageChange"
+                    :rowHover="true">
                     <template #header>
                         <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
                             <h5 class="m-0">Data Nasabah</h5>
@@ -360,7 +361,7 @@ button.p-button-secondary.p-button-icon-only.clear-icon {
     transform: translateY(-50%);
 }
 
-.p-datatable .p-datatable-tbody > tr > td {
+.p-datatable .p-datatable-tbody>tr>td {
     height: 70px;
 }
 

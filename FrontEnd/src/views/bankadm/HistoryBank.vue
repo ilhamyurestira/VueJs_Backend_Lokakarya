@@ -213,7 +213,8 @@ const handlePageChange = (event) => {
                 </Toolbar> -->
 
                 <!-- Tabel data -->
-                <DataTable ref="dt" :value="datas" v-model:selection="selectedDatas" dataKey="id" responsiveLayout="scroll">
+                <DataTable ref="dt" :value="datas" v-model:selection="selectedDatas" dataKey="id" responsiveLayout="scroll"
+                    :rowHover="true">
                     <template #header>
                         <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
                             <h5 class="m-0">Histori Nasabah</h5>
@@ -359,10 +360,10 @@ const handlePageChange = (event) => {
 </template>
 
 <style scoped lang="scss">
-
-.p-datatable .p-datatable-tbody > tr > td {
+.p-datatable .p-datatable-tbody>tr>td {
     height: 70px;
 }
+
 .p-datatable-emptymessage {
     height: 200px;
     display: flex;
