@@ -3,7 +3,6 @@ import { ref, onMounted, onBeforeMount } from 'vue';
 
 import AppMenuItem from './AppMenuItem.vue';
 import '@fortawesome/fontawesome-free/css/all.css';
-import axios from 'axios';
 
 const currentAccess = ref(null);
 const isUserAdmin = ref(false);
@@ -11,8 +10,6 @@ const isBankAdmin = ref(false);
 const isTelpAdmin = ref(false);
 const isBankUser = ref(false);
 const isUser = ref(false);
-
-onBeforeMount(() => {});
 
 onMounted(() => {
     checkAccess();

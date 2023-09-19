@@ -1,4 +1,5 @@
 <script setup>
+'use strict';
 import { FilterMatchMode } from 'primevue/api';
 import { ref, onMounted, onBeforeMount } from 'vue';
 import ProductService from '@/service/ProductService';

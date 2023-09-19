@@ -147,15 +147,16 @@ class HakAksesController implements IController {
 
     try {
       const user = await db.user.findOne({ where: { username } });
+      console.log(user);
       if (!user) {
         return res.status(404).send('user not found');
       }
-      const hakAkses = await dm.findByPk(user.id);
+      const hakAkses = await dm.findOne({ where: { userId: user.id } });
+      console.log(hakAkses);
       if (!hakAkses) {
         return res
           .status(200)
           .json({ userId: user.id, roleId: 5 })
-          .send('hak akses is unassigned');
       }
 
       return res.status(200).json(hakAkses);

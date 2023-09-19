@@ -5,8 +5,11 @@ import { ref, onMounted, onBeforeMount } from 'vue';
 import ProductService from '@/service/ProductService';
 import axios from 'axios';
 import { useToast } from 'primevue/usetoast';
+import { useRouter } from 'vue-router';
 
 const toast = useToast();
+const router = useRouter();
+const now = new Date();
 
 const loadedData = ref(null);
 // const adminData = ref(null);
