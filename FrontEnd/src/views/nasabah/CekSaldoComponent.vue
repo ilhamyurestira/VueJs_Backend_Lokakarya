@@ -11,7 +11,7 @@
                 required />
               <br />&nbsp;
               <span v-if="nomorRekeningError" class="p-error">Nomor rekening harus diisi</span>
-              <br />&nbsp;
+              <br />
               <Button label="Cek Saldo" class="custom-button" type="submit" />
             </div>
           </div>

@@ -18,8 +18,8 @@
                 required />
               <span v-if="nomorTelponError" class="p-error">Nomor telpon harus diisi</span>
             </div>
-          </div>
-          <Button label="Cek Tagihan" class="custom-button" type="submit" />
+          </div><br />
+            <Button label="Cek Tagihan" class="custom-button" type="submit" />
         </form>
       </div>
     </div>
@@ -106,7 +106,7 @@ export default {
           this.tagihan = response.data.tagihan;
           this.accountInfo = {
             nomorRekening: response.data.nomorRekening,
-            nomorTelpon: response.data.nomorTelpon,
+            nomorTelpon: response.data.noTelp,
             namaPemilikRekening: response.data.namaPemilikRekening,
             saldoPemilikRekening: response.data.saldoPemilikRekening,
             tagihanTelpon: response.data.tagihanTelpon
