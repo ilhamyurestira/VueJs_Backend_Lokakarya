@@ -18,7 +18,7 @@ const apiUrl = 'http://localhost:8000/api/v1/masterBank'; // Replace with your A
 const dataDialog = ref(false);
 const deleteDialog = ref(false);
 const data = ref({});
-const selecteddatas = ref(null);
+const selectedDatas = ref(null);
 const dt = ref(null);
 const filters = ref({});
 const submitted = ref(false);
@@ -140,22 +140,6 @@ const saveRekening = () => {
     }
 };
 
-const formatPhoneNumber = (phoneNumber) => {
-    // Hapus karakter non-digit dari nomor telepon
-    const cleanedPhoneNumber = phoneNumber.replace(/\D/g, '');
-
-    // Format nomor telepon sesuai dengan format yang berlaku di Indonesia
-    if (cleanedPhoneNumber.length === 11) {
-        // Format untuk nomor telepon dengan kode area (contoh: "08123456789")
-        return cleanedPhoneNumber.replace(/(\d{4})(\d{3})(\d{4})/, '$1-$2-$3');
-    } else if (cleanedPhoneNumber.length === 12) {
-        // Format untuk nomor telepon dengan kode negara (contoh: "+628123456789")
-        return cleanedPhoneNumber.replace(/(\d{2})(\d{4})(\d{3})(\d{4})/, '+$1 $2-$3-$4');
-    } else {
-        return phoneNumber; // Kembalikan nomor asli jika tidak sesuai format
-    }
-};
-
 const confirmDeleteRekening = (editdata) => {
     data.value = editdata;
     deleteDialog.value = true;
@@ -212,7 +196,8 @@ const search = () => {
 
 const clearInput = () => {
     keyword.value = "";
-    }
+    fetchData();
+}
 
 const initFilters = () => {
     filters.value = {
@@ -238,14 +223,15 @@ const initFilters = () => {
                 </Toolbar>
 
                 <!-- Tabel data -->
-                <DataTable ref="dt" :value="datas" v-model:selection="selecteddatas" dataKey="id" @page="handlePageChange">
+                <DataTable ref="dt" :value="datas" v-model:selection="selectedDatas" dataKey="id" @page="handlePageChange">
                     <template #header>
                         <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
                             <h5 class="m-0">Data Nasabah</h5>
                             <span class="block mt-2 md:mt-0 p-input-icon-left">
                                 <i class="pi pi-search" />
-                                <InputText v-model="keyword" @keydown.enter="search" placeholder="Cari..." />
-                                <i class="pi pi-times" @click="clearInput" v-if="keyword" />
+                                <InputText v-model="keyword" @keydown.enter="search" placeholder="Cari Nama..." />
+                                <!-- <i class="pi pi-times" @click="clearInput" v-if="keyword" /> -->
+                                <Button icon="pi pi-times" @click="clearInput" severity="secondary" v-if="keyword" text />
                             </span>
                         </div>
                     </template>
@@ -257,31 +243,31 @@ const initFilters = () => {
                             {{ slotProps.data.No }}
                         </template>
                     </Column>
-                    <Column field="nama" header="Nama" :sortable="true" headerStyle="width20%; min-width:10rem;">
+                    <Column field="nama" header="Nama" :sortable="false" headerStyle="width20%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Nama</span>
                             {{ slotProps.data.nama }}
                         </template>
                     </Column>
-                    <Column field="noTlp" header="No Telpon" :sortable="true" headerStyle="width:20%; min-width:10rem;">
+                    <Column field="noTlp" header="No Telpon" :sortable="false" headerStyle="width:20%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">No Telpon</span>
-                            {{ formatPhoneNumber(slotProps.data.noTlp) }}
+                            {{ slotProps.data.noTlp }}
                         </template>
                     </Column>
-                    <Column field="alamat" header="Alamat" :sortable="true" headerStyle="width:20%; min-width:10rem;">
+                    <Column field="alamat" header="Alamat" :sortable="false" headerStyle="width:20%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Alamat</span>
                             {{ slotProps.data.alamat }}
                         </template>
                     </Column>
-                    <Column field="norek" header="No Rekening" :sortable="true" headerStyle="width:20%; min-width:10rem;">
+                    <Column field="norek" header="No Rekening" :sortable="false" headerStyle="width:20%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">No Rekening</span>
                             {{ slotProps.data.norek }}
                         </template>
                     </Column>
-                    <Column field="saldo" header="Saldo" :sortable="true" headerStyle="width:20%; min-width:10rem;">
+                    <Column field="saldo" header="Saldo" :sortable="false" headerStyle="width:20%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Saldo</span>
                             {{ slotProps.data.saldo !== null ? formatCurrency(slotProps.data.saldo) : 'Rp 0' }}
@@ -315,9 +301,11 @@ const initFilters = () => {
                         <label for="saldo">Saldo</label>
                         <InputNumber v-model="data.saldo" inputId="currency-indonesia" mode="currency" currency="IDR"
                             locale="id-ID" id="saldo" required="true" autofocus
-                            :class="{ 'p-invalid': submitted && (!data.saldo || data.saldo < 100000) }" />
+                            :class="{ 'p-invalid': submitted && (!data.saldo || data.saldo < 100000 || data.saldo > 999999999) }" />
                         <small class="p-invalid" v-if="submitted && (!data.saldo || data.saldo < 100000)">Saldo harus diisi
-                            minimal 100.000.</small>
+                            minimal Rp 100.000.</small>
+                        <small class="p-invalid" v-if="submitted && (data.saldo > 999999999)">Pengisian saldo maksimal Rp
+                            999.999.999.</small>
                     </div>
                     <template #footer>
                         <Button label="Batal" icon="pi pi-times" class="p-button-text" @click="hideDialog" />
@@ -353,4 +341,10 @@ const initFilters = () => {
     </div>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+button.p-button-secondary.p-button-icon-only .pi-times {
+    margin-left: -40px;
+    transition: background-color 0.3s ease;
+}
+
+</style>

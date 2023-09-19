@@ -1,30 +1,22 @@
 <script setup>
 import { FilterMatchMode } from 'primevue/api';
 import { ref, onMounted, onBeforeMount } from 'vue';
-import ProductService from '@/service/ProductService';
 import { useToast } from 'primevue/usetoast';
 
 import axios from 'axios'; // Import Axios
 
 const toast = useToast();
 
-const products = ref([]);
+const datas = ref([]);
 const apiUrl = 'http://localhost:8000/api/v1/transaksiNasabah'; // Replace with your API URL
 const productDialog = ref(false);
 const deleteProductDialog = ref(false);
-const deleteProductsDialog = ref(false);
+const deleteDatasDialog = ref(false);
 const product = ref({});
-const selectedProducts = ref(null);
+const selectedDatas = ref(null);
 const dt = ref(null);
 const filters = ref({});
 const submitted = ref(false);
-const statuses = ref([
-    { label: 'INSTOCK', value: 'instock' },
-    { label: 'LOWSTOCK', value: 'lowstock' },
-    { label: 'OUTOFSTOCK', value: 'outofstock' }
-]);
-
-const productService = new ProductService();
 
 onBeforeMount(() => {
     initFilters();
@@ -40,7 +32,7 @@ const formatCurrency = (value) => {
 const fetchData = () => {
     axios.get(apiUrl)
         .then((response) => {
-            products.value = response.data; // Assuming your API response is an array of products
+            datas.value = response.data; // Assuming your API response is an array of datas
         })
         .catch((error) => {
             console.error('Error fetching data:', error);
@@ -64,14 +56,14 @@ const saveProduct = () => {
     if (product.value.name && product.value.name.trim() && product.value.price) {
         if (product.value.id) {
             product.value.inventoryStatus = product.value.inventoryStatus.value ? product.value.inventoryStatus.value : product.value.inventoryStatus;
-            products.value[findIndexById(product.value.id)] = product.value;
+            datas.value[findIndexById(product.value.id)] = product.value;
             toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Updated', life: 3000 });
         } else {
             product.value.id = createId();
             product.value.code = createId();
             product.value.image = 'product-placeholder.svg';
             product.value.inventoryStatus = product.value.inventoryStatus ? product.value.inventoryStatus.value : 'INSTOCK';
-            products.value.push(product.value);
+            datas.value.push(product.value);
             toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Created', life: 3000 });
         }
         productDialog.value = false;
@@ -91,7 +83,7 @@ const confirmDeleteProduct = (editProduct) => {
 };
 
 const deleteProduct = () => {
-    products.value = products.value.filter((val) => val.id !== product.value.id);
+    datas.value = datas.value.filter((val) => val.id !== product.value.id);
     deleteProductDialog.value = false;
     product.value = {};
     toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Deleted', life: 3000 });
@@ -99,8 +91,8 @@ const deleteProduct = () => {
 
 const findIndexById = (id) => {
     let index = -1;
-    for (let i = 0; i < products.value.length; i++) {
-        if (products.value[i].id === id) {
+    for (let i = 0; i < datas.value.length; i++) {
+        if (datas.value[i].id === id) {
             index = i;
             break;
         }
@@ -122,13 +114,13 @@ const exportCSV = () => {
 };
 
 const confirmDeleteSelected = () => {
-    deleteProductsDialog.value = true;
+    deleteDatasDialog.value = true;
 };
-const deleteSelectedProducts = () => {
-    products.value = products.value.filter((val) => !selectedProducts.value.includes(val));
-    deleteProductsDialog.value = false;
-    selectedProducts.value = null;
-    toast.add({ severity: 'success', summary: 'Successful', detail: 'Products Deleted', life: 3000 });
+const deleteSelectedDatas = () => {
+    datas.value = datas.value.filter((val) => !selectedDatas.value.includes(val));
+    deleteDatasDialog.value = false;
+    selectedDatas.value = null;
+    toast.add({ severity: 'success', summary: 'Successful', detail: 'datas Deleted', life: 3000 });
 };
 
 const initFilters = () => {
@@ -136,6 +128,40 @@ const initFilters = () => {
         global: { value: null, matchMode: FilterMatchMode.CONTAINS }
     };
 };
+
+const formatDateTime = (dateTimeString) => {
+    if (!dateTimeString) return '';
+    const options = {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: 'numeric',
+        hour12: true,
+    };
+    const dateTime = new Date(dateTimeString);
+    return dateTime.toLocaleString('id-ID', options);
+};
+
+const getStatusText = (status) => {
+    return status === 'D' ? 'Debit' : (status === 'K' ? 'Kredit' : '');
+};
+
+const getKeteranganText = (keterangan) => {
+    switch (keterangan) {
+        case 1:
+            return 'Setor';
+        case 2:
+            return 'Ambil';
+        case 3:
+            return 'Transfer';
+        case 4:
+            return 'Bayar Telpon';
+        default:
+            return '';
+    }
+};
+
 </script>
 
 <template>
@@ -155,11 +181,11 @@ const initFilters = () => {
                 </Toolbar> -->
 
                 <!-- Tabel data -->
-                <DataTable ref="dt" :value="products" v-model:selection="selectedProducts" dataKey="id" :paginator="true"
+                <DataTable ref="dt" :value="datas" v-model:selection="selectedDatas" dataKey="id" :paginator="true"
                     :rows="10" :filters="filters"
                     paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                     :rowsPerPageOptions="[5, 10, 25]"
-                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
+                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} datas"
                     responsiveLayout="scroll">
                     <template #header>
                         <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
@@ -174,44 +200,44 @@ const initFilters = () => {
                     <!-- <Column selectionMode="multiple" headerStyle="width: 3rem"></Column> -->
                     <Column field="index" header="No" :sortable="false" headerStyle="width:5%; min-width:5rem;">
                         <template #body="slotProps">
-                            <span class="p-column-title">N0</span>
+                            <span class="p-column-title">No</span>
                             {{ slotProps.index + 1 }}
                         </template>
                     </Column>
-                    <Column field="norek" header="Nomor Rekening" :sortable="true" headerStyle="width20%; min-width:10rem;">
+                    <Column field="norek" header="Nomor Rekening" :sortable="false" headerStyle="width20%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Nomor Rekening</span>
                             {{ slotProps.data.norek }}
                         </template>
                     </Column>
-                    <Column field="tanggal" header="Tanggal Transaksi" :sortable="true" headerStyle="width:20%; min-width:10rem;">
+                    <Column field="tanggal" header="Tanggal Transaksi" :sortable="false" headerStyle="width:20%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Tanggal Transaksi</span>
-                            {{ slotProps.data.tanggal }}
+                            {{ formatDateTime(slotProps.data.tanggal) }}
                         </template>
                     </Column>
-                    <Column field="status" header="Status" :sortable="true" headerStyle="width:20%; min-width:10rem;">
+                    <Column field="status" header="Status" :sortable="false" headerStyle="width:20%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Status</span>
-                            {{ slotProps.data.status }}
+                            {{ getStatusText(slotProps.data.status) }}
                         </template>
                     </Column>
-                    <Column field="status_ket" header="Keterangan" :sortable="true" headerStyle="width:20%; min-width:10rem;">
+                    <Column field="status_ket" header="Keterangan" :sortable="false" headerStyle="width:20%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Keterangan</span>
-                            {{ slotProps.data.status_ket }}
+                            {{ getKeteranganText(slotProps.data.status_ket) }}
                         </template>
                     </Column>
-                    <Column field="norek_dituju" header="Rekening Tujuan" :sortable="true" headerStyle="width:20%; min-width:10rem;">
+                    <Column field="norek_dituju" header="Rekening Tujuan" :sortable="false" headerStyle="width:20%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Rekening Tujuan</span>
-                            {{ slotProps.data.norek_dituju }}
+                            {{ slotProps.data.norek_dituju !== null ? slotProps.data.norek_dituju : '-' }}
                         </template>
                     </Column>
-                    <Column field="no_tlp" header="Nomor Telepon" :sortable="true" headerStyle="width:20%; min-width:10rem;">
+                    <Column field="no_tlp" header="Nomor Telepon" :sortable="false" headerStyle="width:20%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Nomor Telepon</span>
-                            {{ slotProps.data.no_tlp }}
+                            {{ slotProps.data.no_tlp !== null ? slotProps.data.no_tlp : '-' }}
                         </template>
                     </Column>
                     <!-- <Column header="Action" headerStyle="width:20%;min-width:10rem;">
@@ -269,14 +295,14 @@ const initFilters = () => {
                     </template>
                 </Dialog>
 
-                <Dialog v-model:visible="deleteProductsDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
+                <Dialog v-model:visible="deleteDatasDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
                     <div class="flex align-items-center justify-content-center">
                         <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-                        <span v-if="product">Are you sure you want to delete the selected products?</span>
+                        <span v-if="product">Are you sure you want to delete the selected datas?</span>
                     </div>
                     <template #footer>
-                        <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteProductsDialog = false" />
-                        <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteSelectedProducts" />
+                        <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteDatasDialog = false" />
+                        <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteSelectedDatas" />
                     </template>
                 </Dialog>
             </div>
