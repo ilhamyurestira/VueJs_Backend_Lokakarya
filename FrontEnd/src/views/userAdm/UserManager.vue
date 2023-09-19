@@ -554,22 +554,6 @@ const initFilters = () => {
                     </template>
                 </Dialog>
 
-                <!-- <Dialog v-model:visible="resetUserPasswordDialog" :style="{ width: '450px' }" header="Create User" :modal="true" class="p-fluid">
-
-                </Dialog> -->
-
-                <!-- <Dialog v-model:visible="createNasabahDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
-                    <div class="flex align-items-center justify-content-center">
-                        <i class="pi pi-question-circle mr-3" style="font-size: 2rem" />
-                        <span v-if="user">Do you also want to create a bank account linked to the user? </span>
-                    </div>
-                    <template #footer>
-                        <Button label="No" icon="pi pi-times" class="p-button-warning p-button-text" @click="" />
-                        <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="" />
-                        but
-                    </template>
-                </Dialog> -->
-
                 <Dialog v-model:visible="deleteUserDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
                     <div class="flex align-items-center justify-content-center">
                         <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
