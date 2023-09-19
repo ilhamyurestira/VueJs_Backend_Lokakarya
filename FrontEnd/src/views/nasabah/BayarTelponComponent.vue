@@ -18,7 +18,7 @@
                 required />
               <span v-if="nomorTelponError" class="p-error">Nomor telpon harus diisi</span>
             </div>
-          </div> &nbsp;&nbsp;
+          </div>
           <Button label="Cek Tagihan" class="custom-button" type="submit" />
         </form>
       </div>

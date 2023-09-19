@@ -53,11 +53,11 @@ export default {
       nomorRekeningPengirim: "",
       nomorRekeningPenerima: "",
       jumlahTransfer: "",
-      accountInfo: {}, // Informasi akun pemilik rekening
+      accountInfo: {},
       nomorRekeningError: false,
       nomorRekeningPenerimaError: false,
       jumlahTransferError: false,
-      showAccountInfo: false, // Tampilkan modal informasi rekening pemilik
+      showAccountInfo: false,
       saldoPengirim: 0,
       showModal: false
     };
@@ -101,14 +101,10 @@ export default {
           `http://localhost:8000/api/v1/nasabah/accountInfo/${this.nomorRekeningPengirim}`
         );
 
-        // Memperbarui accountInfo dengan respons dari server
         this.accountInfo = response.data;
-
-        // Inisialisasi saldoPengirim dengan nilai yang sesuai
         this.saldoPengirim = response.data.saldo;
-
-        // Tampilkan modal informasi rekening pemilik
         this.showAccountInfo = true;
+
       } catch (error) {
         console.error(error);
         Swal.fire({
@@ -123,7 +119,7 @@ export default {
     },
 
     async transfer() {
-      // Validasi input (misalnya: nomor rekening penerima, jumlah transfer)
+
       this.nomorRekeningPenerimaError = !this.nomorRekeningPenerima;
       this.jumlahTransferError = !this.jumlahTransfer;
 
@@ -189,7 +185,6 @@ export default {
           }
         );
 
-        // Tampilkan notifikasi berhasil
         Swal.fire({
           icon: 'success',
           text: 'Transfer berhasil.',
@@ -204,7 +199,6 @@ export default {
           appendTo: 'body'
         });
 
-        // Setelah berhasil, Anda dapat mereset semua input dan menyembunyikan modal
         this.nomorRekeningPengirim = "";
         this.nomorRekeningPenerima = "";
         this.jumlahTransfer = "";
@@ -212,7 +206,6 @@ export default {
         this.showModal = false
       } catch (error) {
         console.error(error);
-        // Tampilkan notifikasi saldo tidak cukup atau kesalahan lainnya
         Swal.fire({
           icon: 'error',
           text: error.response.data,
@@ -248,10 +241,8 @@ export default {
   color: red;
 }
 
-/* Gaya khusus untuk pesan notifikasi */
 .custom-class {
   z-index: 10000;
-  /* Pastikan pesan notifikasi ada di atas modal */
 }
 
 .custom-button {

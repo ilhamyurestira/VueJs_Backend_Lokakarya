@@ -20,6 +20,7 @@
     </div>
   </div>
 
+  <!-- Modal info nasabah -->
   <Dialog v-if="showModal" v-model:visible="showModal" modal header="Informasi Rekening" :style="{ width: '50vw' }">
     <div style="text-align: center; line-height: 1; font-size: 20px; margin-top: 10px;">
       <p>Nomor Rekening : {{ nasabah.norek }}</p>
@@ -47,9 +48,9 @@ export default {
     return {
       norek: "",
       nomorRekeningError: false,
-      jumlahTarik: "", // Jumlah tarik akan diinput setelah informasi saldo ditampilkan
-      showModal: false, // Pastikan ini diatur sebagai false
-      nasabah: {}, // Informasi nasabah
+      jumlahTarik: "",
+      showModal: false,
+      nasabah: {},
     };
   },
   methods: {
@@ -74,7 +75,7 @@ export default {
         );
         this.nasabah = response.data;
         this.nasabah.saldo = parseFloat(this.nasabah.saldo)
-        this.showModal = true; // Perbarui showModal untuk menampilkan modal
+        this.showModal = true;
       } catch (error) {
         console.log(error);
         Swal.fire({
@@ -153,10 +154,10 @@ export default {
           appendTo: 'body'
         });
 
-        // Setelah berhasil, Anda dapat mereset input
         this.norek = "";
         this.jumlahTarik = "";
-        this.showModal = false; // Sembunyikan modal setelah penarikan berhasil
+        this.showModal = false;
+
       } catch (error) {
         console.error(error);
 
@@ -185,7 +186,6 @@ export default {
 <style>
 .custom-class {
   z-index: 10000;
-  /* Pastikan pesan notifikasi ada di atas modal */
 }
 
 .custom-input {
