@@ -1,20 +1,27 @@
 <script setup>
 import { FilterMatchMode } from 'primevue/api';
 import { ref, onMounted, onBeforeMount } from 'vue';
-import ProductService from '@/service/ProductService';
 import { useToast } from 'primevue/usetoast';
+
+const currentPage = ref(1);
+const totalPages = ref(0);
+const totalElements = ref(0);
+const limit = ref(10); // Nilai default limit
+const keyword = ref('');
+
+const showPaginator = ref(false);
 
 import axios from 'axios'; // Import Axios
 
 const toast = useToast();
 
-const products = ref([]);
+const datas = ref([]);
 const apiUrl = 'http://localhost:8000/api/v1/historyBank'; // Replace with your API URL
 const productDialog = ref(false);
 const deleteProductDialog = ref(false);
-const deleteProductsDialog = ref(false);
+const deleteDatasDialog = ref(false);
 const product = ref({});
-const selectedProducts = ref(null);
+const selectedDatas = ref(null);
 const dt = ref(null);
 const filters = ref({});
 const submitted = ref(false);
@@ -23,8 +30,6 @@ const statuses = ref([
     { label: 'LOWSTOCK', value: 'lowstock' },
     { label: 'OUTOFSTOCK', value: 'outofstock' }
 ]);
-
-const productService = new ProductService();
 
 onBeforeMount(() => {
     initFilters();
@@ -38,13 +43,31 @@ const formatCurrency = (value) => {
 };
 
 const fetchData = () => {
-    axios.get(apiUrl)
+    axios
+        .post(apiUrl, {
+            page: currentPage.value,
+            limit: limit.value,
+            keyword: keyword.value
+        })
         .then((response) => {
-            products.value = response.data; // Assuming your API response is an array of products
+            const responseData = response.data;
+            const data = responseData.data;
+            const status = responseData.status;
+            const startIndex = (currentPage.value - 1) * limit.value + 1;
+            const historyBanksData = data.list.map((item, index) => ({
+                ...item,
+                No: startIndex + index,
+            }));
+
+            datas.value = historyBanksData;
+            totalPages.value = data.totalPages;
+            totalElements.value = data.totalElements;
+
+            showPaginator.value = datas.value.length > 0;
         })
         .catch((error) => {
             console.error('Error fetching data:', error);
-            toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to fetch data from the API', life: 3000 });
+            toast.add({ severity: 'error', summary: 'Error', detail: 'Gagal mengambil data dari API', life: 3000 });
         });
 };
 
@@ -64,14 +87,14 @@ const saveProduct = () => {
     if (product.value.name && product.value.name.trim() && product.value.price) {
         if (product.value.id) {
             product.value.inventoryStatus = product.value.inventoryStatus.value ? product.value.inventoryStatus.value : product.value.inventoryStatus;
-            products.value[findIndexById(product.value.id)] = product.value;
+            datas.value[findIndexById(product.value.id)] = product.value;
             toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Updated', life: 3000 });
         } else {
             product.value.id = createId();
             product.value.code = createId();
             product.value.image = 'product-placeholder.svg';
             product.value.inventoryStatus = product.value.inventoryStatus ? product.value.inventoryStatus.value : 'INSTOCK';
-            products.value.push(product.value);
+            datas.value.push(product.value);
             toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Created', life: 3000 });
         }
         productDialog.value = false;
@@ -91,7 +114,7 @@ const confirmDeleteProduct = (editProduct) => {
 };
 
 const deleteProduct = () => {
-    products.value = products.value.filter((val) => val.id !== product.value.id);
+    datas.value = datas.value.filter((val) => val.id !== product.value.id);
     deleteProductDialog.value = false;
     product.value = {};
     toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Deleted', life: 3000 });
@@ -99,8 +122,8 @@ const deleteProduct = () => {
 
 const findIndexById = (id) => {
     let index = -1;
-    for (let i = 0; i < products.value.length; i++) {
-        if (products.value[i].id === id) {
+    for (let i = 0; i < datas.value.length; i++) {
+        if (datas.value[i].id === id) {
             index = i;
             break;
         }
@@ -122,13 +145,13 @@ const exportCSV = () => {
 };
 
 const confirmDeleteSelected = () => {
-    deleteProductsDialog.value = true;
+    deleteDatasDialog.value = true;
 };
-const deleteSelectedProducts = () => {
-    products.value = products.value.filter((val) => !selectedProducts.value.includes(val));
-    deleteProductsDialog.value = false;
-    selectedProducts.value = null;
-    toast.add({ severity: 'success', summary: 'Successful', detail: 'Products Deleted', life: 3000 });
+const deleteSelectedDatas = () => {
+    datas.value = datas.value.filter((val) => !selectedDatas.value.includes(val));
+    deleteDatasDialog.value = false;
+    selectedDatas.value = null;
+    toast.add({ severity: 'success', summary: 'Successful', detail: 'datas Deleted', life: 3000 });
 };
 
 const initFilters = () => {
@@ -136,6 +159,41 @@ const initFilters = () => {
         global: { value: null, matchMode: FilterMatchMode.CONTAINS }
     };
 };
+
+const formatDateTime = (dateTimeString) => {
+    if (!dateTimeString) return '';
+    const options = {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: 'numeric',
+        hour12: true,
+    };
+    const dateTime = new Date(dateTimeString);
+    return dateTime.toLocaleString('id-ID', options);
+};
+
+const getKeteranganText = (keterangan) => {
+    switch (keterangan) {
+        case 1:
+            return 'Setor';
+        case 2:
+            return 'Ambil';
+        case 3:
+            return 'Transfer';
+        case 4:
+            return 'Bayar Telpon';
+        default:
+            return '';
+    }
+};
+
+const handlePageChange = (event) => {
+    currentPage.value = event.page + 1; // Event.page dimulai dari 0, tambahkan 1
+    fetchData(); // Ambil data untuk halaman baru
+};
+
 </script>
 
 <template>
@@ -155,69 +213,69 @@ const initFilters = () => {
                 </Toolbar> -->
 
                 <!-- Tabel data -->
-                <DataTable ref="dt" :value="products" v-model:selection="selectedProducts" dataKey="id" :paginator="true"
-                    :rows="10" :filters="filters"
-                    paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                    :rowsPerPageOptions="[5, 10, 25]"
-                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
-                    responsiveLayout="scroll">
+                <DataTable ref="dt" :value="datas" v-model:selection="selectedDatas" dataKey="id" responsiveLayout="scroll">
                     <template #header>
                         <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-                            <h5 class="m-0">Data Nasabah</h5>
-                            <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <h5 class="m-0">Histori Nasabah</h5>
+                            <!-- <span class="block mt-2 md:mt-0 p-input-icon-left">
                                 <i class="pi pi-search" />
                                 <InputText v-model="filters['global'].value" placeholder="Search..." />
-                            </span>
+                            </span> -->
                         </div>
                     </template>
 
                     <!-- <Column selectionMode="multiple" headerStyle="width: 3rem"></Column> -->
-                    <Column field="index" header="No" :sortable="false" headerStyle="width:5%; min-width:5rem;">
+                    <Column field="No" header="No" :sortable="false" headerStyle="width:5%; min-width:5rem;">
                         <template #body="slotProps">
-                            <span class="p-column-title">N0</span>
-                            {{ slotProps.index + 1 }}
+                            <span class="p-column-title">No</span>
+                            {{ slotProps.data.No }}
                         </template>
                     </Column>
-                    <Column field="nama" header="Nama" :sortable="true" headerStyle="width:20%; min-width:10rem;">
+                    <Column field="nama" header="Nama" :sortable="false" headerStyle="width:20%; min-width:8rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Nama</span>
                             {{ slotProps.data.nama }}
                         </template>
                     </Column>
-                    <Column field="norek" header="Nomor Rekening" :sortable="true" headerStyle="width20%; min-width:10rem;">
+                    <Column field="norek" header="Nomor Rekening" :sortable="false"
+                        headerStyle="width20%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Nomor Rekening</span>
                             {{ slotProps.data.norek }}
                         </template>
                     </Column>
-                    <Column field="tanggal" header="Tanggal Transaksi" :sortable="true" headerStyle="width:20%; min-width:10rem;">
+                    <Column field="tanggal" header="Tanggal Transaksi" :sortable="false"
+                        headerStyle="width:20%; min-width:12rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Tanggal Transaksi</span>
-                            {{ slotProps.data.tanggal }}
+                            {{ formatDateTime(slotProps.data.tanggal) }}
                         </template>
                     </Column>
-                    <Column field="uang" header="Uang" :sortable="true" headerStyle="width:20%; min-width:10rem;">
+                    <Column field="uang" header="Uang" :sortable="false" headerStyle="width:20%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Uang</span>
                             {{ formatCurrency(slotProps.data.uang) }}
                         </template>
                     </Column>
-                    <Column field="status_ket" header="Keterangan" :sortable="true" headerStyle="width:20%; min-width:10rem;">
+                    <Column field="status_ket" header="Keterangan" :sortable="false"
+                        headerStyle="width:20%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Keterangan</span>
-                            {{ slotProps.data.status_ket }}
+                            {{ getKeteranganText(slotProps.data.status_ket) }}
                         </template>
                     </Column>
-                    <Column field="norek_dituju" header="Rekening Tujuan" :sortable="true" headerStyle="width:20%; min-width:10rem;">
+                    <Column field="norek_dituju" header="Rekening Tujuan" :sortable="false"
+                        headerStyle="width:20%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Rekening Tujuan</span>
-                            {{ slotProps.data.norek_dituju }}
+                            {{ slotProps.data.norek_dituju !== null ? slotProps.data.norek_dituju : '-' }}
                         </template>
                     </Column>
-                    <Column field="no_tlp" header="Nomor Telepon" :sortable="true" headerStyle="width:20%; min-width:10rem;">
+                    <Column field="no_tlp" header="Nomor Telepon" :sortable="false"
+                        headerStyle="width:20%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Nomor Telepon</span>
-                            {{ slotProps.data.no_tlp }}
+                            {{ slotProps.data.no_tlp !== null ? slotProps.data.no_tlp : '-' }}
                         </template>
                     </Column>
                     <!-- <Column header="Action" headerStyle="width:20%;min-width:10rem;">
@@ -228,7 +286,17 @@ const initFilters = () => {
                                 @click="confirmDeleteProduct(slotProps.data)" />
                         </template>
                     </Column> -->
+                    <template #empty>
+                        <div class="p-datatable-emptymessage">
+                            Tidak ada hasil yang ditemukan.
+                        </div>
+                    </template>
                 </DataTable>
+                <Paginator :rows="limit" :totalRecords="totalElements" v-if="showPaginator"
+                    :rowsPerPageOptions="[10, 20, 30]"
+                    template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords}" @page="handlePageChange">
+                </Paginator>
 
                 <!-- Dialog untuk tambah dan edit data -->
                 <Dialog v-model:visible="productDialog" :style="{ width: '450px' }" header="Detail Pelanggan" :modal="true"
@@ -275,14 +343,14 @@ const initFilters = () => {
                     </template>
                 </Dialog>
 
-                <Dialog v-model:visible="deleteProductsDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
+                <Dialog v-model:visible="deleteDatasDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
                     <div class="flex align-items-center justify-content-center">
                         <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-                        <span v-if="product">Are you sure you want to delete the selected products?</span>
+                        <span v-if="product">Are you sure you want to delete the selected datas?</span>
                     </div>
                     <template #footer>
-                        <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteProductsDialog = false" />
-                        <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteSelectedProducts" />
+                        <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteDatasDialog = false" />
+                        <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteSelectedDatas" />
                     </template>
                 </Dialog>
             </div>
@@ -290,4 +358,15 @@ const initFilters = () => {
     </div>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+
+.p-datatable .p-datatable-tbody > tr > td {
+    height: 70px;
+}
+.p-datatable-emptymessage {
+    height: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+</style>

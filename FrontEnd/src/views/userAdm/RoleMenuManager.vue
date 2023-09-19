@@ -18,10 +18,11 @@ const apiUrl = 'http://localhost:8000/api/v1/admin/manage/roleMenu';
 const roleUrl = 'http://localhost:8000/api/v1/admin/manage/roles';
 const menuUrl = 'http://localhost:8000/api/v1/admin/manage/menus';
 const adminCheckUrl = `http://localhost:8000/api/v1/admin/manage/users/check`;
-const createRoleDialog = ref(false);
-const editRoleDialog = ref(false);
-const editRoleInformationDialog = ref(false);
-const deleteRoleDialog = ref(false);
+const createNewDialog = ref(false);
+const editConfirmationDialog = ref(false);
+const editSelectedDialog = ref(false);
+const deleteConfirmationDialog = ref(false);
+const deleteMultipleConfirmationDialog = ref(false);
 const roleMenu = ref({});
 const menu = ref({});
 const role = ref({});
@@ -30,7 +31,7 @@ const dt = ref(null);
 const filters = ref({});
 const submitted = ref(false);
 
-const productService = new ProductService();
+// const productService = new ProductService();
 
 onBeforeMount(() => {
     initFilters();
@@ -77,28 +78,29 @@ const fetchMenus = () => {
         });
 };
 
-const openRoleCreationMenu = () => {
+const openCreationMenu = () => {
     roleMenu.value = {};
     passwordConfirmation.value = ref(null);
     submitted.value = false;
-    createRoleDialog.value = true;
+    createNewDialog.value = true;
 };
 
-const hideCreateRoleDialog = () => {
-    createRoleDialog.value = false;
+const hideCreationDialog = () => {
+    createNewDialog.value = false;
     submitted.value = false;
 };
 
-const hideEditRoleDialog = () => {
-    editRoleInformationDialog.value = false;
+const hideEditDialog = () => {
+    editSelectedDialog.value = false;
     submitted.value = false;
 };
 
-const createRole = () => {
+const createItem = () => {
     submitted.value = true;
-    if (roleMenu.value.nama.trim()) {
+    if (roleMenu.value.roleId && roleMenu.value.menuId) {
         const newData = {
-            nama: roleMenu.value.nama,
+            roleId: roleMenu.value.roleId,
+            menuId: roleMenu.value.menuId,
             programName: 'Web API',
             createdBy: 'User Admin'
         };
@@ -111,14 +113,16 @@ const createRole = () => {
                     toast.add({
                         severity: 'success',
                         summary: 'Sukses',
-                        detail: `${data}`
+                        detail: `${data}`,
+                        life: 3000
                     });
-                    hideCreateRoleDialog();
+                    hideCreationDialog();
+                    fetchMainData();
                 } else {
                     toast.add({
                         severity: 'error',
-                        summary: 'Error',
-                        detail: `Role gagal dibuat (errcode: ${response.status})`,
+                        summary: `Error ${response.status}`,
+                        detail: `${response.data}`,
                         life: 3000
                     });
                 }
@@ -126,31 +130,31 @@ const createRole = () => {
             .catch((error) => {
                 toast.add({
                     severity: 'error',
-                    summary: 'Error',
-                    detail: `User gagal dibuat (errcode: ${error.response.status})`,
+                    summary: `Error ${error.response.status}`,
+                    detail: `${error.response.data}`,
                     life: 3000
                 });
             });
-        fetchMainData();
     }
 };
 
-const openEditRoleInformationMenu = (selectedRole) => {
+const openEditDialog = (selectedRole) => {
     roleMenu.value = selectedRole;
-    editRoleInformationDialog.value = true;
+    editSelectedDialog.value = true;
 };
 
-const confirmEditRole = () => {
-    editRoleDialog.value = true;
+const openConfirmEditDialog = () => {
+    editConfirmationDialog.value = true;
     passwordConfirmation.value = null;
 };
 
 const checkAdminPassword = (PasswordCheck) => {
+    editConfirmationDialog.value = false;
     axios
         .post(`${adminCheckUrl}`, PasswordCheck)
         .then((response) => {
             if (response.status === 200) {
-                editRole();
+                editItem();
             }
         })
         .catch((error) => {
@@ -158,27 +162,32 @@ const checkAdminPassword = (PasswordCheck) => {
             if (error.response.status === 401) {
                 toast.add({
                     severity: 'error',
-                    summary: 'Error',
+                    summary: 'Admin Authentication Failed',
                     detail: `Password Admin Salah`,
                     life: 3000
                 });
+                editConfirmationDialog.value = true;
             } else {
                 toast.add({
                     severity: 'error',
-                    summary: 'Error',
-                    detail: `authentication error`,
+                    summary: 'Admin Authentication Failed',
+                    detail: `Authentication error`,
                     life: 3000
                 });
+                editConfirmationDialog.value = true;
             }
         });
 };
 
-const editRole = () => {
+const editItem = () => {
     submitted.value = true;
-    if (roleMenu.value.nama.trim()) {
-        const currentName = roleMenu.value.nama;
+    //isLoading = true;
+    if (roleMenu.value.roleId && roleMenu.value.menuId) {
+        role.value = loadedRoles.value.filter((val) => val.id === roleMenu.value.roleId);
+        const currentName = role.value.nama;
         const newData = {
-            nama: roleMenu.value.nama,
+            roleId: roleMenu.value.roleId,
+            menuId: roleMenu.value.menuId,
             programName: 'Web API',
             updatedBy: 'User Admin'
         };
@@ -192,45 +201,49 @@ const editRole = () => {
                         summary: 'Sukses',
                         detail: `Role: ${currentName} telah berhasil diubah.`
                     });
-                    editRoleDialog.value = false;
-                    hideEditRoleDialog();
+                    editConfirmationDialog.value = false;
+                    editSelectedDialog.value = false;
+                    role.value = {};
+                    roleMenu.value = {};
                 } else {
                     toast.add({
                         severity: 'error',
-                        summary: 'Error',
-                        detail: `Role: ${roleMenu.value.nama} gagal diubah (errcode: ${response.status})`,
+                        summary: `Error ${response.status}`,
+                        detail: `${response.data}`,
                         life: 3000
                     });
+                    editConfirmationDialog.value = true;
                 }
-                check.value.password = null;
             })
             .catch((error) => {
                 toast.add({
                     severity: 'error',
-                    summary: 'Error',
-                    detail: `Role: ${roleMenu.value.nama} gagal dibubah (errcode: ${error.response.status})`,
+                    summary: `Error ${error.response.status}`,
+                    detail: `${Error.response.data}`,
                     life: 3000
                 });
-                check.value.password = null;
+                editConfirmationDialog.value = true;
             });
+        check.value.password = null;
         fetchMainData();
+        //isLoading = false;
     }
 };
 
-const confirmDeleteRole = (selectedRole) => {
+const openDeleteConfirmationDialog = (selectedRole) => {
     roleMenu.value = selectedRole;
-    deleteRoleDialog.value = true;
+    deleteConfirmationDialog.value = true;
 };
 
 const hideDeleteDialog = () => {
-    deleteRoleDialog.value = false;
+    deleteConfirmationDialog.value = false;
     passwordConfirmation.value = null;
 };
 
-const deleteRole = () => {
+const deleteItem = () => {
     //removes the data from the currently loaded data
     loadedData.value = loadedData.value.filter((val) => val.id !== roleMenu.value.id);
-    deleteRoleDialog.value = false;
+    deleteConfirmationDialog.value = false;
     // console.log(`http://localhost:8000/api/v1/admin/manage/users/${users.value.id}`);
     axios
         .delete(`${apiUrl}/${roleMenu.value.id}`)
@@ -265,19 +278,33 @@ const deleteRole = () => {
 //     return id;
 // };
 
-const exportCSV = () => {
-    dt.value.exportCSV();
+// const exportCSV = () => {
+//     dt.value.exportCSV();
+// };
+
+const confirmDeleteSelected = () => {
+    deleteMultipleConfirmationDialog.value = true;
+    passwordConfirmation.value = null;
 };
 
-// const confirmDeleteSelected = () => {
-//     deleteProductsDialog.value = true;
-// };
-// const deleteSelectedProducts = () => {
-//     loadedData.value = loadedData.value.filter((val) => !selectedProducts.value.includes(val));
-//     deleteProductsDialog.value = false;
-//     selectedProducts.value = null;
-//     toast.add({ severity: 'success', summary: 'Successful', detail: 'Products Deleted', life: 3000 });
-// };
+const deleteSelectedProducts = () => {
+    loadedData.value = loadedData.value.filter((val) => !selectedItems.value.includes(val));
+    console.log(selectedItems.value);
+    selectedItems.value.forEach((item) => {
+        axios
+            .delete(`${apiUrl}/${item.id}`)
+            .then((response) => {
+                toast.add({ severity: 'success', summary: 'Successful', detail: `Role ${roleMenu.value.nama} has been deleted successfully`, life: 3000 });
+            })
+            .catch((error) => {
+                console.error(error);
+                toast.add({ severity: 'error', summary: `Error ${error.response.status}`, detail: `${error.response.data}` });
+            });
+    });
+    deleteMultipleConfirmationDialog.value = false;
+    selectedItems.value = null;
+    toast.add({ severity: 'success', summary: 'Successful', detail: 'Products Deleted', life: 3000 });
+};
 
 const initFilters = () => {
     filters.value = {
@@ -294,7 +321,8 @@ const initFilters = () => {
                 <Toolbar class="mb-4">
                     <template v-slot:start>
                         <div class="my-2">
-                            <Button label="Create New Role Menu" icon="pi pi-plus" class="p-button-success mr-2" @click="openRoleCreationMenu" />
+                            <Button label="Create New Role Menu" icon="pi pi-plus" class="p-button-success mr-2" @click="openCreationMenu" />
+                            <Button label="Delete Selected" icon="pi pi-trash" class="p-button-danger" @click="confirmDeleteSelected" :disabled="!selectedItems || !selectedItems.length" />
                         </div>
                     </template>
 
@@ -326,14 +354,14 @@ const initFilters = () => {
                             </span>
                         </div>
                     </template>
-
-                    <Column field="roleName" header="RoleName" :sortable="true" headerStyle="width:40%; min-width:10rem;">
+                    <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
+                    <Column field="roleName" header="RoleName" :sortable="true" headerStyle="width:35%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Role Name</span>
                             {{ slotProps.data.role.nama }}
                         </template>
                     </Column>
-                    <Column field="menuName" header="MenuName" :sortable="true" headerStyle="width:40%; min-width:10rem;">
+                    <Column field="menuName" header="MenuName" :sortable="true" headerStyle="width:35%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Menu Name</span>
                             {{ slotProps.data.menu.nama }}
@@ -342,30 +370,36 @@ const initFilters = () => {
 
                     <Column header="Actions" headerStyle="width:30%; min-width:10rem;">
                         <template #body="slotProps">
-                            <Button icon="pi pi-pencil" class="p-button-secondary mt-2 mr-1 ml-1" label="Edit" @click="openEditRoleInformationMenu(slotProps.data)" />
-                            <Button icon="pi pi-trash" class="p-button-danger mt-2 mr-1 ml-1" label="Delete" @click="confirmDeleteRole(slotProps.data)" />
+                            <Button icon="pi pi-pencil" class="p-button-secondary mt-2 mr-1 ml-1" label="Edit" @click="openEditDialog(slotProps.data)" />
+                            <Button icon="pi pi-trash" class="p-button-danger mt-2 mr-1 ml-1" label="Delete" @click="openDeleteConfirmationDialog(slotProps.data)" />
                         </template>
                     </Column>
                 </DataTable>
 
-                <Dialog v-model:visible="createRoleDialog" :style="{ width: '450px' }" header="Create User" :modal="true" class="p-fluid">
+                <Dialog v-model:visible="createNewDialog" :style="{ width: '450px' }" header="Create User" :modal="true" class="p-fluid">
                     <div class="field">
                         <label for="roleName">Role Name</label>
-                        <InputText id="rolename" v-model.trim="roleMenu.nama" required="true" autofocus :class="{ 'p-invalid': submitted && !roleMenu.nama }" />
-                        <small class="p-invalid" v-if="submitted && !roleMenu.nama">Name for the role is Required.</small>
+                        <Dropdown id="rolename" v-model.trim="roleMenu.roleId" placeholder="Select Role" required="true" optionLabel="nama" optionValue="id" :options="loadedRoles" autofocus :class="{ 'p-invalid': submitted && !roleMenu.roleId }" />
+                        <small class="p-invalid" v-if="submitted && !roleMenu.roleId">Please select a role.</small>
+                    </div>
+                    <div class="field">
+                        <label for="roleName">Menu Name</label>
+                        <Dropdown id="rolename" v-model.trim="roleMenu.menuId" placeholder="Select Menu" required="true" optionLabel="nama" optionValue="id" :options="loadedMenus" autofocus :class="{ 'p-invalid': submitted && !roleMenu.menuId }" />
+                        <small class="p-invalid" v-if="submitted && !roleMenu.menuId">Please select a menu to be assigned.</small>
                     </div>
 
                     <template #footer>
-                        <Button label="Cancel" icon="pi pi-times" class="p-button-danger p-button-text" @click="hideCreateRoleDialog" />
-                        <Button label="Create" icon="pi pi-check" class="p-button-text" @click="createRole" />
+                        <Button label="Cancel" icon="pi pi-times" class="p-button-danger p-button-text" @click="hideCreationDialog" />
+                        <Button label="Create" icon="pi pi-check" class="p-button-text" @click="createItem" />
                     </template>
                 </Dialog>
 
-                <Dialog v-model:visible="editRoleDialog" :style="{ width: '450px', height: '400px' }" header="Confirm" :modal="true">
+                <Dialog v-model:visible="editConfirmationDialog" :style="{ width: '450px', height: '400px' }" header="Confirm" :modal="true">
                     <div class="flex align-items-center justify-content-center">
                         <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
                         <span v-if="roleMenu"
-                            >Are you sure you want to edit <b>{{ roleMenu.nama }}</b> information ? please enter user admin password to confirm
+                            >Are you sure you want to edit the menu settings for role: {{ roleMenu.role.nama }} ? <br />
+                            <small>please enter the <b>user admin</b> password to confirm</small>
                         </span>
                     </div>
                     <div class="flex align-items-center mt-4 justify-content-center">
@@ -376,30 +410,35 @@ const initFilters = () => {
                     </div>
 
                     <template #footer>
-                        <Button label="Cancel" icon="pi pi-times" class="p-button-text" @click="editRoleDialog = false" />
+                        <Button label="Cancel" icon="pi pi-times" class="p-button-text" @click="editConfirmationDialog = false" />
                         <Button label="Confirm" icon="pi pi-check" class="p-button-text" @click="checkAdminPassword(check)" :class="{ 'p-disabled': !check.password }" />
                     </template>
                 </Dialog>
 
-                <Dialog v-model:visible="editRoleInformationDialog" :style="{ width: '450px' }" header="Edit User Information" :modal="true" class="p-fluid">
+                <Dialog v-model:visible="editSelectedDialog" :style="{ width: '450px' }" header="Edit User Information" :modal="true" class="p-fluid">
                     <div class="field">
-                        <label for="nama">Role Name</label>
-                        <InputText id="name" v-model.trim="roleMenu.nama" required="true" autofocus :class="{ 'p-invalid': submitted && !roleMenu.nama }" />
-                        <small class="p-invalid" v-if="submitted && !roleMenu.nama">Nama tidak boleh kosong.</small>
+                        <label for="roleName">Role Name</label>
+                        <Dropdown id="rolename" v-model.trim="roleMenu.roleId" placeholder="Select Role" required="true" optionLabel="nama" optionValue="id" :options="loadedRoles" autofocus :class="{ 'p-invalid': submitted && !roleMenu.roleId }" />
+                        <small class="p-invalid" v-if="submitted && !roleMenu.roleId">Please select a role.</small>
+                    </div>
+                    <div class="field">
+                        <label for="roleName">Menu Name</label>
+                        <Dropdown id="rolename" v-model.trim="roleMenu.menuId" placeholder="Select Menu" required="true" optionLabel="nama" optionValue="id" :options="loadedMenus" autofocus :class="{ 'p-invalid': submitted && !roleMenu.menuId }" />
+                        <small class="p-invalid" v-if="submitted && !roleMenu.menuId">Please select a menu to be assigned.</small>
                     </div>
 
                     <template #footer>
-                        <Button label="Cancel" icon="pi pi-times" class="p-button-danger p-button-text" @click="hideEditRoleDialog" />
-                        <Button label="Edit" icon="pi pi-check" class="p-button-success p-button-text" @click="confirmEditRole" />
+                        <Button label="Cancel" icon="pi pi-times" class="p-button-danger p-button-text" @click="hideEditDialog" />
+                        <Button label="Edit" icon="pi pi-check" class="p-button-success p-button-text" @click="openConfirmEditDialog" />
                     </template>
                 </Dialog>
 
-                <Dialog v-model:visible="deleteRoleDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
+                <Dialog v-model:visible="deleteConfirmationDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
                     <div class="flex align-items-center justify-content-center">
                         <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
                         <span v-if="roleMenu"
                             >Are you sure you want to delete role menu: <b>{{ roleMenu.menu.nama }}</b> for role: <b>{{ roleMenu.role.nama }}</b> ? <br />
-                            <small>Please enter the confirmation text below (lower case only)</small></span
+                            <small>Please enter 'confirm delete role menu' (case sensitive) in the text box below for confirmation.</small></span
                         >
                     </div>
                     <div class="flex align-items-center mt-4 justify-content-center">
@@ -419,7 +458,29 @@ const initFilters = () => {
                     </div>
                     <template #footer>
                         <Button label="No" icon="pi pi-times" class="p-button-text" @click="hideDeleteDialog()" />
-                        <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteRole" :class="{ 'p-disabled': !passwordConfirmation || passwordConfirmation !== 'confirm delete role menu' }" />
+                        <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteItem" :class="{ 'p-disabled': !passwordConfirmation || passwordConfirmation !== 'confirm delete role menu' }" />
+                    </template>
+                </Dialog>
+
+                <Dialog v-model:visible="deleteMultipleConfirmationDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
+                    <div class="flex align-items-center justify-content-center">
+                        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
+                        <span v-if="roleMenu"
+                            >Are you sure you want to delete the selected role menus?<br />
+                            <small>Please enter 'confirm delete'(case sensitive) in the text box below for confirmation.</small></span
+                        >
+                    </div>
+                    <div class="flex align-items-center mt-4 justify-content-center">
+                        <InputText id="confirmation" type="text" v-model="passwordConfirmation" required="true" placeholder="confirm delete" autofocus :class="{ 'p-invalid': !passwordConfirmation || passwordConfirmation !== 'confirm delete' }" />
+                    </div>
+                    <div class="flex align-items-center mt-1 justify-content-center">
+                        <small class="p-invalid" v-if="!passwordConfirmation">please enter the confirmation text</small>
+                        <small class="p-invalid" v-else-if="passwordConfirmation !== 'confirm delete'">invalid confirmation text</small>
+                    </div>
+
+                    <template #footer>
+                        <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteMultipleConfirmationDialog = false" />
+                        <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteSelectedProducts" :class="{ 'p-disabled': !passwordConfirmation || passwordConfirmation !== 'confirm delete' }" />
                     </template>
                 </Dialog>
             </div>

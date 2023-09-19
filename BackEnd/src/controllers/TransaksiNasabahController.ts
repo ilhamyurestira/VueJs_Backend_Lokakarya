@@ -1,23 +1,63 @@
 import { Request, Response } from "express";
 import IController from "./Controller_Interface";
+import { Op } from "sequelize";
 const db = require('../db/models/');
 
 class TransaksiNasabahController implements IController {
 
     async index(req: Request, res: Response): Promise<Response> {
         try {
-            const transaksiNasabahs = await db.transaksi_nasabah.findAll();
+            const { page, pageSize, limit, keyword, sortBy, searchBy } = req.body;
+            const currentPage = page || 1;
+            const pageSizeValue = pageSize || 10;
+            const limitValue = limit || pageSizeValue;
+            const offset = (currentPage - 1) * limitValue;
+            const whereClause: { [key: string]: any } = {};
 
-            if (transaksiNasabahs.length === 0) {
-                return res.status(200).send('Belum ada data.');
+            if (keyword) {
+                if (searchBy === "status") {
+                    whereClause.status = {
+                        [Op.iLike]: `%${keyword}%`
+                    };
+                } else if (searchBy === "status_ket") {
+                    const keywordAsNumber = parseInt(keyword, 10);
+                    if (!isNaN(keywordAsNumber)) {
+                        whereClause.status_ket = keywordAsNumber;
+                    }
+                }
             }
 
-            return res.status(200).json(transaksiNasabahs);
+            const totalCount = await db.transaksi_nasabah.count({ where: whereClause });
+            const totalPages = Math.ceil(totalCount / limitValue);
+            const order = sortBy ? [[sortBy, 'ASC']] : [['id', 'ASC']];
+
+            const transaksiNasabahs = await db.transaksi_nasabah.findAll({
+                where: whereClause,
+                offset,
+                limit: limitValue,
+                order,
+            });
+
+            const responseData = {
+                data: {
+                    list: transaksiNasabahs,
+                    currentPage,
+                    totalPages,
+                    totalElements: totalCount,
+                },
+                status: {
+                    code: "00",
+                    message: "success"
+                }
+            };
+
+            return res.status(200).json(responseData);
         } catch (error) {
             console.error(error);
             return res.status(500).send('Data tidak ditemukan');
         }
     }
+
 
     async show(req: Request, res: Response): Promise<Response> {
         const { id } = req.params;

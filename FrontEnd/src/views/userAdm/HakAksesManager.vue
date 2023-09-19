@@ -376,7 +376,7 @@ const initFilters = () => {
                 <Dialog v-model:visible="editConfirmationDialog" :style="{ width: '450px', height: '400px' }" header="Confirm" :modal="true">
                     <div class="flex align-items-center justify-content-center">
                         <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-                        <span v-if="HakAksesMenu"
+                        <span v-if="hakAkses"
                             >Are you sure you want to edit hak akses for <b>{{ hakAkses.role.nama }}</b> information ? please enter user admin password to confirm
                         </span>
                     </div>
