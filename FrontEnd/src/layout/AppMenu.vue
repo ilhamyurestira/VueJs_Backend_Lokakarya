@@ -44,6 +44,10 @@ const checkAccess = () => {
 
 const model = ref([
     {
+        label: 'Home',
+        items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', to: '/dashboard' }]
+    },
+    {
         label: 'User Admin',
         items: [
             { label: 'User Manager', icon: 'pi pi-fw pi-user-edit', to: { name: 'userManager' } },
@@ -144,6 +148,10 @@ const model = ref([
 <template>
     <ul class="layout-menu">
         <template v-for="(item, i) in model" :key="item">
+            <div v-if="item.label === 'Home'">
+                <app-menu-item v-if="!item.separator" :item="item" :index="i"></app-menu-item>
+                <li v-if="item.separator" class="menu-separator"></li>
+            </div>
             <div v-if="item.label === 'User Admin' && (isUserAdmin || isDeveloper)">
                 <app-menu-item v-if="!item.separator" :item="item" :index="i"></app-menu-item>
                 <li v-if="item.separator" class="menu-separator"></li>
