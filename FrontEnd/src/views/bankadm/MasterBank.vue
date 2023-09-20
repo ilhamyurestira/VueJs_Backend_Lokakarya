@@ -1,6 +1,7 @@
 <script setup>
 import { FilterMatchMode } from 'primevue/api';
 import { ref, onMounted, onBeforeMount } from 'vue';
+import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
 
 import axios from 'axios'; // Import Axios
@@ -15,6 +16,8 @@ const isLoading = ref(true);
 const showPaginator = ref(false);
 
 const toast = useToast();
+const router = useRouter();
+const now = new Date();
 
 const datas = ref([]);
 const apiUrl = 'http://localhost:8000/api/v1/masterBank'; // Replace with your API URL
@@ -28,6 +31,8 @@ const submitted = ref(false);
 
 onBeforeMount(() => {
     initFilters();
+    checkLogin();
+    checkAdminPrevilage();
 });
 // Fetch data from the API on component mount
 onMounted(() => {
@@ -40,20 +45,41 @@ const formatCurrency = (value) => {
 
 const usersList = ref([]);
 
+const checkLogin = () => {
+    const Token = JSON.parse(localStorage.getItem('token'));
+    // console.log(Token);
+    if (!Token) {
+        router.push({ name: 'login' });
+    } else if (Token.expiry < now.getTime()) {
+        alert('token has expired');
+        localStorage.removeItem('userPrevilage');
+        localeStorage.removeItem('token');
+        router.push({ name: 'login' });
+    }
+};
+
+const checkAdminPrevilage = () => {
+    const previlage = JSON.parse(localStorage.getItem('userPrevilage'));
+    // console.log(previlage);
+    if (!previlage) {
+        router.push({ name: 'accessDenied' });
+    } else if (previlage.roleId !== 2 || previlage.roleId !== 8) {
+        router.push({ name: 'accessDenied' });
+    }
+};
+
 const fetchUsers = () => {
     isLoading.value = true;
-    axios
-        .get('http://localhost:8000/api/v1/admin/manage/users')
-        .then((response) => {
-            // Response dari API berisi daftar pengguna
-            const users = response.data; // Asumsikan API mengembalikan array objek pengguna
-            // Assign daftar pengguna ke variabel di dalam data
-            usersList.value = users;
+    axios.get('http://localhost:8000/api/v1/admin/manage/users').then((response) => {
+        // Response dari API berisi daftar pengguna
+        const users = response.data; // Asumsikan API mengembalikan array objek pengguna
+        // Assign daftar pengguna ke variabel di dalam data
+        usersList.value = users;
 
-            setTimeout(() => {
-                isLoading.value = false;
-            }, 1000);
-        })
+        setTimeout(() => {
+            isLoading.value = false;
+        }, 1000);
+    });
     isLoading.value = false;
 };
 
@@ -71,7 +97,7 @@ const fetchData = () => {
             const startIndex = (currentPage.value - 1) * limit.value + 1;
             const masterBanksData = data.list.map((item, index) => ({
                 ...item,
-                No: startIndex + index,
+                No: startIndex + index
             }));
 
             datas.value = masterBanksData;
@@ -110,7 +136,7 @@ const saveRekening = () => {
         // Validasi saldo minimal 100000
         const newData = {
             userId: data.value.userId,
-            saldo: parseInt(data.value.saldo),
+            saldo: parseInt(data.value.saldo)
         };
 
         // Kirim permintaan POST ke BE
@@ -123,7 +149,7 @@ const saveRekening = () => {
                         severity: 'success',
                         summary: 'Sukses',
                         detail: `Rekening atas nama "${data.nama}" berhasil dibuat`,
-                        life: 3000,
+                        life: 3000
                     });
                     fetchData(); // Refresh data
                 } else {
@@ -131,7 +157,7 @@ const saveRekening = () => {
                         severity: 'error',
                         summary: 'Error',
                         detail: `Rekening gagal dibuat`,
-                        life: 3000,
+                        life: 3000
                     });
                 }
             })
@@ -140,7 +166,7 @@ const saveRekening = () => {
                     severity: 'error',
                     summary: 'Error',
                     detail: `Rekening gagal dibuat`,
-                    life: 3000,
+                    life: 3000
                 });
             });
         dataDialog.value = false;
@@ -169,7 +195,7 @@ const deleteRekeningById = (id) => {
                     severity: 'success',
                     summary: 'Success',
                     detail: 'data Deleted',
-                    life: 3000,
+                    life: 3000
                 });
                 fetchData(); // Refresh the data after deletion
             } else {
@@ -178,7 +204,7 @@ const deleteRekeningById = (id) => {
                     severity: 'error',
                     summary: 'Error',
                     detail: 'Failed to delete data',
-                    life: 3000,
+                    life: 3000
                 });
             }
         })
@@ -188,7 +214,7 @@ const deleteRekeningById = (id) => {
                 severity: 'error',
                 summary: 'Error',
                 detail: 'Failed to delete data',
-                life: 3000,
+                life: 3000
             });
         });
 };
@@ -203,9 +229,9 @@ const search = () => {
 };
 
 const clearInput = () => {
-    keyword.value = "";
+    keyword.value = '';
     fetchData();
-}
+};
 
 const initFilters = () => {
     filters.value = {
@@ -221,30 +247,27 @@ const initFilters = () => {
                 <Toast />
                 <!-- Button nambah data baru -->
                 <div v-if="isLoading" class="text-center mt-4">
-                    <i class="pi pi-spin pi-spinner" style="font-size: 2rem;"></i>
+                    <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
                 </div>
 
                 <div v-else>
                     <Toolbar class="mb-4">
                         <template v-slot:start>
                             <div class="my-2">
-                                <Button label="Buat Rekening" icon="pi pi-plus" class="p-button-success mr-2"
-                                    @click="openNew" />
+                                <Button label="Buat Rekening" icon="pi pi-plus" class="p-button-success mr-2" @click="openNew" />
                             </div>
                         </template>
                     </Toolbar>
 
                     <!-- Tabel data -->
-                    <DataTable ref="dt" :value="datas" v-model:selection="selectedDatas" dataKey="id"
-                        @page="handlePageChange" :rowHover="true">
+                    <DataTable ref="dt" :value="datas" v-model:selection="selectedDatas" dataKey="id" @page="handlePageChange" :rowHover="true">
                         <template #header>
                             <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
                                 <h5 class="m-0">Data Nasabah</h5>
                                 <span class="block mt-2 md:mt-0 p-input-icon-left">
                                     <i class="pi pi-search" />
                                     <InputText v-model="keyword" @keydown.enter="search" placeholder="Cari Nama..." />
-                                    <Button icon="pi pi-times" @click="clearInput" severity="secondary" v-if="keyword" text
-                                        class="clear-icon" />
+                                    <Button icon="pi pi-times" @click="clearInput" severity="secondary" v-if="keyword" text class="clear-icon" />
                                 </span>
                             </div>
                         </template>
@@ -262,8 +285,7 @@ const initFilters = () => {
                                 {{ slotProps.data.nama }}
                             </template>
                         </Column>
-                        <Column field="noTlp" header="No Telpon" :sortable="false"
-                            headerStyle="width:20%; min-width:10rem;">
+                        <Column field="noTlp" header="No Telpon" :sortable="false" headerStyle="width:20%; min-width:10rem;">
                             <template #body="slotProps">
                                 <span class="p-column-title">No Telpon</span>
                                 {{ slotProps.data.noTlp }}
@@ -275,8 +297,7 @@ const initFilters = () => {
                                 {{ slotProps.data.alamat }}
                             </template>
                         </Column>
-                        <Column field="norek" header="No Rekening" :sortable="false"
-                            headerStyle="width:20%; min-width:10rem;">
+                        <Column field="norek" header="No Rekening" :sortable="false" headerStyle="width:20%; min-width:10rem;">
                             <template #body="slotProps">
                                 <span class="p-column-title">No Rekening</span>
                                 {{ slotProps.data.norek }}
@@ -292,47 +313,49 @@ const initFilters = () => {
                             <template #body="slotProps">
                                 <!-- <Button icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2"
                                 @click="editdata(slotProps.data)" /> -->
-                                <Button icon="pi pi-trash" class="p-button-rounded p-button-warning mt-2"
-                                    @click="confirmDeleteRekening(slotProps.data)" />
+                                <Button icon="pi pi-trash" class="p-button-rounded p-button-warning mt-2" @click="confirmDeleteRekening(slotProps.data)" />
                             </template>
                         </Column>
 
                         <template #empty>
-                            <div class="p-datatable-emptymessage">
-                                Tidak ada hasil yang ditemukan.
-                            </div>
+                            <div class="p-datatable-emptymessage">Tidak ada hasil yang ditemukan.</div>
                         </template>
                     </DataTable>
                     <div v-if="!isLoading">
-                        <Paginator :rows="limit" :totalRecords="totalElements" v-if="showPaginator"
+                        <Paginator
+                            :rows="limit"
+                            :totalRecords="totalElements"
+                            v-if="showPaginator"
                             :rowsPerPageOptions="[10, 20, 30]"
                             template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
                             currentPageReportTemplate="Showing {first} to {last} of {totalRecords}"
-                            @page="handlePageChange">
+                            @page="handlePageChange"
+                        >
                         </Paginator>
                     </div>
 
                     <!-- Dialog untuk tambah dan edit data -->
-                    <Dialog v-model:visible="dataDialog" :style="{ width: '450px' }" header="Buat Rekening Baru"
-                        :modal="true" class="p-fluid">
+                    <Dialog v-model:visible="dataDialog" :style="{ width: '450px' }" header="Buat Rekening Baru" :modal="true" class="p-fluid">
                         <div class="field">
                             <label for="nama">Nama</label>
-                            <Dropdown v-model="data.userId" optionLabel="nama" optionValue="id" :options="usersList"
-                                placeholder="Pilih User" required="true" autofocus
-                                :class="{ 'p-invalid': submitted && !data.userId }" />
+                            <Dropdown v-model="data.userId" optionLabel="nama" optionValue="id" :options="usersList" placeholder="Pilih User" required="true" autofocus :class="{ 'p-invalid': submitted && !data.userId }" />
                             <small class="p-invalid" v-if="submitted && !data.userId">Nama harus diisi.</small>
                         </div>
                         <div class="field">
                             <label for="saldo">Saldo</label>
-                            <InputNumber v-model="data.saldo" inputId="currency-indonesia" mode="currency" currency="IDR"
-                                locale="id-ID" id="saldo" required="true" autofocus
-                                :class="{ 'p-invalid': submitted && (!data.saldo || data.saldo < 100000 || data.saldo > 999999999) }" />
-                            <small class="p-invalid" v-if="submitted && (!data.saldo || data.saldo < 100000)">Saldo harus
-                                diisi
-                                minimal Rp 100.000.</small>
-                            <small class="p-invalid" v-if="submitted && (data.saldo > 999999999)">Pengisian saldo maksimal
-                                Rp
-                                999.999.999.</small>
+                            <InputNumber
+                                v-model="data.saldo"
+                                inputId="currency-indonesia"
+                                mode="currency"
+                                currency="IDR"
+                                locale="id-ID"
+                                id="saldo"
+                                required="true"
+                                autofocus
+                                :class="{ 'p-invalid': submitted && (!data.saldo || data.saldo < 100000 || data.saldo > 999999999) }"
+                            />
+                            <small class="p-invalid" v-if="submitted && (!data.saldo || data.saldo < 100000)">Saldo harus diisi minimal Rp 100.000.</small>
+                            <small class="p-invalid" v-if="submitted && data.saldo > 999999999">Pengisian saldo maksimal Rp 999.999.999.</small>
                         </div>
                         <template #footer>
                             <Button label="Batal" icon="pi pi-times" class="p-button-text" @click="hideDialog" />
@@ -344,7 +367,10 @@ const initFilters = () => {
                     <Dialog v-model:visible="deleteDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
                         <div class="flex align-items-center justify-content-center">
                             <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-                            <span v-if="data">Are you sure you want to delete <b>{{ data.name }}</b>?</span>
+                            <span v-if="data"
+                                >Are you sure you want to delete <b>{{ data.name }}</b
+                                >?</span
+                            >
                         </div>
                         <template #footer>
                             <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteDialog = false" />
@@ -355,8 +381,10 @@ const initFilters = () => {
                     <Dialog v-model:visible="deleteDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
                         <div class="flex align-items-center justify-content-center">
                             <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-                            <span v-if="data">Apakah kamu yakin menghapus Rekening dengan Nomor Rekening : <b>{{ data.norek
-                            }}</b>?</span>
+                            <span v-if="data"
+                                >Apakah kamu yakin menghapus Rekening dengan Nomor Rekening : <b>{{ data.norek }}</b
+                                >?</span
+                            >
                         </div>
                         <template #footer>
                             <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteDialog = false" />
@@ -377,7 +405,7 @@ button.p-button-secondary.p-button-icon-only.clear-icon {
     transform: translateY(-50%);
 }
 
-.p-datatable .p-datatable-tbody>tr>td {
+.p-datatable .p-datatable-tbody > tr > td {
     height: 70px;
 }
 

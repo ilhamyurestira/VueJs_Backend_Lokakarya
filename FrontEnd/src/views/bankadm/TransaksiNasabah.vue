@@ -1,7 +1,9 @@
 <script setup>
 import { FilterMatchMode } from 'primevue/api';
 import { ref, onMounted, onBeforeMount } from 'vue';
+import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
+import axios from 'axios'; // Import Axios
 
 const currentPage = ref(1);
 const totalPages = ref(0);
@@ -13,9 +15,10 @@ const isLoading = ref(true);
 
 const showPaginator = ref(false);
 
-import axios from 'axios'; // Import Axios
 
 const toast = useToast();
+const router = useRouter();
+const now = new Date();
 
 const datas = ref([]);
 const apiUrl = 'http://localhost:8000/api/v1/transaksiNasabah'; // Replace with your API URL
@@ -30,11 +33,37 @@ const submitted = ref(false);
 
 onBeforeMount(() => {
     initFilters();
+    checkLogin();
+    checkAdminPrevilage();
 });
 // Fetch data from the API on component mount
 onMounted(() => {
     fetchData();
 });
+
+const checkLogin = () => {
+    const Token = JSON.parse(localStorage.getItem('token'));
+    // console.log(Token);
+    if (!Token) {
+        router.push({ name: 'login' });
+    } else if (Token.expiry < now.getTime()) {
+        alert('token has expired');
+        localStorage.removeItem('userPrevilage');
+        localeStorage.removeItem('token');
+        router.push({ name: 'login' });
+    }
+};
+
+const checkAdminPrevilage = () => {
+    const previlage = JSON.parse(localStorage.getItem('userPrevilage'));
+    // console.log(previlage);
+    if (!previlage) {
+        router.push({ name: 'accessDenied' });
+    } else if (previlage.roleId !== 2 || previlage.roleId !== 8) {
+        router.push({ name: 'accessDenied' });
+    }
+};
+
 const formatCurrency = (value) => {
     return value.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' });
 };

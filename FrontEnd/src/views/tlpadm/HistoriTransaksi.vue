@@ -2,10 +2,13 @@
 import { FilterMatchMode } from 'primevue/api';
 import { ref, onMounted, onBeforeMount } from 'vue';
 import ProductService from '@/service/ProductService';
+import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
 import axios from 'axios'; // Import Axios
 
 const toast = useToast();
+const router = useRouter();
+const now = new Date();
 
 const products = ref(null);
 const apiUrl = 'http://localhost:8000/api/v1/historyTransaksiTelpon'; // Replace with your API URL
@@ -27,18 +30,44 @@ const productService = new ProductService();
 
 onBeforeMount(() => {
     initFilters();
+    checkLogin();
+    checkAdminPrevilage();
 });
 onMounted(() => {
     // productService.getProducts().then((data) => (products.value = data));
     fetchData();
 });
 
+const checkLogin = () => {
+    const Token = JSON.parse(localStorage.getItem('token'));
+    // console.log(Token);
+    if (!Token) {
+        router.push({ name: 'login' });
+    } else if (Token.expiry < now.getTime()) {
+        alert('token has expired');
+        localStorage.removeItem('userPrevilage');
+        localeStorage.removeItem('token');
+        router.push({ name: 'login' });
+    }
+};
+
+const checkAdminPrevilage = () => {
+    const previlage = JSON.parse(localStorage.getItem('userPrevilage'));
+    // console.log(previlage);
+    if (!previlage) {
+        router.push({ name: 'accessDenied' });
+    } else if (previlage.roleId !== 3 || previlage.roleId !== 8) {
+        router.push({ name: 'accessDenied' });
+    }
+};
+
 const formatCurrency = (value) => {
     return value.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' });
 };
 
 const fetchData = () => {
-    axios.get(apiUrl)
+    axios
+        .get(apiUrl)
         .then((response) => {
             products.value = response.data; // Assuming your API response is an array of products
         })
@@ -47,7 +76,6 @@ const fetchData = () => {
             toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to fetch data from the API', life: 3000 });
         });
 };
-
 
 const openNew = () => {
     product.value = {};
@@ -147,12 +175,19 @@ const initFilters = () => {
                 <!-- Button nambah data baru -->
 
                 <!-- Tabel data -->
-                <DataTable ref="dt" :value="products" v-model:selection="selectedProducts" dataKey="id" :paginator="true"
-                    :rows="10" :filters="filters"
+                <DataTable
+                    ref="dt"
+                    :value="products"
+                    v-model:selection="selectedProducts"
+                    dataKey="id"
+                    :paginator="true"
+                    :rows="10"
+                    :filters="filters"
                     paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                     :rowsPerPageOptions="[5, 10, 25]"
                     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
-                    responsiveLayout="scroll">
+                    responsiveLayout="scroll"
+                >
                     <template #header>
                         <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
                             <h5 class="m-0">Data History Telpon</h5>
@@ -183,22 +218,19 @@ const initFilters = () => {
                             {{ slotProps.data.nama_pelanggan }}
                         </template>
                     </Column>
-                    <Column field="tanggal" header="Tanggal Bayar" :sortable="true"
-                        headerStyle="width:30%; min-width:10rem;">
+                    <Column field="tanggal" header="Tanggal Bayar" :sortable="true" headerStyle="width:30%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Tanggal Bayar</span>
                             {{ slotProps.data.tanggal_bayar }}
                         </template>
                     </Column>
-                    <Column field="blnTagihan" header="Bulan Tagihan" :sortable="true"
-                        headerStyle="width20%; min-width:10rem;">
+                    <Column field="blnTagihan" header="Bulan Tagihan" :sortable="true" headerStyle="width20%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Bulan Tagihan</span>
                             {{ slotProps.data.bulan_tagihan }}
                         </template>
                     </Column>
-                    <Column field="thnTagihan" header="Tahun Tagihan" :sortable="true"
-                        headerStyle="width20%; min-width:10rem;">
+                    <Column field="thnTagihan" header="Tahun Tagihan" :sortable="true" headerStyle="width20%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Tahun Tagihan</span>
                             {{ slotProps.data.tahun_tagihan }}
@@ -213,26 +245,22 @@ const initFilters = () => {
                 </DataTable>
 
                 <!-- Dialog untuk tambah dan edit data -->
-                <Dialog v-model:visible="productDialog" :style="{ width: '450px' }" header="Detail Pelanggan" :modal="true"
-                    class="p-fluid">
+                <Dialog v-model:visible="productDialog" :style="{ width: '450px' }" header="Detail Pelanggan" :modal="true" class="p-fluid">
                     <!-- <img :src="'demo/images/product/' + product.image" :alt="product.image" v-if="product.image" width="150"
                         class="mt-0 mx-auto mb-5 block shadow-2" /> -->
                     <div class="field">
                         <label for="idPelanggan">ID</label>
-                        <InputText id="idPelanggan" v-model.trim="product.idPelanggan" required="true" autofocus
-                            :class="{ 'p-invalid': submitted && !product.idPelanggan }" />
+                        <InputText id="idPelanggan" v-model.trim="product.idPelanggan" required="true" autofocus :class="{ 'p-invalid': submitted && !product.idPelanggan }" />
                         <small class="p-invalid" v-if="submitted && !product.idPelanggan">ID harus di Isi.</small>
                     </div>
                     <div class="field">
                         <label for="nama">Nama</label>
-                        <InputText id="nama" v-model.trim="product.nama" required="true" autofocus
-                            :class="{ 'p-invalid': submitted && !product.nama }" />
+                        <InputText id="nama" v-model.trim="product.nama" required="true" autofocus :class="{ 'p-invalid': submitted && !product.nama }" />
                         <small class="p-invalid" v-if="submitted && !product.nama">Nama harus di Isi.</small>
                     </div>
                     <div class="field">
                         <label for="noTelp">No Telpon</label>
-                        <InputText id="noTelp" v-model.trim="product.noTelp" required="true" autofocus
-                            :class="{ 'p-invalid': submitted && !product.noTelp }" />
+                        <InputText id="noTelp" v-model.trim="product.noTelp" required="true" autofocus :class="{ 'p-invalid': submitted && !product.noTelp }" />
                         <small class="p-invalid" v-if="submitted && !product.noTelp">No Telpon harus di Isi.</small>
                     </div>
                     <div class="field">
@@ -249,7 +277,10 @@ const initFilters = () => {
                 <Dialog v-model:visible="deleteProductDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
                     <div class="flex align-items-center justify-content-center">
                         <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-                        <span v-if="product">Are you sure you want to delete <b>{{ product.name }}</b>?</span>
+                        <span v-if="product"
+                            >Are you sure you want to delete <b>{{ product.name }}</b
+                            >?</span
+                        >
                     </div>
                     <template #footer>
                         <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteProductDialog = false" />

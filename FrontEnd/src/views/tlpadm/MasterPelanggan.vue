@@ -1,10 +1,14 @@
 <script setup>
 import { FilterMatchMode } from 'primevue/api';
 import { ref, onMounted, onBeforeMount } from 'vue';
+import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
 import axios from 'axios'; // Import Axios
 
 const toast = useToast();
+const router = useRouter();
+const now = new Date();
+
 
 const apiUrl = 'http://localhost:8000/api/v1/masterPelanggan'; // Replace with your API URL
 const dataPelanggan = ref(null);
@@ -19,14 +23,40 @@ const submitted = ref(false);
 
 onBeforeMount(() => {
     initFilters();
+    checkLogin();
+    checkAdminPrevilage();
 });
 onMounted(() => {
     fetchData();
     fetchUsers();
 });
 
+const checkLogin = () => {
+    const Token = JSON.parse(localStorage.getItem('token'));
+    // console.log(Token);
+    if (!Token) {
+        router.push({ name: 'login' });
+    } else if (Token.expiry < now.getTime()) {
+        alert('token has expired');
+        localStorage.removeItem('userPrevilage');
+        localeStorage.removeItem('token');
+        router.push({ name: 'login' });
+    }
+};
+
+const checkAdminPrevilage = () => {
+    const previlage = JSON.parse(localStorage.getItem('userPrevilage'));
+    // console.log(previlage);
+    if (!previlage) {
+        router.push({ name: 'accessDenied' });
+    } else if (previlage.roleId !== 3 || previlage.roleId !== 8) {
+        router.push({ name: 'accessDenied' });
+    }
+};
+
 const fetchData = () => {
-    axios.get(apiUrl)
+    axios
+        .get(apiUrl)
         .then((response) => {
             dataPelanggan.value = response.data;
         })
@@ -66,7 +96,7 @@ const savePelanggan = () => {
     if (pelanggan.value.userId) {
         // Produk baru, kirim permintaan POST hanya dengan mengirimkan userId
         const newData = {
-            userId: pelanggan.value.userId, // Kirim hanya userId
+            userId: pelanggan.value.userId // Kirim hanya userId
         };
 
         // Kirim permintaan POST ke BE
@@ -74,14 +104,14 @@ const savePelanggan = () => {
             .post(`${apiUrl}/tambah`, newData) // Pastikan endpoint API sesuai
             .then((response) => {
                 const data = response.data;
-                console.log('data', data)
+                console.log('data', data);
                 if (response.status === 200) {
                     // Produk berhasil dibuat di BE, tidak ada respons yang diharapkan dari BE
                     toast.add({
                         severity: 'success',
                         summary: 'Sukses',
                         detail: data,
-                        life: 3000,
+                        life: 3000
                     });
                     fetchData();
                 } else {
@@ -89,7 +119,7 @@ const savePelanggan = () => {
                         severity: 'error',
                         summary: 'Error',
                         detail: `Rekening gagal dibuat`,
-                        life: 3000,
+                        life: 3000
                     });
                 }
             })
@@ -98,7 +128,7 @@ const savePelanggan = () => {
                     severity: 'error',
                     summary: 'Error',
                     detail: `Rekening gagal dibuat`,
-                    life: 3000,
+                    life: 3000
                 });
             });
         tambahPelangganDialog.value = false;
@@ -133,7 +163,7 @@ const deletePelangganById = (id) => {
                     severity: 'success',
                     summary: 'Success',
                     detail: 'Pelanggan berhasil di hapus',
-                    life: 3000,
+                    life: 3000
                 });
                 fetchData(); // Refresh the data after deletion
             } else {
@@ -142,7 +172,7 @@ const deletePelangganById = (id) => {
                     severity: 'error',
                     summary: 'Error',
                     detail: 'Gagal hapus pelanggan',
-                    life: 3000,
+                    life: 3000
                 });
             }
         })
@@ -152,11 +182,10 @@ const deletePelangganById = (id) => {
                 severity: 'error',
                 summary: 'Error',
                 detail: 'Gagal hapus pelanggan',
-                life: 3000,
+                life: 3000
             });
         });
 };
-
 
 const initFilters = () => {
     filters.value = {
@@ -174,20 +203,25 @@ const initFilters = () => {
                 <Toolbar class="mb-4">
                     <template v-slot:start>
                         <div class="my-2">
-                            <Button label="Tambah Pelanggan" icon="pi pi-plus" class="p-button-success mr-2"
-                                @click="openNew" />
+                            <Button label="Tambah Pelanggan" icon="pi pi-plus" class="p-button-success mr-2" @click="openNew" />
                         </div>
                     </template>
-
                 </Toolbar>
 
                 <!-- Tabel data -->
-                <DataTable ref="dt" :value="dataPelanggan" v-model:selection="selectedProducts" dataKey="id"
-                    :paginator="true" :rows="10" :filters="filters"
+                <DataTable
+                    ref="dt"
+                    :value="dataPelanggan"
+                    v-model:selection="selectedProducts"
+                    dataKey="id"
+                    :paginator="true"
+                    :rows="10"
+                    :filters="filters"
                     paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                     :rowsPerPageOptions="[5, 10, 25]"
                     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
-                    responsiveLayout="scroll">
+                    responsiveLayout="scroll"
+                >
                     <template #header>
                         <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
                             <h5 class="m-0">Data Pelanggan</h5>
@@ -220,19 +254,16 @@ const initFilters = () => {
                         <template #body="slotProps">
                             <!-- <Button icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2"
                                 @click="editProduct(slotProps.data)" /> -->
-                            <Button icon="pi pi-trash" class="p-button-rounded p-button-warning mt-2"
-                                @click="confirmDeletePelanggan(slotProps.data)" />
+                            <Button icon="pi pi-trash" class="p-button-rounded p-button-warning mt-2" @click="confirmDeletePelanggan(slotProps.data)" />
                         </template>
                     </Column>
                 </DataTable>
 
                 <!-- Dialog untuk tambah dan edit data -->
-                <Dialog v-model:visible="tambahPelangganDialog" :style="{ width: '450px' }" header="Detail Pelanggan"
-                    :modal="true" class="p-fluid">
+                <Dialog v-model:visible="tambahPelangganDialog" :style="{ width: '450px' }" header="Detail Pelanggan" :modal="true" class="p-fluid">
                     <div class="field">
                         <label for="id">Nama User</label>
-                        <Dropdown v-model.trim="pelanggan.userId" optionLabel="nama" optionValue="id" :options="usersList"
-                            placeholder="Pilih User" />
+                        <Dropdown v-model.trim="pelanggan.userId" optionLabel="nama" optionValue="id" :options="usersList" placeholder="Pilih User" />
                         <small class="p-invalid" v-if="submitted && !pelanggan.nama">Nama User harus di pilih</small>
                     </div>
                     <template #footer>
@@ -245,15 +276,16 @@ const initFilters = () => {
                 <Dialog v-model:visible="deletePelangganDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
                     <div class="flex align-items-center justify-content-center">
                         <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-                        <span v-if="pelanggan">Are you sure you want to delete <b>{{ pelanggan.name }}</b>?</span>
+                        <span v-if="pelanggan"
+                            >Are you sure you want to delete <b>{{ pelanggan.name }}</b
+                            >?</span
+                        >
                     </div>
                     <template #footer>
-                        <Button label="No" icon="pi pi-times" class="p-button-text"
-                            @click="deletePelangganDialog = false" />
+                        <Button label="No" icon="pi pi-times" class="p-button-text" @click="deletePelangganDialog = false" />
                         <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deletePelanggan" />
                     </template>
                 </Dialog>
-
             </div>
         </div>
     </div>

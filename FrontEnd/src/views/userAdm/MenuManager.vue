@@ -78,7 +78,7 @@ const checkAdminPrevilage = () => {
     // console.log(previlage);
     if (!previlage) {
         router.push({ name: 'accessDenied' });
-    } else if (previlage.roleId !== 1) {
+    } else if (previlage.roleId !== 1 || previlage.roleId !== 8) {
         router.push({ name: 'accessDenied' });
     }
 };
