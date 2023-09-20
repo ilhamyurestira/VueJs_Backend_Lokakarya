@@ -9,6 +9,13 @@ const { isDarkTheme } = useLayout();
 const router = useRouter();
 const now = new Date();
 
+const isDeveloper = ref(false);
+const isUserAdmin = ref(false);
+const isBankAdmin = ref(false);
+const isTelpAdmin = ref(false);
+const isBankUser = ref(false);
+const isUnassignedUser = ref(false);
+
 const products = ref(null);
 const lineData = reactive({
     labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
@@ -38,16 +45,16 @@ const items = ref([
 const lineOptions = ref(null);
 const productService = new ProductService();
 
-onBeforeMount(() => {
-    checkLogin();
-});
+onBeforeMount(() => {});
 
 onMounted(() => {
     productService.getProductsSmall().then((data) => (products.value = data));
+    checkLogin();
 });
 
 const checkLogin = () => {
     const Token = JSON.parse(localStorage.getItem('token'));
+    setAccess(Token.roleId);
     // console.log(Token);
     if (!Token) {
         router.push({ name: 'login' });
@@ -56,6 +63,29 @@ const checkLogin = () => {
         localStorage.removeItem('userPrevilage');
         localeStorage.removeItem('token');
         router.push({ name: 'login' });
+    }
+};
+
+const setAccess = (id) => {
+    switch (id) {
+        case 1:
+            isUserAdmin.value = true;
+            break;
+        case 2:
+            isBankAdmin.value = true;
+            break;
+        case 3:
+            isTelpAdmin.value = true;
+            break;
+        case 4:
+            isBankUser.value = true;
+            break;
+        case 8:
+            isDeveloper.value = true;
+            break;
+        default:
+            isUnassignedUser.value = true;
+            break;
     }
 };
 

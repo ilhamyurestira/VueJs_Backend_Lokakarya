@@ -66,8 +66,18 @@ class AuthController {
               username,
               user.password
             );
-            return res.status(200).send({
-              token,
+            const hakAkses = await db.hak_akses.findOne({
+              where: { userId: user.id },
+            });
+            console.log(hakAkses);
+            const access = {
+              token: token,
+              roleId: hakAkses.roleId,
+              userId: hakAkses.userId,
+            };
+            console.log(access);
+            return res.status(200).json({
+              access,
             });
           }
           return res.status(401).send('Authentication failed, Wrong Password');

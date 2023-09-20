@@ -9,6 +9,13 @@ const toast = useToast();
 const router = useRouter();
 const now = new Date();
 
+const isDeveloper = ref(false);
+const isUserAdmin = ref(false);
+const isBankAdmin = ref(false);
+const isTelpAdmin = ref(false);
+const isBankUser = ref(false);
+const isUnassignedUser = ref(false);
+
 const apiUrl = 'http://localhost:8000/api/v1/masterPelanggan'; // Replace with your API URL
 const dataPelanggan = ref(null);
 const tambahPelangganDialog = ref(false);
@@ -32,6 +39,7 @@ onMounted(() => {
 
 const checkLogin = () => {
     const Token = JSON.parse(localStorage.getItem('token'));
+    setAccess(Token.roleId);
     // console.log(Token);
     if (!Token) {
         router.push({ name: 'login' });
@@ -41,15 +49,31 @@ const checkLogin = () => {
         localeStorage.removeItem('token');
         router.push({ name: 'login' });
     }
+    if (!isTelpAdmin || !isDeveloper) {
+        router.push({ name: 'accessDenied' });
+    }
 };
 
-const checkAdminPrevilage = () => {
-    const previlage = JSON.parse(localStorage.getItem('userPrevilage'));
-    // console.log(previlage);
-    if (!previlage) {
-        router.push({ name: 'accessDenied' });
-    } else if (previlage.roleId !== 3 || previlage.roleId !== 8) {
-        router.push({ name: 'accessDenied' });
+const setAccess = (id) => {
+    switch (id) {
+        case 1:
+            isUserAdmin.value = true;
+            break;
+        case 2:
+            isBankAdmin.value = true;
+            break;
+        case 3:
+            isTelpAdmin.value = true;
+            break;
+        case 4:
+            isBankUser.value = true;
+            break;
+        case 8:
+            isDeveloper.value = true;
+            break;
+        default:
+            isUnassignedUser.value = true;
+            break;
     }
 };
 

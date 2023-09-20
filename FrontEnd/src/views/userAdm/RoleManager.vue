@@ -11,44 +11,41 @@ const toast = useToast();
 const router = useRouter();
 const now = new Date();
 
+const isDeveloper = ref(false);
+const isUserAdmin = ref(false);
+const isBankAdmin = ref(false);
+const isTelpAdmin = ref(false);
+const isBankUser = ref(false);
+const isUnassignedUser = ref(false);
+
 const loadedData = ref(null);
-// const adminData = ref(null);
 const passwordConfirmation = ref(null);
-const authenticated = ref(false);
 const check = ref({ password: '' });
 const apiUrl = 'http://localhost:8000/api/v1/admin/manage/roles';
-const adminCheckUrl = `http://localhost:8000/api/v1/admin/manage/users/check`;
+// const adminCheckUrl = `http://localhost:8000/api/v1/admin/manage/users/check`;
 const createRoleDialog = ref(false);
 const editRoleDialog = ref(false);
 const editRoleInformationDialog = ref(false);
 const deleteRoleDialog = ref(false);
-// const deleteProductsDialog = ref(false);
 const role = ref({});
 const selectedItems = ref(null);
 const dt = ref(null);
 const filters = ref({});
 const submitted = ref(false);
-// const statuses = ref([
-//     { label: 'INSTOCK', value: 'instock' },
-//     { label: 'LOWSTOCK', value: 'lowstock' },
-//     { label: 'OUTOFSTOCK', value: 'outofstock' }
-// ]);
 
 const productService = new ProductService();
 
 onBeforeMount(() => {
     initFilters();
     checkLogin();
-    // checkAdminPrevilage();
 });
 onMounted(() => {
     fetchData();
-    // getAdminData();
 });
 
 const checkLogin = () => {
     const Token = JSON.parse(localStorage.getItem('token'));
-    // console.log(Token);
+    setAccess(Token.roleId);
     if (!Token) {
         router.push({ name: 'login' });
     } else if (Token.expiry < now.getTime()) {
@@ -57,15 +54,31 @@ const checkLogin = () => {
         localeStorage.removeItem('token');
         router.push({ name: 'login' });
     }
+    if (!isUserAdmin || !isDeveloper) {
+        router.push({ name: 'accessDenied' });
+    }
 };
 
-const checkAdminPrevilage = () => {
-    const previlage = JSON.parse(localStorage.getItem('userPrevilage'));
-    // console.log(previlage);
-    if (!previlage) {
-        router.push({ name: 'accessDenied' });
-    } else if (previlage.roleId !== 1 || previlage.roleId !== 8) {
-        router.push({ name: 'accessDenied' });
+const setAccess = (id) => {
+    switch (id) {
+        case 1:
+            isUserAdmin.value = true;
+            break;
+        case 2:
+            isBankAdmin.value = true;
+            break;
+        case 3:
+            isTelpAdmin.value = true;
+            break;
+        case 4:
+            isBankUser.value = true;
+            break;
+        case 8:
+            isDeveloper.value = true;
+            break;
+        default:
+            isUnassignedUser.value = true;
+            break;
     }
 };
 
@@ -80,18 +93,6 @@ const fetchData = () => {
             toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to fetch data from the API', life: 3000 });
         });
 };
-
-// const getAdminData = () => {
-//     axios
-//         .get(`${apiUrl}/1`)
-//         .then((response) => {
-//             adminData.value = response.data;
-//         })
-//         .catch((error) => {
-//             console.error('Error fetching data:', error);
-//             toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to fetch data from the API', life: 3000 });
-//         });
-// };
 
 const openRoleCreationMenu = () => {
     role.value = {};
@@ -123,7 +124,6 @@ const createRole = () => {
             .then((response) => {
                 const data = response.data;
                 if (response.status === 201) {
-                    // Produk berhasil dibuat di BE, tidak ada respons yang diharapkan dari BE
                     toast.add({
                         severity: 'success',
                         summary: 'Sukses',
@@ -161,35 +161,34 @@ const confirmEditRole = () => {
     passwordConfirmation.value = null;
 };
 
-const checkAdminPassword = (PasswordCheck) => {
-    axios
-        .post(`${adminCheckUrl}`, PasswordCheck)
-        .then((response) => {
-            if (response.status === 200) {
-                editRole();
-            }
-        })
-        .catch((error) => {
-            // console.log(error);
-            if (error.response.status === 401) {
-                toast.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: `Password Admin Salah`,
-                    life: 3000
-                });
-            } else {
-                toast.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: `authentication error`,
-                    life: 3000
-                });
-            }
-        });
-};
+// const checkAdminPassword = (PasswordCheck) => {
+//     axios
+//         .post(`${adminCheckUrl}`, PasswordCheck)
+//         .then((response) => {
+//             if (response.status === 200) {
+//                 editSelected();
+//             }
+//         })
+//         .catch((error) => {
+//             if (error.response.status === 401) {
+//                 toast.add({
+//                     severity: 'error',
+//                     summary: 'Error',
+//                     detail: `Password Admin Salah`,
+//                     life: 3000
+//                 });
+//             } else {
+//                 toast.add({
+//                     severity: 'error',
+//                     summary: 'Error',
+//                     detail: `authentication error`,
+//                     life: 3000
+//                 });
+//             }
+//         });
+// };
 
-const editRole = () => {
+const editSelected = () => {
     submitted.value = true;
     if (role.value.nama.trim()) {
         const currentName = role.value.nama;
@@ -202,7 +201,6 @@ const editRole = () => {
             .put(`${apiUrl}/${role.value.id}`, newData)
             .then((response) => {
                 if (response.status === 200) {
-                    // Produk berhasil diubah di BE, tidak ada respons yang diharapkan dari BE
                     toast.add({
                         severity: 'success',
                         summary: 'Sukses',
@@ -233,7 +231,7 @@ const editRole = () => {
     }
 };
 
-const confirmDeleteRole = (selectedRole) => {
+const confirmDelete = (selectedRole) => {
     role.value = selectedRole;
     deleteRoleDialog.value = true;
 };
@@ -243,11 +241,9 @@ const hideDeleteDialog = () => {
     passwordConfirmation.value = null;
 };
 
-const deleteRole = () => {
-    //removes the data from the currently loaded data
+const deleteItem = () => {
     loadedData.value = loadedData.value.filter((val) => val.id !== role.value.id);
     deleteRoleDialog.value = false;
-    // console.log(`http://localhost:8000/api/v1/admin/manage/users/${users.value.id}`);
     axios
         .delete(`${apiUrl}/${role.value.id}`)
         .then((response) => {
@@ -260,40 +256,6 @@ const deleteRole = () => {
         });
     fetchData();
 };
-
-// const findIndexById = (id) => {
-//     let index = -1;
-//     for (let i = 0; i < loadedData.value.length; i++) {
-//         if (loadedData.value[i].id === id) {
-//             index = i;
-//             break;
-//         }
-//     }
-//     return index;
-// };
-
-// const createId = () => {
-//     let id = '';
-//     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-//     for (let i = 0; i < 5; i++) {
-//         id += chars.charAt(Math.floor(Math.random() * chars.length));
-//     }
-//     return id;
-// };
-
-const exportCSV = () => {
-    dt.value.exportCSV();
-};
-
-// const confirmDeleteSelected = () => {
-//     deleteProductsDialog.value = true;
-// };
-// const deleteSelectedProducts = () => {
-//     loadedData.value = loadedData.value.filter((val) => !selectedProducts.value.includes(val));
-//     deleteProductsDialog.value = false;
-//     selectedProducts.value = null;
-//     toast.add({ severity: 'success', summary: 'Successful', detail: 'Products Deleted', life: 3000 });
-// };
 
 const initFilters = () => {
     filters.value = {
@@ -313,11 +275,6 @@ const initFilters = () => {
                             <Button label="Create New User Role" icon="pi pi-plus" class="p-button-success mr-2" @click="openRoleCreationMenu" />
                         </div>
                     </template>
-
-                    <!-- <template v-slot:end>
-                        <FileUpload mode="basic" accept="image/*" :maxFileSize="1000000" label="Import" chooseLabel="Import" class="mr-2 inline-block" />
-                        <Button label="Export" icon="pi pi-upload" class="p-button-help" @click="exportCSV($event)" />
-                    </template> -->
                 </Toolbar>
 
                 <DataTable
@@ -353,7 +310,7 @@ const initFilters = () => {
                     <Column header="Actions" headerStyle="width:30%; min-width:10rem;">
                         <template #body="slotProps">
                             <Button icon="pi pi-pencil" class="p-button-secondary mt-2 mr-1 ml-1" label="Edit" @click="openEditRoleInformationMenu(slotProps.data)" />
-                            <Button icon="pi pi-trash" class="p-button-danger mt-2 mr-1 ml-1" label="Delete" @click="confirmDeleteRole(slotProps.data)" />
+                            <Button icon="pi pi-trash" class="p-button-danger mt-2 mr-1 ml-1" label="Delete" @click="confirmDelete(slotProps.data)" />
                         </template>
                     </Column>
                 </DataTable>
@@ -375,19 +332,19 @@ const initFilters = () => {
                     <div class="flex align-items-center justify-content-center">
                         <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
                         <span v-if="role"
-                            >Are you sure you want to edit <b>{{ role.nama }}</b> information ? please enter user admin password to confirm
+                            >Are you sure you want to edit <b>{{ role.nama }}</b> information ?
                         </span>
                     </div>
-                    <div class="flex align-items-center mt-4 justify-content-center">
+                    <!-- <div class="flex align-items-center mt-4 justify-content-center">
                         <InputText id="adminPassword" type="password" v-model="check.password" required="true" placeholder="Admin Password" autofocus :class="{ 'p-invalid': !check.password }" />
                     </div>
                     <div class="flex align-items-center mt-1 justify-content-center">
                         <small class="p-invalid" v-if="!check.password">please enter the user admin password</small>
-                    </div>
+                    </div> -->
 
                     <template #footer>
                         <Button label="Cancel" icon="pi pi-times" class="p-button-text" @click="editRoleDialog = false" />
-                        <Button label="Confirm" icon="pi pi-check" class="p-button-text" @click="checkAdminPassword(check)" :class="{ 'p-disabled': !check.password }" />
+                        <Button label="Confirm" icon="pi pi-check" class="p-button-text" @click="editSelected" />
                     </template>
                 </Dialog>
 
@@ -429,7 +386,7 @@ const initFilters = () => {
                     </div> -->
                     <template #footer>
                         <Button label="No" icon="pi pi-times" class="p-button-text" @click="hideDeleteDialog()" />
-                        <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteRole" />
+                        <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteItem" />
                     </template>
                 </Dialog>
             </div>

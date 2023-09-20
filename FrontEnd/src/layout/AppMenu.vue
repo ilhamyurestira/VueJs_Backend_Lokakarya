@@ -17,8 +17,8 @@ onMounted(() => {
 });
 
 const checkAccess = () => {
-    const current = JSON.parse(localStorage.getItem('userPrevilage'));
-
+    const current = JSON.parse(localStorage.getItem('token'));
+    // console.log(current);
     currentAccess.value = current;
     console.log(currentAccess.value);
     switch (currentAccess.value.roleId) {

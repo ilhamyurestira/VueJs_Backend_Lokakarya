@@ -56,20 +56,22 @@ const tryLogin = () => {
                 const resData = response.data;
                 if (response.status === 200) {
                     submitted.value = false;
+                    // console.log(resData);
                     const data = {
-                        token: resData.token,
+                        userId: resData.access.userId,
+                        roleId: resData.access.roleId,
+                        token: resData.access.token,
                         expiry: now.getTime() + 86400000 //24h in miliseconds (1000ms/s * 60s/M * 60M/H * 24H = 86,400,000ms)
                     };
+                    // console.log(data);
                     localStorage.setItem('token', JSON.stringify(data));
-                    getUserRole(userLoginData);
                     router.push({ name: 'dashboard' });
-                } else {
-                    message.value = [{ severity: 'error', detail: 'Login Failed', content: 'Message sent', id: count.value++ }];
                 }
+                message.value = [{ severity: 'error', detail: 'Login Failed', content: 'Invalid username or password', id: count.value++ }];
             })
             .catch((error) => {
                 console.log(error);
-                message.value = [{ severity: 'error', detail: 'Login Failed', content: 'Message sent', id: count.value++ }];
+                message.value = [{ severity: 'error', detail: 'Login Failed', content: 'ERROR', id: count.value++ }];
             });
     }
     if (checked.value === true) {
