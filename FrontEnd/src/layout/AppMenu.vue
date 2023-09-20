@@ -20,7 +20,7 @@ const checkAccess = () => {
     const current = JSON.parse(localStorage.getItem('token'));
     // console.log(current);
     currentAccess.value = current;
-    console.log(currentAccess.value);
+    // console.log(currentAccess.value);
     switch (currentAccess.value.roleId) {
         case 1:
             isUserAdmin.value = true;
@@ -50,11 +50,11 @@ const model = ref([
     {
         label: 'User Admin',
         items: [
-            { label: 'User Manager', icon: 'pi pi-fw pi-user-edit', to: { name: 'userManager' } },
-            { label: 'Role Manager', icon: 'pi pi-fw pi-users', to: { name: 'roleManager' } },
-            { label: 'Menu Manager', icon: 'pi pi-fw pi-align-left', to: { name: 'menuManager' } },
-            { label: 'Manage Hak Akses', icon: 'pi pi-fw pi-wrench', to: { name: 'hakAksesManager' } },
-            { label: 'Manage Role Menus', icon: 'pi pi-fw pi-wrench', to: { name: 'roleMenuManager' } }
+            { label: 'User Manager', icon: 'pi pi-fw pi-user-edit', to: '/userManager' },
+            { label: 'Role Manager', icon: 'pi pi-fw pi-users', to: '/roleManager' },
+            { label: 'Menu Manager', icon: 'pi pi-fw pi-align-left', to: '/menuManager' },
+            { label: 'Manage Hak Akses', icon: 'pi pi-fw pi-wrench', to: '/manageHakAkses' },
+            { label: 'Manage Role Menus', icon: 'pi pi-fw pi-wrench', to: '/manageRoleMenu' }
         ]
     },
     {
@@ -68,19 +68,19 @@ const model = ref([
     {
         label: 'Telpon Admin',
         items: [
-            { label: 'Master Pelanggan', icon: 'pi pi-fw pi-exclamation-circle', to: { name: 'masterPelanggan' } },
-            { label: 'Transaksi Telpon', icon: 'pi pi-fw pi-mobile', to: { name: 'transaksiTelpon' } },
-            { label: 'Histori Transaksi', icon: 'pi pi-fw pi-table', to: { name: 'historiTransaksi' } }
+            { label: 'Master Pelanggan', icon: 'pi pi-fw pi-exclamation-circle', to: '/masterPelanggan' },
+            { label: 'Transaksi Telpon', icon: 'pi pi-fw pi-mobile', to: '/transaksiTelpon' },
+            { label: 'Histori Transaksi', icon: 'pi pi-fw pi-table', to: '/historiTransaksi' }
         ]
     },
     {
         label: 'Nasabah',
         items: [
-            { label: 'Cek Saldo', icon: 'pi pi-wallet', to: { name: 'cekSaldo' } },
-            { label: 'Setor', icon: 'pi pi-dollar', to: { name: 'setor' } },
-            { label: 'Ambil', icon: 'pi pi-money-bill', to: { name: 'tarik' } },
-            { label: 'Transfer', icon: 'pi pi-arrow-right-arrow-left', to: { name: 'transfer' } },
-            { label: 'Bayar Telpon', icon: 'pi pi-mobile', to: { name: 'bayarTelpon' } }
+            { label: 'Cek Saldo', icon: 'pi pi-wallet', to: '/cekSaldo' },
+            { label: 'Setor', icon: 'pi pi-dollar', to: '/setor' },
+            { label: 'Ambil', icon: 'pi pi-money-bill', to: '/tarik' },
+            { label: 'Transfer', icon: 'pi pi-arrow-right-arrow-left', to: '/transfer' },
+            { label: 'Bayar Telpon', icon: 'pi pi-mobile', to: '/bayarTelpon' }
         ]
     },
     {
