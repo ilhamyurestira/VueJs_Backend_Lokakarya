@@ -34,7 +34,7 @@ const editSelectedDialog = ref(false);
 const deleteConfirmationDialog = ref(false);
 const deleteMultipleConfirmationDialog = ref(false);
 const roleMenu = ref({});
-const menu = ref({});
+// const menu = ref({});
 const role = ref({});
 const selectedItems = ref(null);
 const dt = ref(null);
@@ -142,6 +142,7 @@ const hideCreationDialog = () => {
 };
 
 const hideEditDialog = () => {
+    fetchMainData();
     editSelectedDialog.value = false;
     submitted.value = false;
 };
@@ -160,13 +161,13 @@ const createItem = () => {
             .then((response) => {
                 const data = response.data;
                 if (response.status === 201) {
+                    hideCreationDialog();
                     toast.add({
                         severity: 'success',
                         summary: 'Sukses',
                         detail: `${data}`,
                         life: 3000
                     });
-                    hideCreationDialog();
                     fetchMainData();
                 } else {
                     toast.add({
@@ -175,6 +176,7 @@ const createItem = () => {
                         detail: `${response.data}`,
                         life: 3000
                     });
+                    fetchMainData();
                 }
             })
             .catch((error) => {
@@ -184,12 +186,14 @@ const createItem = () => {
                     detail: `${error.response.data}`,
                     life: 3000
                 });
+                fetchMainData();
             });
     }
+    roleMenu.value = {};
 };
 
-const openEditDialog = (selectedRole) => {
-    roleMenu.value = selectedRole;
+const openEditDialog = (selected) => {
+    roleMenu.value = selected;
     editSelectedDialog.value = true;
 };
 
@@ -251,7 +255,6 @@ const editItem = () => {
                     editConfirmationDialog.value = false;
                     editSelectedDialog.value = false;
                     role.value = {};
-                    roleMenu.value = {};
                 } else {
                     toast.add({
                         severity: 'error',

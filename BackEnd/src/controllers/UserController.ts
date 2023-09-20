@@ -138,6 +138,8 @@ class UserController implements IController {
       }
 
       const userName = data.username;
+
+      await db.hak_akses.destroy({ where: { userId: id } });
       await data.destroy();
       return res
         .status(200)

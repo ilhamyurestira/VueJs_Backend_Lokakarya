@@ -26,14 +26,15 @@ const passwordConfirmation = ref(null);
 const check = ref({ password: null });
 const apiUrl = 'http://localhost:8000/api/v1/admin/manage/users';
 const nasabahUrl = `http://localhost:8000/api/v1/masterBank`;
-const pelangganUrl = `http://loaclhost:8000/api/v1/masterPelanggan`;
+const pelangganUrl = `http://localhost:8000/api/v1/masterPelanggan`;
+const hakAksesUrl = `http://localhost:8000/api/v1/admin/manage/hakAkses`;
 // const adminCheckUrl = `http://localhost:8000/api/v1/admin/manage/users/check`;
 const createUserDialog = ref(false);
 const createNasabahQuerry = ref(false);
 const createPelangganQuerry = ref(false);
 const editUserDialog = ref(false);
-const editUserInformationDialog = ref(false);
-const deleteUserDialog = ref(false);
+const editSelectedDialog = ref(false);
+const deleteConfirmationDialog = ref(false);
 // const deleteProductsDialog = ref(false);
 const user = ref({});
 const saldoAwal = ref({ saldo: null });
@@ -120,7 +121,7 @@ const hideCreateUserDialog = () => {
 
 const hideEditUserDialog = () => {
     fetchUserData();
-    editUserInformationDialog.value = false;
+    editSelectedDialog.value = false;
     submitted.value = false;
 };
 
@@ -147,13 +148,15 @@ const createUser = () => {
                     toast.add({
                         severity: 'success',
                         summary: 'Sukses',
-                        detail: `${data}`
+                        detail: `${data}`,
+                        life: 3000
                     });
+                    fetchUserData();
                 } else {
                     toast.add({
                         severity: 'error',
-                        summary: 'Error',
-                        detail: `User gagal dibuat (errcode: ${response.status})`,
+                        summary: `Error ${error.response.status}`,
+                        detail: `User gagal dibuat`,
                         life: 3000
                     });
                 }
@@ -161,14 +164,13 @@ const createUser = () => {
             .catch((error) => {
                 toast.add({
                     severity: 'error',
-                    summary: 'Error',
-                    detail: `User gagal dibuat (errcode: ${error.response.status})`,
+                    summary: `Error ${error.response.status}`,
+                    detail: `User gagal dibuat`,
                     life: 3000
                 });
             });
     }
     user.value = {};
-    fetchUserData();
 };
 
 const getNewId = () => {
@@ -179,6 +181,7 @@ const getNewId = () => {
             newUser.value.id = data.id;
             if (createNasabahQuerry.value === true) {
                 createBankAccount(newUser);
+                setUserRoleAsNasabah(newUser);
             }
             if (createPelangganQuerry.value === true) {
                 registerPelanggan(newUser);
@@ -187,8 +190,8 @@ const getNewId = () => {
         .catch((error) => {
             toast.add({
                 severity: 'error',
-                summary: 'Error',
-                detail: `User gagal dibuat (errcode: ${error.response.status})`,
+                summary: `Error ${error.response.status}`,
+                detail: `User gagal dibuat`,
                 life: 3000
             });
         });
@@ -203,12 +206,12 @@ const createBankAccount = (createdUser) => {
         .post(`${nasabahUrl}/tambah`, newData)
         .then((response) => {
             const data = response.data;
-            console.log(data);
             if (response.status === 200) {
                 toast.add({
                     severity: 'success',
                     summary: 'Sukses',
-                    detail: `Bank Account untuk user: ${data.nama} telah berhasil dibuat.`
+                    detail: `Bank Account untuk user: ${data.nama} telah berhasil dibuat.`,
+                    life: 3000
                 });
             }
             createNasabahQuerry.value = false;
@@ -217,8 +220,39 @@ const createBankAccount = (createdUser) => {
             console.log(error);
             toast.add({
                 severity: 'error',
+                summary: `Error ${error.response.status}`,
+                detail: `Bank Account gagal dibuat`,
+                life: 3000
+            });
+        });
+};
+
+const setUserRoleAsNasabah = (createdUser) => {
+    const newData = {
+        userId: createdUser.value.id,
+        roleId: 4,
+        programName: 'Web API',
+        createdBy: 'User Admin'
+    };
+    axios
+        .post(`${hakAksesUrl}/`, newData)
+        .then((response) => {
+            const data = response.data;
+            if (response.status === 201) {
+                toast.add({
+                    severity: 'success',
+                    summary: 'Sukses',
+                    detail: `user telah diberi hak akses sebagai nasabah`,
+                    life: 3000
+                });
+            }
+        })
+        .catch((error) => {
+            console.error(error);
+            toast.add({
+                severity: 'error',
                 summary: 'Error',
-                detail: `Bank Account gagal dibuat (errcode: ${error.response.status})`,
+                detail: `Gagal memberikan hak akses Nasabah kepada user`,
                 life: 3000
             });
         });
@@ -232,12 +266,11 @@ const registerPelanggan = (createdUser) => {
         .post(`${pelangganUrl}/tambah`, newData)
         .then((response) => {
             const data = response.data;
-            console.log(data);
             if (response.status === 200) {
                 toast.add({
                     severity: 'success',
                     summary: 'Sukses',
-                    detail: `Berhasil mendaftar user: ${user.value.username} sebagai pelanggan telkom`
+                    detail: `${data}`
                 });
             }
             createPelangganQuerry.value = false;
@@ -246,16 +279,16 @@ const registerPelanggan = (createdUser) => {
             console.log(error);
             toast.add({
                 severity: 'error',
-                summary: 'Error',
-                detail: `Gagal mendaftarkan user: ${user.value.username} sebagai pelanggan telkom. (errcode: ${error.response.status})`,
+                summary: `Error ${error.response.status}`,
+                detail: `${error.response.data}`,
                 life: 3000
             });
         });
 };
 
-const openEditUserInformationMenu = (selectedUser) => {
-    user.value = selectedUser;
-    editUserInformationDialog.value = true;
+const openEditUserInformationMenu = (selected) => {
+    user.value = selected;
+    editSelectedDialog.value = true;
 };
 
 const confirmEditUser = () => {
@@ -305,59 +338,63 @@ const editUser = () => {
             .put(`${apiUrl}/${user.value.id}`, newData)
             .then((response) => {
                 if (response.status === 200) {
+                    hideEditUserDialog();
+
                     toast.add({
                         severity: 'success',
                         summary: 'Sukses',
                         detail: `User: ${user.value.username} telah berhasil diubah.`
                     });
                     editUserDialog.value = false;
-                    hideEditUserDialog();
+                    fetchUserData();
                 } else {
                     toast.add({
                         severity: 'error',
-                        summary: 'Error',
-                        detail: `informasi user: ${user.value.username} gagal diubah (errcode: ${response.status})`,
+                        summary: `Error ${error.response.status}`,
+                        detail: `informasi user: ${user.value.username} gagal diubah`,
                         life: 3000
                     });
+                    fetchUserData();
                 }
                 check.value.password = null;
             })
             .catch((error) => {
                 toast.add({
                     severity: 'error',
-                    summary: 'Error',
-                    detail: `User gagal dibubah (errcode: ${error.response.status})`,
+                    summary: `Error ${error.response.status}`,
+                    detail: `User gagal dibubah`,
                     life: 3000
                 });
+                fetchUserData();
+
                 check.value.password = null;
             });
-        fetchUserData();
     }
 };
 
 const confirmDeleteUser = (selectedUser) => {
     passwordConfirmation.value = null;
     user.value = selectedUser;
-    deleteUserDialog.value = true;
+    deleteConfirmationDialog.value = true;
 };
 
 const hideDeleteDialog = () => {
-    deleteUserDialog.value = false;
+    deleteConfirmationDialog.value = false;
     passwordConfirmation.value = null;
 };
 
 const deleteUser = () => {
     loadedUsers.value = loadedUsers.value.filter((val) => val.id !== user.value.id);
-    deleteUserDialog.value = false;
+    deleteConfirmationDialog.value = false;
     axios
         .delete(`${apiUrl}/${user.value.id}`)
         .then((response) => {
-            toast.add({ severity: 'success', summary: 'Successful', detail: `User: ${user.username} has been deleted successfully`, life: 3000 });
+            toast.add({ severity: 'success', summary: 'Successful', detail: `${response.data}`, life: 3000 });
             user.value = {};
         })
         .catch((error) => {
             console.error('Error fetching data:', error);
-            toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete user', life: 3000 });
+            toast.add({ severity: 'error', summary: `Error ${error.response.status}`, detail: 'Failed to delete user', life: 3000 });
         });
     fetchUserData();
 };
@@ -527,7 +564,7 @@ const initFilters = () => {
                     </template>
                 </Dialog>
 
-                <Dialog v-model:visible="editUserInformationDialog" :style="{ width: '450px' }" header="Edit User Information" :modal="true" class="p-fluid">
+                <Dialog v-model:visible="editSelectedDialog" :style="{ width: '450px' }" header="Edit User Information" :modal="true" class="p-fluid">
                     <div class="field">
                         <label for="nama">Nama</label>
                         <InputText id="name" v-model.trim="user.nama" required="true" autofocus :class="{ 'p-invalid': submitted && !user.nama }" />
@@ -554,7 +591,7 @@ const initFilters = () => {
                     </template>
                 </Dialog>
 
-                <Dialog v-model:visible="deleteUserDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
+                <Dialog v-model:visible="deleteConfirmationDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
                     <div class="flex align-items-center justify-content-center">
                         <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
                         <span v-if="user"

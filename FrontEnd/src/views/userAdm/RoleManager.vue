@@ -25,8 +25,8 @@ const apiUrl = 'http://localhost:8000/api/v1/admin/manage/roles';
 // const adminCheckUrl = `http://localhost:8000/api/v1/admin/manage/users/check`;
 const createRoleDialog = ref(false);
 const editRoleDialog = ref(false);
-const editRoleInformationDialog = ref(false);
-const deleteRoleDialog = ref(false);
+const editSelectedDialog = ref(false);
+const deleteConfirmationDialog = ref(false);
 const role = ref({});
 const selectedItems = ref(null);
 const dt = ref(null);
@@ -107,7 +107,8 @@ const hideCreateRoleDialog = () => {
 };
 
 const hideEditRoleDialog = () => {
-    editRoleInformationDialog.value = false;
+    fetchData();
+    editSelectedDialog.value = false;
     submitted.value = false;
 };
 
@@ -124,17 +125,19 @@ const createRole = () => {
             .then((response) => {
                 const data = response.data;
                 if (response.status === 201) {
+                    hideCreateRoleDialog();
                     toast.add({
                         severity: 'success',
                         summary: 'Sukses',
-                        detail: `${data}`
+                        detail: `${data}`,
+                        life: 3000
                     });
-                    hideCreateRoleDialog();
+                    fetchData();
                 } else {
                     toast.add({
                         severity: 'error',
-                        summary: 'Error',
-                        detail: `Role gagal dibuat (errcode: ${response.status})`,
+                        summary: `Error ${response.status}`,
+                        detail: `Role gagal dibuat`,
                         life: 3000
                     });
                 }
@@ -142,18 +145,18 @@ const createRole = () => {
             .catch((error) => {
                 toast.add({
                     severity: 'error',
-                    summary: 'Error',
-                    detail: `User gagal dibuat (errcode: ${error.response.status})`,
+                    summary: `Error ${error.response.status}`,
+                    detail: `Role gagal dibuat`,
                     life: 3000
                 });
             });
-        fetchData();
+        role.value = {};
     }
 };
 
-const openEditRoleInformationMenu = (selectedRole) => {
-    role.value = selectedRole;
-    editRoleInformationDialog.value = true;
+const openEditRoleInformationMenu = (selected) => {
+    role.value = selected;
+    editSelectedDialog.value = true;
 };
 
 const confirmEditRole = () => {
@@ -201,60 +204,65 @@ const editSelected = () => {
             .put(`${apiUrl}/${role.value.id}`, newData)
             .then((response) => {
                 if (response.status === 200) {
+                    hideEditRoleDialog();
                     toast.add({
                         severity: 'success',
                         summary: 'Sukses',
-                        detail: `Role: ${currentName} telah berhasil diubah.`
+                        detail: `Role: ${currentName} telah berhasil diubah.`,
+                        life: 3000
                     });
                     editRoleDialog.value = false;
-                    hideEditRoleDialog();
+                    fetchData();
                 } else {
                     toast.add({
                         severity: 'error',
-                        summary: 'Error',
-                        detail: `Role: ${role.value.nama} gagal diubah (errcode: ${response.status})`,
+                        summary: `Error ${response.status}`,
+                        detail: `Role: ${role.value.nama} gagal diubah`,
                         life: 3000
                     });
+                    fetchData();
                 }
                 check.value.password = null;
             })
             .catch((error) => {
                 toast.add({
                     severity: 'error',
-                    summary: 'Error',
-                    detail: `Role: ${role.value.nama} gagal dibubah (errcode: ${error.response.status})`,
+                    summary: `Error ${response.status}`,
+                    detail: `Role: ${role.value.nama} gagal dibubah`,
                     life: 3000
                 });
+                fetchData();
                 check.value.password = null;
             });
-        fetchData();
     }
 };
 
 const confirmDelete = (selectedRole) => {
     role.value = selectedRole;
-    deleteRoleDialog.value = true;
+    deleteConfirmationDialog.value = true;
 };
 
 const hideDeleteDialog = () => {
-    deleteRoleDialog.value = false;
+    deleteConfirmationDialog.value = false;
     passwordConfirmation.value = null;
 };
 
 const deleteItem = () => {
     loadedData.value = loadedData.value.filter((val) => val.id !== role.value.id);
-    deleteRoleDialog.value = false;
+    deleteConfirmationDialog.value = false;
     axios
         .delete(`${apiUrl}/${role.value.id}`)
         .then((response) => {
-            toast.add({ severity: 'success', summary: 'Successful', detail: `Role ${role.value.nama} has been deleted successfully`, life: 3000 });
+            const data = response.data;
+            toast.add({ severity: 'success', summary: 'Sukses', detail: `${data}`, life: 3000 });
             role.value = {};
+            fetchData();
         })
         .catch((error) => {
             console.error('Error fetching data:', error);
-            toast.add({ severity: 'error', summary: 'Error', detail: `Failed to delete role (errcode: ${error.response.status})`, life: 3000 });
+            toast.add({ severity: 'error', summary: `Error ${error.response.status}`, detail: `${error.response.data}`, life: 3000 });
+            fetchData();
         });
-    fetchData();
 };
 
 const initFilters = () => {
@@ -348,7 +356,7 @@ const initFilters = () => {
                     </template>
                 </Dialog>
 
-                <Dialog v-model:visible="editRoleInformationDialog" :style="{ width: '450px' }" header="Edit User Information" :modal="true" class="p-fluid">
+                <Dialog v-model:visible="editSelectedDialog" :style="{ width: '450px' }" header="Edit User Information" :modal="true" class="p-fluid">
                     <div class="field">
                         <label for="nama">Role Name</label>
                         <InputText id="name" v-model.trim="role.nama" required="true" autofocus :class="{ 'p-invalid': submitted && !role.nama }" />
@@ -361,7 +369,7 @@ const initFilters = () => {
                     </template>
                 </Dialog>
 
-                <Dialog v-model:visible="deleteRoleDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
+                <Dialog v-model:visible="deleteConfirmationDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
                     <div class="flex align-items-center justify-content-center">
                         <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
                         <span v-if="role"

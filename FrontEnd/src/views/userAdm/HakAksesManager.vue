@@ -30,7 +30,7 @@ const userUrl = 'http://localhost:8000/api/v1/admin/manage/users';
 // const adminCheckUrl = `http://localhost:8000/api/v1/admin/manage/users/check`;
 const createNewDialog = ref(false);
 const editConfirmationDialog = ref(false);
-const editSelectedItemDialog = ref(false);
+const editSelectedDialog = ref(false);
 const deleteConfirmationDialog = ref(false);
 const hakAkses = ref({});
 // const role = ref({});
@@ -140,7 +140,8 @@ const hideCreationDialog = () => {
 };
 
 const hideEditDialog = () => {
-    editSelectedItemDialog.value = false;
+    fetchMainData();
+    editSelectedDialog.value = false;
     submitted.value = false;
 };
 
@@ -158,12 +159,13 @@ const createItem = () => {
             .then((response) => {
                 const data = response.data;
                 if (response.status === 201) {
+                    hideCreationDialog();
                     toast.add({
                         severity: 'success',
                         summary: 'Sukses',
-                        detail: `${response.data}`
+                        detail: `${response.data}`,
+                        life: 3000
                     });
-                    hideCreationDialog();
                 } else {
                     toast.add({
                         severity: 'error',
@@ -182,13 +184,14 @@ const createItem = () => {
                     life: 3000
                 });
             });
+        hakAkses.value = {};
         fetchMainData();
     }
 };
 
 const openEditSelectedMenu = (selected) => {
     hakAkses.value = selected;
-    editSelectedItemDialog.value = true;
+    editSelectedDialog.value = true;
 };
 
 const confirmEdit = () => {
@@ -237,20 +240,25 @@ const editSelected = () => {
             .put(`${apiUrl}/${hakAkses.value.id}`, newData)
             .then((response) => {
                 if (response.status === 200) {
+                    hideEditDialog();
+
                     toast.add({
                         severity: 'success',
                         summary: 'Sukses',
-                        detail: `Hak Akses untuk user: ${currentName} telah berhasil diubah.`
+                        detail: `Hak Akses untuk user: ${currentName} telah berhasil diubah.`,
+                        life: 3000
                     });
                     editConfirmationDialog.value = false;
-                    hideEditDialog();
+                    fetchMainData();
                 } else {
                     toast.add({
                         severity: 'error',
-                        summary: 'Error',
-                        detail: `Role: ${hakAkses.value.nama} gagal diubah (errcode: ${response.status})`,
+                        summary: `Error ${response.status}`,
+                        detail: `Role: ${hakAkses.value.nama} gagal diubah`,
                         life: 3000
                     });
+                    fetchMainData();
+
                     // authenticated.value = false;
                 }
                 check.value.password = null;
@@ -258,14 +266,15 @@ const editSelected = () => {
             .catch((error) => {
                 toast.add({
                     severity: 'error',
-                    summary: 'Error',
-                    detail: `Role: ${hakAkses.value.nama} gagal dibubah (errcode: ${error.response.status})`,
+                    summary: `Error ${error.response.status}`,
+                    detail: `Role: ${hakAkses.value.nama} gagal dibubah`,
                     life: 3000
                 });
                 check.value.password = null;
+                fetchMainData();
+
                 // authenticated.value = false;
             });
-        fetchMainData();
     }
 };
 
@@ -286,14 +295,21 @@ const deleteItem = () => {
     axios
         .delete(`${apiUrl}/${hakAkses.value.id}`)
         .then((response) => {
-            toast.add({ severity: 'success', summary: 'Successful', detail: `Hak Akses: ${hakAkses.value.role.nama} has been revoked from the user: ${hakAkses.value.user.username} successfully`, life: 3000 });
+            const data = response.data;
+            toast.add({
+                severity: 'success',
+                summary: 'Successful',
+                detail: `${data}`,
+                life: 3000
+            });
             hakAkses.value = {};
+            fetchMainData();
         })
         .catch((error) => {
             console.error('Error fetching data:', error);
-            toast.add({ severity: 'error', summary: 'Error', detail: `Failed to delete role (errcode: ${error.response.status})`, life: 3000 });
+            toast.add({ severity: 'error', summary: `Error ${error.response.status}`, detail: `Failed to delete role`, life: 3000 });
+            fetchMainData();
         });
-    fetchMainData();
 };
 
 const initFilters = () => {
@@ -398,7 +414,7 @@ const initFilters = () => {
                     </template>
                 </Dialog>
 
-                <Dialog v-model:visible="editSelectedItemDialog" :style="{ width: '450px' }" header="Edit User Information" :modal="true" class="p-fluid">
+                <Dialog v-model:visible="editSelectedDialog" :style="{ width: '450px' }" header="Edit User Information" :modal="true" class="p-fluid">
                     <div class="field">
                         <label for="userName">User</label>
                         <Dropdown id="username" v-model="hakAkses.userId" optionLabel="username" optionValue="id" :options="loadedUsers" required="true" autofocus :class="{ 'p-invalid': submitted && !hakAkses.userId }" />

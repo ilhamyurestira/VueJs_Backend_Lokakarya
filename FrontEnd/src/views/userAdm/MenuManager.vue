@@ -28,7 +28,7 @@ const adminCheckUrl = `http://localhost:8000/api/v1/admin/manage/users/check`;
 const createDialog = ref(false);
 const editConfirmationDialog = ref(false);
 const editDialog = ref(false);
-const deleteDialog = ref(false);
+const deleteConfirmationDialog = ref(false);
 const menu = ref({});
 const selectedItems = ref(null);
 const dt = ref(null);
@@ -122,6 +122,7 @@ const hideCreationDialog = () => {
 };
 
 const hideEditDialog = () => {
+    fetchData();
     editDialog.value = false;
     submitted.value = false;
 };
@@ -139,35 +140,38 @@ const createNew = () => {
             .then((response) => {
                 const data = response.data;
                 if (response.status === 201) {
+                    hideCreationDialog();
                     toast.add({
                         severity: 'success',
                         summary: 'Sukses',
                         detail: `${data}`
                     });
-                    hideCreationDialog();
+                    fetchData();
                 } else {
                     toast.add({
                         severity: 'error',
-                        summary: 'Error',
-                        detail: `Role gagal dibuat (errcode: ${response.status})`,
+                        summary: `Error ${response.status}`,
+                        detail: `${data}`,
                         life: 3000
                     });
+                    fetchData();
                 }
             })
             .catch((error) => {
                 toast.add({
                     severity: 'error',
-                    summary: 'Error',
-                    detail: `User gagal dibuat (errcode: ${error.response.status})`,
+                    summary: `Error ${error.response.status}`,
+                    detail: `Menu gagal dibuat`,
                     life: 3000
                 });
+                fetchData();
             });
-        fetchData();
+        menu.value = {};
     }
 };
 
-const openEditDialog = (selectedMenu) => {
-    menu.value = selectedMenu;
+const openEditDialog = (selected) => {
+    menu.value = selected;
     editDialog.value = true;
 };
 
@@ -176,32 +180,32 @@ const confirmEditDialog = () => {
     passwordConfirmation.value = null;
 };
 
-const checkAdminPassword = (PasswordCheck) => {
-    axios
-        .post(`${adminCheckUrl}`, PasswordCheck)
-        .then((response) => {
-            if (response.status === 200) {
-                editSelected();
-            }
-        })
-        .catch((error) => {
-            if (error.response.status === 401) {
-                toast.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: `Password Admin Salah`,
-                    life: 3000
-                });
-            } else {
-                toast.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: `authentication error`,
-                    life: 3000
-                });
-            }
-        });
-};
+// const checkAdminPassword = (PasswordCheck) => {
+//     axios
+//         .post(`${adminCheckUrl}`, PasswordCheck)
+//         .then((response) => {
+//             if (response.status === 200) {
+//                 editSelected();
+//             }
+//         })
+//         .catch((error) => {
+//             if (error.response.status === 401) {
+//                 toast.add({
+//                     severity: 'error',
+//                     summary: 'Error',
+//                     detail: `Password Admin Salah`,
+//                     life: 3000
+//                 });
+//             } else {
+//                 toast.add({
+//                     severity: 'error',
+//                     summary: 'Error',
+//                     detail: `authentication error`,
+//                     life: 3000
+//                 });
+//             }
+//         });
+// };
 
 const editSelected = () => {
     submitted.value = true;
@@ -226,8 +230,8 @@ const editSelected = () => {
                 } else {
                     toast.add({
                         severity: 'error',
-                        summary: 'Error',
-                        detail: `Menu: ${menu.value.nama} gagal diubah (errcode: ${response.status})`,
+                        summary: `Error ${response.status}`,
+                        detail: `Menu: ${menu.value.nama} gagal diubah`,
                         life: 3000
                     });
                 }
@@ -236,8 +240,8 @@ const editSelected = () => {
             .catch((error) => {
                 toast.add({
                     severity: 'error',
-                    summary: 'Error',
-                    detail: `Menu: ${menu.value.nama} gagal dibubah (errcode: ${error.response.status})`,
+                    summary: `Error ${error.response.status}`,
+                    detail: `Menu: ${menu.value.nama} gagal dibubah`,
                     life: 3000
                 });
                 check.value.password = null;
@@ -248,26 +252,27 @@ const editSelected = () => {
 
 const openConfirmDeleteDialog = (selectedMenu) => {
     menu.value = selectedMenu;
-    deleteDialog.value = true;
+    deleteConfirmationDialog.value = true;
 };
 
 const hideDeleteDialog = () => {
-    deleteDialog.value = false;
+    deleteConfirmationDialog.value = false;
     passwordConfirmation.value = null;
 };
 
 const deleteItem = () => {
     loadedData.value = loadedData.value.filter((val) => val.id !== menu.value.id);
-    deleteDialog.value = false;
+    deleteConfirmationDialog.value = false;
     axios
         .delete(`${apiUrl}/${menu.value.id}`)
         .then((response) => {
-            toast.add({ severity: 'success', summary: 'Successful', detail: `Menu ${menu.value.nama} has been deleted successfully`, life: 3000 });
+            const data = response.data;
+            toast.add({ severity: 'success', summary: 'Successful', detail: `${data}`, life: 3000 });
             menu.value = {};
         })
         .catch((error) => {
             console.error('Error fetching data:', error);
-            toast.add({ severity: 'error', summary: 'Error', detail: `Failed to delete menu (errcode: ${error.response.status})`, life: 3000 });
+            toast.add({ severity: 'error', summary: `Error ${error.response.status}`, detail: `Failed to delete menu`, life: 3000 });
         });
     fetchData();
 };
@@ -406,7 +411,7 @@ const initFilters = () => {
                     </template>
                 </Dialog>
 
-                <Dialog v-model:visible="deleteDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
+                <Dialog v-model:visible="deleteConfirmationDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
                     <div class="flex align-items-center justify-content-center">
                         <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
                         <span v-if="menu"

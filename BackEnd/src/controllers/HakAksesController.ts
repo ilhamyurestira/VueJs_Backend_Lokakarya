@@ -154,9 +154,7 @@ class HakAksesController implements IController {
       const hakAkses = await dm.findOne({ where: { userId: user.id } });
       console.log(hakAkses);
       if (!hakAkses) {
-        return res
-          .status(200)
-          .json({ userId: user.id, roleId: 5 })
+        return res.status(200).json({ userId: user.id, roleId: 7 });
       }
 
       return res.status(200).json(hakAkses);
