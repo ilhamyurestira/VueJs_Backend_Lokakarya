@@ -9,7 +9,7 @@ import axios from 'axios'; // Import Axios
 const currentPage = ref(1);
 const totalPages = ref(0);
 const totalElements = ref(0);
-const limit = ref(5); // Nilai default limit
+const limit = ref(10); // Nilai default limit
 const keyword = ref('');
 const isLoading = ref(true);
 
@@ -94,18 +94,12 @@ const formatCurrency = (value) => {
 const usersList = ref([]);
 
 const fetchUsers = () => {
-    isLoading.value = true;
     axios.get('http://localhost:8000/api/v1/admin/manage/users').then((response) => {
         // Response dari API berisi daftar pengguna
         const users = response.data; // Asumsikan API mengembalikan array objek pengguna
         // Assign daftar pengguna ke variabel di dalam data
         usersList.value = users;
-
-        setTimeout(() => {
-            isLoading.value = false;
-        }, 1000);
     });
-    isLoading.value = false;
 };
 
 const fetchData = () => {
@@ -116,6 +110,7 @@ const fetchData = () => {
             keyword: keyword.value
         })
         .then((response) => {
+            isLoading.value = false;
             const responseData = response.data;
             const data = responseData.data;
             const status = responseData.status;
@@ -279,20 +274,23 @@ const initFilters = () => {
                     <Toolbar class="mb-4">
                         <template v-slot:start>
                             <div class="my-2">
-                                <Button label="Buat Rekening" icon="pi pi-plus" class="p-button-success mr-2" @click="openNew" />
+                                <Button label="Buat Rekening" icon="pi pi-plus" class="p-button-success mr-2"
+                                    @click="openNew" />
                             </div>
                         </template>
                     </Toolbar>
 
                     <!-- Tabel data -->
-                    <DataTable ref="dt" :value="datas" v-model:selection="selectedDatas" dataKey="id" @page="handlePageChange" :rowHover="true">
+                    <DataTable ref="dt" :value="datas" v-model:selection="selectedDatas" dataKey="id"
+                        @page="handlePageChange" :rowHover="true">
                         <template #header>
                             <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
                                 <h5 class="m-0">Data Nasabah</h5>
                                 <span class="block mt-2 md:mt-0 p-input-icon-left">
                                     <i class="pi pi-search" />
                                     <InputText v-model="keyword" @keydown.enter="search" placeholder="Cari Nama..." />
-                                    <Button icon="pi pi-times" @click="clearInput" severity="secondary" v-if="keyword" text class="clear-icon" />
+                                    <Button icon="pi pi-times" @click="clearInput" severity="secondary" v-if="keyword" text
+                                        class="clear-icon" />
                                 </span>
                             </div>
                         </template>
@@ -304,13 +302,15 @@ const initFilters = () => {
                                 {{ slotProps.data.No }}
                             </template>
                         </Column>
-                        <Column field="nama" header="Nama" :sortable="false" headerStyle="width20%; min-width:10rem;">
+                        <Column field="nama" header="Nama" :sortable="false" headerStyle="width20%; min-width:10rem;"
+                            bodyStyle="height: 70px;">
                             <template #body="slotProps">
                                 <span class="p-column-title">Nama</span>
                                 {{ slotProps.data.nama }}
                             </template>
                         </Column>
-                        <Column field="noTlp" header="No Telpon" :sortable="false" headerStyle="width:20%; min-width:10rem;">
+                        <Column field="noTlp" header="No Telpon" :sortable="false"
+                            headerStyle="width:20%; min-width:10rem;">
                             <template #body="slotProps">
                                 <span class="p-column-title">No Telpon</span>
                                 {{ slotProps.data.noTlp }}
@@ -322,7 +322,8 @@ const initFilters = () => {
                                 {{ slotProps.data.alamat }}
                             </template>
                         </Column>
-                        <Column field="norek" header="No Rekening" :sortable="false" headerStyle="width:20%; min-width:10rem;">
+                        <Column field="norek" header="No Rekening" :sortable="false"
+                            headerStyle="width:20%; min-width:10rem;">
                             <template #body="slotProps">
                                 <span class="p-column-title">No Rekening</span>
                                 {{ slotProps.data.norek }}
@@ -338,7 +339,8 @@ const initFilters = () => {
                             <template #body="slotProps">
                                 <!-- <Button icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2"
                                 @click="editdata(slotProps.data)" /> -->
-                                <Button icon="pi pi-trash" class="p-button-rounded p-button-warning mt-2" @click="confirmDeleteRekening(slotProps.data)" />
+                                <Button icon="pi pi-trash" class="p-button-rounded p-button-warning mt-2"
+                                    @click="confirmDeleteRekening(slotProps.data)" />
                             </template>
                         </Column>
 
@@ -346,41 +348,31 @@ const initFilters = () => {
                             <div class="p-datatable-emptymessage">Tidak ada hasil yang ditemukan.</div>
                         </template>
                     </DataTable>
-                    <div v-if="!isLoading">
-                        <Paginator
-                            :rows="limit"
-                            :totalRecords="totalElements"
-                            v-if="showPaginator"
-                            :rowsPerPageOptions="[10, 20, 30]"
-                            template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
-                            currentPageReportTemplate="Showing {first} to {last} of {totalRecords}"
-                            @page="handlePageChange"
-                        >
-                        </Paginator>
-                    </div>
+                    <Paginator :rows="limit" :totalRecords="totalElements" v-if="showPaginator"
+                        :rowsPerPageOptions="[10, 20, 30]"
+                        template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords}" @page="handlePageChange">
+                    </Paginator>
 
                     <!-- Dialog untuk tambah dan edit data -->
-                    <Dialog v-model:visible="dataDialog" :style="{ width: '450px' }" header="Buat Rekening Baru" :modal="true" class="p-fluid">
+                    <Dialog v-model:visible="dataDialog" :style="{ width: '450px' }" header="Buat Rekening Baru"
+                        :modal="true" class="p-fluid">
                         <div class="field">
                             <label for="nama">Nama</label>
-                            <Dropdown v-model="data.userId" optionLabel="nama" optionValue="id" :options="usersList" placeholder="Pilih User" required="true" autofocus :class="{ 'p-invalid': submitted && !data.userId }" />
+                            <Dropdown v-model="data.userId" optionLabel="nama" optionValue="id" :options="usersList"
+                                placeholder="Pilih User" required="true" autofocus
+                                :class="{ 'p-invalid': submitted && !data.userId }" />
                             <small class="p-invalid" v-if="submitted && !data.userId">Nama harus diisi.</small>
                         </div>
                         <div class="field">
                             <label for="saldo">Saldo</label>
-                            <InputNumber
-                                v-model="data.saldo"
-                                inputId="currency-indonesia"
-                                mode="currency"
-                                currency="IDR"
-                                locale="id-ID"
-                                id="saldo"
-                                required="true"
-                                autofocus
-                                :class="{ 'p-invalid': submitted && (!data.saldo || data.saldo < 100000 || data.saldo > 999999999) }"
-                            />
-                            <small class="p-invalid" v-if="submitted && (!data.saldo || data.saldo < 100000)">Saldo harus diisi minimal Rp 100.000.</small>
-                            <small class="p-invalid" v-if="submitted && data.saldo > 999999999">Pengisian saldo maksimal Rp 999.999.999.</small>
+                            <InputNumber v-model="data.saldo" inputId="currency-indonesia" mode="currency" currency="IDR"
+                                locale="id-ID" id="saldo" required="true" autofocus
+                                :class="{ 'p-invalid': submitted && (!data.saldo || data.saldo < 100000 || data.saldo > 999999999) }" />
+                            <small class="p-invalid" v-if="submitted && (!data.saldo || data.saldo < 100000)">Saldo harus
+                                diisi minimal Rp 100.000.</small>
+                            <small class="p-invalid" v-if="submitted && data.saldo > 999999999">Pengisian saldo maksimal Rp
+                                999.999.999.</small>
                         </div>
                         <template #footer>
                             <Button label="Batal" icon="pi pi-times" class="p-button-text" @click="hideDialog" />
@@ -392,10 +384,7 @@ const initFilters = () => {
                     <Dialog v-model:visible="deleteDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
                         <div class="flex align-items-center justify-content-center">
                             <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-                            <span v-if="data"
-                                >Are you sure you want to delete <b>{{ data.name }}</b
-                                >?</span
-                            >
+                            <span v-if="data">Are you sure you want to delete <b>{{ data.name }}</b>?</span>
                         </div>
                         <template #footer>
                             <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteDialog = false" />
@@ -406,10 +395,8 @@ const initFilters = () => {
                     <Dialog v-model:visible="deleteDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
                         <div class="flex align-items-center justify-content-center">
                             <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-                            <span v-if="data"
-                                >Apakah kamu yakin menghapus Rekening dengan Nomor Rekening : <b>{{ data.norek }}</b
-                                >?</span
-                            >
+                            <span v-if="data">Apakah kamu yakin menghapus Rekening dengan Nomor Rekening : <b>{{ data.norek
+                            }}</b>?</span>
                         </div>
                         <template #footer>
                             <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteDialog = false" />
@@ -428,10 +415,6 @@ button.p-button-secondary.p-button-icon-only.clear-icon {
     right: 0px;
     top: 50%;
     transform: translateY(-50%);
-}
-
-.p-datatable .p-datatable-tbody > tr > td {
-    height: 70px;
 }
 
 .p-datatable-emptymessage {

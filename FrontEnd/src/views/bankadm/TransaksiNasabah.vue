@@ -92,7 +92,6 @@ const formatCurrency = (value) => {
 };
 
 const fetchData = () => {
-    isLoading.value = true;
 
     // let searchValue = keyword.value;
     // let selectedSearchBy = 'status';
@@ -125,6 +124,8 @@ const fetchData = () => {
             // searchBy: selectedSearchBy,
         })
         .then((response) => {
+
+            isLoading.value = false;
             const responseData = response.data;
             const data = responseData.data;
             const status = responseData.status;
@@ -139,13 +140,10 @@ const fetchData = () => {
             totalElements.value = data.totalElements;
 
             showPaginator.value = datas.value.length > 0;
-
-            isLoading.value = false;
         })
         .catch((error) => {
             console.error('Error fetching data:', error);
             toast.add({ severity: 'error', summary: 'Error', detail: 'Gagal mengambil data dari API', life: 3000 });
-            isLoading.value = false;
         });
 };
 
@@ -307,65 +305,72 @@ const clearInput = () => {
                     <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
                 </div>
 
-                <!-- Tabel data -->
-                <DataTable ref="dt" :value="datas" v-model:selection="selectedDatas" dataKey="id" responsiveLayout="scroll" :rowHover="true" v-else>
-                    <template #header>
-                        <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-                            <h5 class="m-0">Transaksi Nasabah</h5>
-                            <!-- <span class="block mt-2 md:mt-0 p-input-icon-left">
+                <div v-else>
+                    <!-- Tabel data -->
+                    <DataTable ref="dt" :value="datas" v-model:selection="selectedDatas" dataKey="id"
+                        responsiveLayout="scroll" :rowHover="true">
+                        <template #header>
+                            <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                                <h5 class="m-0">Transaksi Nasabah</h5>
+                                <!-- <span class="block mt-2 md:mt-0 p-input-icon-left">
                                 <i class="pi pi-search" />
                                 <InputText v-model="keyword" @keydown.enter="search"
                                     placeholder="Cari status, keterangan..." />
                                 <Button icon="pi pi-times" @click="clearInput" severity="secondary" v-if="keyword" text
                                     class="clear-icon" />
                             </span> -->
-                        </div>
-                    </template>
+                            </div>
+                        </template>
 
-                    <!-- <Column selectionMode="multiple" headerStyle="width: 3rem"></Column> -->
-                    <Column field="No" header="No" :sortable="false" headerStyle="width:5%; min-width:5rem;">
-                        <template #body="slotProps">
-                            <span class="p-column-title">No</span>
-                            {{ slotProps.data.No }}
-                        </template>
-                    </Column>
-                    <Column field="norek" header="Nomor Rekening" :sortable="false" headerStyle="width20%; min-width:10rem;">
-                        <template #body="slotProps">
-                            <span class="p-column-title">Nomor Rekening</span>
-                            {{ slotProps.data.norek }}
-                        </template>
-                    </Column>
-                    <Column field="tanggal" header="Tanggal Transaksi" :sortable="false" headerStyle="width:20%; min-width:10rem;">
-                        <template #body="slotProps">
-                            <span class="p-column-title">Tanggal Transaksi</span>
-                            {{ formatDateTime(slotProps.data.tanggal) }}
-                        </template>
-                    </Column>
-                    <Column field="status" header="Status" :sortable="false" headerStyle="width:20%; min-width:10rem;">
-                        <template #body="slotProps">
-                            <span class="p-column-title">Status</span>
-                            {{ getStatusText(slotProps.data.status) }}
-                        </template>
-                    </Column>
-                    <Column field="status_ket" header="Keterangan" :sortable="false" headerStyle="width:20%; min-width:10rem;">
-                        <template #body="slotProps">
-                            <span class="p-column-title">Keterangan</span>
-                            {{ getKeteranganText(slotProps.data.status_ket) }}
-                        </template>
-                    </Column>
-                    <Column field="norek_dituju" header="Rekening Tujuan" :sortable="false" headerStyle="width:20%; min-width:10rem;">
-                        <template #body="slotProps">
-                            <span class="p-column-title">Rekening Tujuan</span>
-                            {{ slotProps.data.norek_dituju !== null ? slotProps.data.norek_dituju : '-' }}
-                        </template>
-                    </Column>
-                    <Column field="no_tlp" header="Nomor Telepon" :sortable="false" headerStyle="width:20%; min-width:10rem;">
-                        <template #body="slotProps">
-                            <span class="p-column-title">Nomor Telepon</span>
-                            {{ slotProps.data.no_tlp !== null ? slotProps.data.no_tlp : '-' }}
-                        </template>
-                    </Column>
-                    <!-- <Column header="Action" headerStyle="width:20%;min-width:10rem;">
+                        <!-- <Column selectionMode="multiple" headerStyle="width: 3rem"></Column> -->
+                        <Column field="No" header="No" :sortable="false" headerStyle="width:5%; min-width:5rem;">
+                            <template #body="slotProps">
+                                <span class="p-column-title">No</span>
+                                {{ slotProps.data.No }}
+                            </template>
+                        </Column>
+                        <Column field="norek" header="Nomor Rekening" :sortable="false"
+                            headerStyle="width20%; min-width:10rem;" bodyStyle="height: 70px;">
+                            <template #body="slotProps">
+                                <span class="p-column-title">Nomor Rekening</span>
+                                {{ slotProps.data.norek }}
+                            </template>
+                        </Column>
+                        <Column field="tanggal" header="Tanggal Transaksi" :sortable="false"
+                            headerStyle="width:20%; min-width:10rem;">
+                            <template #body="slotProps">
+                                <span class="p-column-title">Tanggal Transaksi</span>
+                                {{ formatDateTime(slotProps.data.tanggal) }}
+                            </template>
+                        </Column>
+                        <Column field="status" header="Status" :sortable="false" headerStyle="width:20%; min-width:10rem;">
+                            <template #body="slotProps">
+                                <span class="p-column-title">Status</span>
+                                {{ getStatusText(slotProps.data.status) }}
+                            </template>
+                        </Column>
+                        <Column field="status_ket" header="Keterangan" :sortable="false"
+                            headerStyle="width:20%; min-width:10rem;">
+                            <template #body="slotProps">
+                                <span class="p-column-title">Keterangan</span>
+                                {{ getKeteranganText(slotProps.data.status_ket) }}
+                            </template>
+                        </Column>
+                        <Column field="norek_dituju" header="Rekening Tujuan" :sortable="false"
+                            headerStyle="width:20%; min-width:10rem;">
+                            <template #body="slotProps">
+                                <span class="p-column-title">Rekening Tujuan</span>
+                                {{ slotProps.data.norek_dituju !== null ? slotProps.data.norek_dituju : '-' }}
+                            </template>
+                        </Column>
+                        <Column field="no_tlp" header="Nomor Telepon" :sortable="false"
+                            headerStyle="width:20%; min-width:10rem;">
+                            <template #body="slotProps">
+                                <span class="p-column-title">Nomor Telepon</span>
+                                {{ slotProps.data.no_tlp !== null ? slotProps.data.no_tlp : '-' }}
+                            </template>
+                        </Column>
+                        <!-- <Column header="Action" headerStyle="width:20%;min-width:10rem;">
                         <template #body="slotProps">
                             <Button icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2"
                                 @click="editProduct(slotProps.data)" />
@@ -373,87 +378,81 @@ const clearInput = () => {
                                 @click="confirmDeleteProduct(slotProps.data)" />
                         </template>
                     </Column> -->
-                    <template #empty>
-                        <div class="p-datatable-emptymessage">Tidak ada hasil yang ditemukan.</div>
-                    </template>
-                </DataTable>
-                <div v-if="!isLoading">
-                    <Paginator
-                        :rows="limit"
-                        :totalRecords="totalElements"
-                        v-if="showPaginator"
+                        <template #empty>
+                            <div class="p-datatable-emptymessage">Tidak ada hasil yang ditemukan.</div>
+                        </template>
+                    </DataTable>
+                    <Paginator :rows="limit" :totalRecords="totalElements" v-if="showPaginator"
                         :rowsPerPageOptions="[10, 20, 30]"
                         template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
-                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords}"
-                        @page="handlePageChange"
-                    >
+                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords}" @page="handlePageChange">
                     </Paginator>
-                </div>
 
-                <!-- Dialog untuk tambah dan edit data -->
-                <Dialog v-model:visible="productDialog" :style="{ width: '450px' }" header="Detail Pelanggan" :modal="true" class="p-fluid">
-                    <!-- <img :src="'demo/images/product/' + product.image" :alt="product.image" v-if="product.image" width="150"
+                    <!-- Dialog untuk tambah dan edit data -->
+                    <Dialog v-model:visible="productDialog" :style="{ width: '450px' }" header="Detail Pelanggan"
+                        :modal="true" class="p-fluid">
+                        <!-- <img :src="'demo/images/product/' + product.image" :alt="product.image" v-if="product.image" width="150"
                         class="mt-0 mx-auto mb-5 block shadow-2" /> -->
-                    <div class="field">
-                        <label for="idPelanggan">ID</label>
-                        <InputText id="idPelanggan" v-model.trim="product.idPelanggan" required="true" autofocus :class="{ 'p-invalid': submitted && !product.idPelanggan }" />
-                        <small class="p-invalid" v-if="submitted && !product.idPelanggan">ID harus di Isi.</small>
-                    </div>
-                    <div class="field">
-                        <label for="nama">Nama</label>
-                        <InputText id="nama" v-model.trim="product.nama" required="true" autofocus :class="{ 'p-invalid': submitted && !product.nama }" />
-                        <small class="p-invalid" v-if="submitted && !product.nama">Nama harus di Isi.</small>
-                    </div>
-                    <div class="field">
-                        <label for="noTelp">No Telpon</label>
-                        <InputText id="noTelp" v-model.trim="product.noTelp" required="true" autofocus :class="{ 'p-invalid': submitted && !product.noTelp }" />
-                        <small class="p-invalid" v-if="submitted && !product.noTelp">No Telpon harus di Isi.</small>
-                    </div>
-                    <div class="field">
-                        <label for="alamat">Alamat</label>
-                        <Textarea id="alamat" v-model="product.alamat" required="true" rows="3" cols="20" />
-                    </div>
-                    <template #footer>
-                        <Button label="Cancel" icon="pi pi-times" class="p-button-text" @click="hideDialog" />
-                        <Button label="Save" icon="pi pi-check" class="p-button-text" @click="saveProduct" />
-                    </template>
-                </Dialog>
+                        <div class="field">
+                            <label for="idPelanggan">ID</label>
+                            <InputText id="idPelanggan" v-model.trim="product.idPelanggan" required="true" autofocus
+                                :class="{ 'p-invalid': submitted && !product.idPelanggan }" />
+                            <small class="p-invalid" v-if="submitted && !product.idPelanggan">ID harus di Isi.</small>
+                        </div>
+                        <div class="field">
+                            <label for="nama">Nama</label>
+                            <InputText id="nama" v-model.trim="product.nama" required="true" autofocus
+                                :class="{ 'p-invalid': submitted && !product.nama }" />
+                            <small class="p-invalid" v-if="submitted && !product.nama">Nama harus di Isi.</small>
+                        </div>
+                        <div class="field">
+                            <label for="noTelp">No Telpon</label>
+                            <InputText id="noTelp" v-model.trim="product.noTelp" required="true" autofocus
+                                :class="{ 'p-invalid': submitted && !product.noTelp }" />
+                            <small class="p-invalid" v-if="submitted && !product.noTelp">No Telpon harus di Isi.</small>
+                        </div>
+                        <div class="field">
+                            <label for="alamat">Alamat</label>
+                            <Textarea id="alamat" v-model="product.alamat" required="true" rows="3" cols="20" />
+                        </div>
+                        <template #footer>
+                            <Button label="Cancel" icon="pi pi-times" class="p-button-text" @click="hideDialog" />
+                            <Button label="Save" icon="pi pi-check" class="p-button-text" @click="saveProduct" />
+                        </template>
+                    </Dialog>
 
-                <!-- Dialog untuk yakin hapus data -->
-                <Dialog v-model:visible="deleteProductDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
-                    <div class="flex align-items-center justify-content-center">
-                        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-                        <span v-if="product"
-                            >Are you sure you want to delete <b>{{ product.name }}</b
-                            >?</span
-                        >
-                    </div>
-                    <template #footer>
-                        <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteProductDialog = false" />
-                        <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteProduct" />
-                    </template>
-                </Dialog>
+                    <!-- Dialog untuk yakin hapus data -->
+                    <Dialog v-model:visible="deleteProductDialog" :style="{ width: '450px' }" header="Confirm"
+                        :modal="true">
+                        <div class="flex align-items-center justify-content-center">
+                            <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
+                            <span v-if="product">Are you sure you want to delete <b>{{ product.name }}</b>?</span>
+                        </div>
+                        <template #footer>
+                            <Button label="No" icon="pi pi-times" class="p-button-text"
+                                @click="deleteProductDialog = false" />
+                            <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteProduct" />
+                        </template>
+                    </Dialog>
 
-                <Dialog v-model:visible="deleteDatasDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
-                    <div class="flex align-items-center justify-content-center">
-                        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-                        <span v-if="product">Are you sure you want to delete the selected datas?</span>
-                    </div>
-                    <template #footer>
-                        <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteDatasDialog = false" />
-                        <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteSelectedDatas" />
-                    </template>
-                </Dialog>
+                    <Dialog v-model:visible="deleteDatasDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
+                        <div class="flex align-items-center justify-content-center">
+                            <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
+                            <span v-if="product">Are you sure you want to delete the selected datas?</span>
+                        </div>
+                        <template #footer>
+                            <Button label="No" icon="pi pi-times" class="p-button-text"
+                                @click="deleteDatasDialog = false" />
+                            <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteSelectedDatas" />
+                        </template>
+                    </Dialog>
+                </div>
             </div>
         </div>
     </div>
 </template>
 
 <style scoped lang="scss">
-.p-datatable .p-datatable-tbody > tr > td {
-    height: 70px;
-}
-
 .p-datatable-emptymessage {
     height: 200px;
     display: flex;
