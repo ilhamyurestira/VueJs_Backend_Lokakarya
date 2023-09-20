@@ -25,7 +25,7 @@
       <p>Saldo : {{ numberWithDot(infoNasabah.saldo) }}</p>
       <div>
         <h3>Nominal Setor:</h3>
-        <InputText type="text" v-model="formattedJumlah" class="custom-input" :class="{ 'p-invalid': jumlahSetorError }"
+        <InputText type="text" v-model="jumlahSetor" @input="formatJumlahSetor" class="custom-input" :class="{ 'p-invalid': jumlahSetorError }"
           required />
         <!-- <span v-if="jumlahSetorError" class="p-error"> Nilai minimum setoran adalah Rp 10.000</span> -->
       </div>
@@ -50,7 +50,7 @@ export default {
       showModal: false,
       nama: "",
       saldo: "",
-      formattedJumlah: "",
+      jumlahSetor: "",
       infoNasabah: {},
       setorSuccess: false,
       setorErrorMessage: "",
@@ -63,22 +63,13 @@ export default {
       return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
     },
 
-    computed: {
-    // Buat computed property untuk mengatur format jumlah
-    formattedJumlah: {
-      get() {
-        // Mengambil nilai jumlah dari data dan mengatur formatnya
-        return this.jumlah ? `Rp. ${this.numberWithDot(this.jumlah)}` : "";
-      },
-      set(newValue) {
-        // Mengubah format ke angka saat input berubah
-        const formattedValue = newValue.replace(/[^\d]/g, "");
-        this.jumlah = formattedValue;
-      },
+    formatJumlahSetor() {
+      // Fungsi ini akan memformat input jumlah Setor dana dengan format "Rp. xxx.xxx"
+      this.jumlahSetor = this.jumlahSetor.replace(/\D/g, ""); // Hapus karakter selain angka
+      if (this.jumlahSetor) {
+        this.jumlahSetor = `Rp. ${parseInt(this.jumlahSetor, 10).toLocaleString()}`;
+      }
     },
-  },
-
-  
 
     async setor() {
 
@@ -110,7 +101,12 @@ export default {
 
     async handleSetor() {
 
-      if (!this.formattedJumlah || isNaN(this.formattedJumlah)) {
+      // Menghilangkan karakter "Rp." dan "," dari input jumlah tarik dana
+  const formattedJumlah = this.jumlahSetor.replace(/[^\d]/g, '');
+// Konversi ke tipe data angka
+  const jumlahSetor = parseInt(formattedJumlah, 10);
+
+      if (!this.jumlahSetor || isNaN(this.jumlahSetor)) {
         this.jumlahSetorError = true;
         return;
       } else {
@@ -118,7 +114,7 @@ export default {
       }
 
       // Periksa apakah jumlah setoran kurang dari 50,000
-      if (this.formattedJumlah < 50000) {
+      if (this.jumlahSetor < 50000) {
         Swal.fire({
           icon: 'error',
           text: 'Jumlah setoran minimum adalah Rp 50,000.',
@@ -135,7 +131,7 @@ export default {
           `http://localhost:8000/api/v1/nasabah/tambah`,
           {
             norek: Number(this.norek),
-            jumlah: Number(this.formattedJumlah)
+            jumlah: Number(this.jumlahSetor)
           }
         );
 
@@ -156,7 +152,7 @@ export default {
         });
 
         this.norek = "";
-        this.formattedJumlah = "";
+        this.jumlahSetor = "";
         this.showModal = false;
 
       } catch (error) {
