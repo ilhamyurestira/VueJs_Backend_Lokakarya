@@ -47,13 +47,6 @@ module.exports = (sequelize, DataTypes) => {
     const userId = user.id;
   
     try {
-      // const masterBanks = await sequelize.models.master_bank.findAll({
-      //   where: { userId },
-      // });
-  
-      // for (const masterBank of masterBanks) {
-      //   await masterBank.destroy(options);
-      // }
       await sequelize.models.master_bank.destroy({
         where: { userId },
         ...options,
