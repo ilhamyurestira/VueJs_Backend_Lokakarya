@@ -97,17 +97,17 @@ const router = createRouter({
                     path: '/tlpadm',
                     children: [
                         {
-                            path: '/tlpadm/masterpelanggan',
+                            path: '/masterPelanggan',
                             name: 'masterPelanggan',
                             component: () => import('@/views/tlpadm/MasterPelanggan.vue')
                         },
                         {
-                            path: '/tlpadm/transaksiTelpon',
+                            path: '/transaksiTelpon',
                             name: 'transaksiTelpon',
                             component: () => import('@/views/tlpadm/TransaksiTelpon.vue')
                         },
                         {
-                            path: '/tlpadm/historiTransaksi',
+                            path: '/historiTransaksi',
                             name: 'historiTransaksi',
                             component: () => import('@/views/tlpadm/historiTransaksi.vue')
                         }
@@ -117,27 +117,27 @@ const router = createRouter({
                     path: '/user',
                     children: [
                         {
-                            path: '/user/cekSaldo',
+                            path: '/cekSaldo',
                             name: 'cekSaldo',
                             component: () => import('@/views/nasabah/CekSaldoComponent.vue')
                         },
                         {
-                            path: '/user/setor',
+                            path: '/setor',
                             name: 'setor',
                             component: () => import('@/views/nasabah/SetorComponent.vue')
                         },
                         {
-                            path: '/user/tarik',
+                            path: '/tarik',
                             name: 'tarik',
                             component: () => import('@/views/nasabah/TarikComponent.vue')
                         },
                         {
-                            path: '/user/ransfert',
+                            path: '/transfer',
                             name: 'transfer',
                             component: () => import('@/views/nasabah/TransferComponent.vue')
                         },
                         {
-                            path: '/user/bayar/telpon',
+                            path: '/bayarTelpon',
                             name: 'bayarTelpon',
                             component: () => import('@/views/nasabah/BayarTelponComponent.vue')
                         }
