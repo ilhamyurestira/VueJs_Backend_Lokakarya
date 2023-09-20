@@ -4,11 +4,11 @@ import AppLayout from '@/layout/AppLayout.vue';
 const router = createRouter({
     history: createWebHashHistory(),
     routes: [
-        // {
-        //     path: '/',
-        //     name: 'landing',
-        //     component: () => import('@/views/pages/Landing.vue')
-        // },
+        {
+            path: '/landing',
+            name: 'landing',
+            component: () => import('@/views/pages/Landing.vue')
+        },
         {
             path: '/',
             name: 'login',
@@ -143,141 +143,140 @@ const router = createRouter({
                         }
                     ]
                 },
-                // {
-                //     path: '/uikit/formlayout',
-                //     name: 'formlayout',
-                //     component: () => import('@/views/uikit/FormLayout.vue')
-                // },
-                // {
-                //     path: '/uikit/input',
-                //     name: 'input',
-                //     component: () => import('@/views/uikit/Input.vue')
-                // },
-                // {
-                //     path: '/uikit/floatlabel',
-                //     name: 'floatlabel',
-                //     component: () => import('@/views/uikit/FloatLabel.vue')
-                // },
-                // {
-                //     path: '/uikit/invalidstate',
-                //     name: 'invalidstate',
-                //     component: () => import('@/views/uikit/InvalidState.vue')
-                // },
-                // {
-                //     path: '/uikit/button',
-                //     name: 'button',
-                //     component: () => import('@/views/uikit/Button.vue')
-                // },
-                // {
-                //     path: '/uikit/table',
-                //     name: 'table',
-                //     component: () => import('@/views/uikit/Table.vue')
-                // },
-                // {
-                //     path: '/uikit/menu',
-                //     name: 'personalMenu',
-                //     component: () => import('@/views/uikit/Menu.vue'),
-                //     children: [
-                //         {
-                //             path: '/uikit/menu/demo',
-                //             name: 'menuDemo',
-                //             component: () => import('@/views/uikit/menu/PersonalDemo.vue')
-                //         },
-                //         {
-                //             path: '/uikit/menu/seat',
-                //             name: 'seatMenu',
-                //             component: () => import('@/views/uikit/menu/SeatDemo.vue')
-                //         },
-                //         {
-                //             path: '/uikit/menu/payment',
-                //             name: 'paymentMenu',
-                //             component: () => import('@/views/uikit/menu/PaymentDemo.vue')
-                //         },
-                //         {
-                //             path: '/uikit/menu/confirmation',
-                //             name: 'confirmationMenu',
-                //             component: () => import('@/views/uikit/menu/ConfirmationDemo.vue')
-                //         }
-                //     ]
-                // },
-                // {
-                //     path: '/uikit/invalidState',
-                //     name: 'invalidState',
-                //     component: () => import('@/views/uikit/InvalidState.vue')
-                // },
-                // {
-                //     path: '/uikit/lists',
-                //     name: 'lists',
-                //     component: () => import('@/views/uikit/ListCom.vue')
-                // },
-                // {
-                //     path: '/uikit/picks',
-                //     name: 'picks',
-                //     component: () => import('@/views/uikit/pick.vue')
-                // },
-                // {
-                //     path: '/uikit/message',
-                //     name: 'message',
-                //     component: () => import('@/views/uikit/Messages.vue')
-                // },
-                // {
-                //     path: '/uikit/file',
-                //     name: 'file',
-                //     component: () => import('@/views/uikit/File.vue')
-                // },
-                // {
-                //     path: '/uikit/charts',
-                //     name: 'charts',
-                //     component: () => import('@/views/uikit/Chart.vue')
-                // },
-                // {
-                //     path: '/uikit/misc',
-                //     name: 'misc',
-                //     component: () => import('@/views/uikit/Misc.vue')
-                // },
-                // {
-                //     path: '/blocks',
-                //     name: 'blocks',
-                //     component: () => import('@/views/utilities/Blocks.vue')
-                // },
-                // {
-                //     path: '/utilities/icons',
-                //     name: 'icons',
-                //     component: () => import('@/views/utilities/Icons.vue')
-                // },
-                // {
-                //     path: '/pages/timeline',
-                //     name: 'timeline',
-                //     component: () => import('@/views/pages/Timeline.vue')
-                // },
-                // {
-                //     path: '/pages/empty',
-                //     name: 'empty',
-                //     component: () => import('@/views/pages/Empty.vue')
-                // },
-                // {
-                //     path: '/pages/crud',
-                //     name: 'crud',
-                //     component: () => import('@/views/pages/Crud.vue')
-                // },
+                {
+                    path: '/uikit/formlayout',
+                    name: 'formlayout',
+                    component: () => import('@/views/uikit/FormLayout.vue')
+                },
+                {
+                    path: '/uikit/input',
+                    name: 'input',
+                    component: () => import('@/views/uikit/Input.vue')
+                },
+                {
+                    path: '/uikit/floatlabel',
+                    name: 'floatlabel',
+                    component: () => import('@/views/uikit/FloatLabel.vue')
+                },
+                {
+                    path: '/uikit/invalidstate',
+                    name: 'invalidstate',
+                    component: () => import('@/views/uikit/InvalidState.vue')
+                },
+                {
+                    path: '/uikit/button',
+                    name: 'button',
+                    component: () => import('@/views/uikit/Button.vue')
+                },
+                {
+                    path: '/uikit/table',
+                    name: 'table',
+                    component: () => import('@/views/uikit/Table.vue')
+                },
+                {
+                    path: '/uikit/menu',
+                    name: 'personalMenu',
+                    component: () => import('@/views/uikit/Menu.vue'),
+                    children: [
+                        {
+                            path: '/uikit/menu/demo',
+                            name: 'menuDemo',
+                            component: () => import('@/views/uikit/menu/PersonalDemo.vue')
+                        },
+                        {
+                            path: '/uikit/menu/seat',
+                            name: 'seatMenu',
+                            component: () => import('@/views/uikit/menu/SeatDemo.vue')
+                        },
+                        {
+                            path: '/uikit/menu/payment',
+                            name: 'paymentMenu',
+                            component: () => import('@/views/uikit/menu/PaymentDemo.vue')
+                        },
+                        {
+                            path: '/uikit/menu/confirmation',
+                            name: 'confirmationMenu',
+                            component: () => import('@/views/uikit/menu/ConfirmationDemo.vue')
+                        }
+                    ]
+                },
+                {
+                    path: '/uikit/invalidState',
+                    name: 'invalidState',
+                    component: () => import('@/views/uikit/InvalidState.vue')
+                },
+                {
+                    path: '/uikit/lists',
+                    name: 'lists',
+                    component: () => import('@/views/uikit/ListCom.vue')
+                },
+                {
+                    path: '/uikit/picks',
+                    name: 'picks',
+                    component: () => import('@/views/uikit/pick.vue')
+                },
+                {
+                    path: '/uikit/message',
+                    name: 'message',
+                    component: () => import('@/views/uikit/Messages.vue')
+                },
+                {
+                    path: '/uikit/file',
+                    name: 'file',
+                    component: () => import('@/views/uikit/File.vue')
+                },
+                {
+                    path: '/uikit/charts',
+                    name: 'charts',
+                    component: () => import('@/views/uikit/Chart.vue')
+                },
+                {
+                    path: '/uikit/misc',
+                    name: 'misc',
+                    component: () => import('@/views/uikit/Misc.vue')
+                },
+                {
+                    path: '/blocks',
+                    name: 'blocks',
+                    component: () => import('@/views/utilities/Blocks.vue')
+                },
+                {
+                    path: '/utilities/icons',
+                    name: 'icons',
+                    component: () => import('@/views/utilities/Icons.vue')
+                },
+                {
+                    path: '/pages/timeline',
+                    name: 'timeline',
+                    component: () => import('@/views/pages/Timeline.vue')
+                },
+                {
+                    path: '/pages/empty',
+                    name: 'empty',
+                    component: () => import('@/views/pages/Empty.vue')
+                },
+                {
+                    path: '/pages/crud',
+                    name: 'crud',
+                    component: () => import('@/views/pages/Crud.vue')
+                },
                 {
                     path: '/documentation',
                     name: 'documentation',
                     component: () => import('@/views/utilities/Documentation.vue')
                 }
             ]
+        },
+        {
+            path: '/pages/timeline',
+            name: 'timeline',
+            component: () => import('@/views/pages/Timeline.vue')
+        },
+        {
+            path: '/pages/crud',
+            name: 'crud',
+            component: () => import('@/views/pages/Crud.vue')
         }
-
-        // {
-        //     path: '/pages/timeline',
-        //     name: 'timeline',
-        //     component: () => import('@/views/pages/Timeline.vue')
-        // },
-        // {
-        //     path: '/pages/crud',
-        //     name: 'crud',
-        //     component: () => import('@/views/pages/Crud.vue')
-        // },
     ]
 });
 
