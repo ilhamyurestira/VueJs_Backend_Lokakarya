@@ -160,6 +160,7 @@ const createItem = () => {
                 const data = response.data;
                 if (response.status === 201) {
                     hideCreationDialog();
+                    fetchMainData();
                     toast.add({
                         severity: 'success',
                         summary: 'Sukses',
@@ -167,6 +168,7 @@ const createItem = () => {
                         life: 3000
                     });
                 } else {
+                    fetchMainData();
                     toast.add({
                         severity: 'error',
                         summary: 'Error',
@@ -177,6 +179,7 @@ const createItem = () => {
             })
             .catch((error) => {
                 console.log(error);
+                fetchMainData();
                 toast.add({
                     severity: 'error',
                     summary: 'Error',
@@ -185,7 +188,6 @@ const createItem = () => {
                 });
             });
         hakAkses.value = {};
-        fetchMainData();
     }
 };
 
@@ -241,38 +243,35 @@ const editSelected = () => {
             .then((response) => {
                 if (response.status === 200) {
                     hideEditDialog();
-
+                    editConfirmationDialog.value = false;
+                    fetchMainData();
                     toast.add({
                         severity: 'success',
                         summary: 'Sukses',
                         detail: `Hak Akses untuk user: ${currentName} telah berhasil diubah.`,
                         life: 3000
                     });
-                    editConfirmationDialog.value = false;
-                    fetchMainData();
                 } else {
+                    fetchMainData();
+                    // authenticated.value = false;
                     toast.add({
                         severity: 'error',
                         summary: `Error ${response.status}`,
                         detail: `Role: ${hakAkses.value.nama} gagal diubah`,
                         life: 3000
                     });
-                    fetchMainData();
-
-                    // authenticated.value = false;
                 }
-                check.value.password = null;
+                // check.value.password = null;
             })
             .catch((error) => {
+                fetchMainData();
                 toast.add({
                     severity: 'error',
                     summary: `Error ${error.response.status}`,
                     detail: `Role: ${hakAkses.value.nama} gagal dibubah`,
                     life: 3000
                 });
-                check.value.password = null;
-                fetchMainData();
-
+                // check.value.password = null;
                 // authenticated.value = false;
             });
     }
@@ -296,19 +295,19 @@ const deleteItem = () => {
         .delete(`${apiUrl}/${hakAkses.value.id}`)
         .then((response) => {
             const data = response.data;
+            hakAkses.value = {};
+            fetchMainData();
             toast.add({
                 severity: 'success',
                 summary: 'Successful',
                 detail: `${data}`,
                 life: 3000
             });
-            hakAkses.value = {};
-            fetchMainData();
         })
         .catch((error) => {
+            fetchMainData();
             console.error('Error fetching data:', error);
             toast.add({ severity: 'error', summary: `Error ${error.response.status}`, detail: `Failed to delete role`, life: 3000 });
-            fetchMainData();
         });
 };
 

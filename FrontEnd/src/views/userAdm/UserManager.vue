@@ -145,13 +145,13 @@ const createUser = () => {
                 if (response.status === 201) {
                     hideCreateUserDialog();
                     getNewId();
+                    fetchUserData();
                     toast.add({
                         severity: 'success',
                         summary: 'Sukses',
                         detail: `${data}`,
                         life: 3000
                     });
-                    fetchUserData();
                 } else {
                     toast.add({
                         severity: 'error',
@@ -339,35 +339,32 @@ const editUser = () => {
             .then((response) => {
                 if (response.status === 200) {
                     hideEditUserDialog();
-
+                    editUserDialog.value = false;
                     toast.add({
                         severity: 'success',
                         summary: 'Sukses',
                         detail: `User: ${user.value.username} telah berhasil diubah.`
                     });
-                    editUserDialog.value = false;
-                    fetchUserData();
                 } else {
+                    fetchUserData();
+                    check.value.password = null;
                     toast.add({
                         severity: 'error',
                         summary: `Error ${error.response.status}`,
                         detail: `informasi user: ${user.value.username} gagal diubah`,
                         life: 3000
                     });
-                    fetchUserData();
                 }
-                check.value.password = null;
             })
             .catch((error) => {
+                fetchUserData();
+                check.value.password = null;
                 toast.add({
                     severity: 'error',
                     summary: `Error ${error.response.status}`,
                     detail: `User gagal dibubah`,
                     life: 3000
                 });
-                fetchUserData();
-
-                check.value.password = null;
             });
     }
 };
@@ -389,6 +386,7 @@ const deleteUser = () => {
     axios
         .delete(`${apiUrl}/${user.value.id}`)
         .then((response) => {
+            fetchUserData();
             toast.add({ severity: 'success', summary: 'Successful', detail: `${response.data}`, life: 3000 });
             user.value = {};
         })
@@ -396,7 +394,6 @@ const deleteUser = () => {
             console.error('Error fetching data:', error);
             toast.add({ severity: 'error', summary: `Error ${error.response.status}`, detail: 'Failed to delete user', life: 3000 });
         });
-    fetchUserData();
 };
 
 const initFilters = () => {
@@ -596,7 +593,7 @@ const initFilters = () => {
                         <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
                         <span v-if="user"
                             >Are you sure you want to delete user: <b>{{ user.username }}</b> ? <br />
-                            <small>Please type 'confirm delete user' (case sensitive) to confirm.</small></span
+                            <small>Please type '<b>confirm delete user</b>' (case sensitive) to confirm.</small></span
                         >
                     </div>
                     <div class="flex align-items-center mt-4 justify-content-center">
