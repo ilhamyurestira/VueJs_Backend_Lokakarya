@@ -9,7 +9,6 @@ const toast = useToast();
 const router = useRouter();
 const now = new Date();
 
-
 const apiUrl = 'http://localhost:8000/api/v1/masterPelanggan'; // Replace with your API URL
 const dataPelanggan = ref(null);
 const tambahPelangganDialog = ref(false);
@@ -24,7 +23,7 @@ const submitted = ref(false);
 onBeforeMount(() => {
     initFilters();
     checkLogin();
-    checkAdminPrevilage();
+    // checkAdminPrevilage();
 });
 onMounted(() => {
     fetchData();

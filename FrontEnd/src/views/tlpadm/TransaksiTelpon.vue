@@ -33,7 +33,7 @@ const productService = new ProductService();
 onBeforeMount(() => {
     initFilters();
     checkLogin();
-    checkAdminPrevilage();
+    // checkAdminPrevilage();
 });
 onMounted(() => {
     // productService.getProducts().then((data) => (products.value = data));

@@ -15,7 +15,6 @@ const isLoading = ref(true);
 
 const showPaginator = ref(false);
 
-
 const toast = useToast();
 const router = useRouter();
 const now = new Date();
@@ -34,7 +33,7 @@ const submitted = ref(false);
 onBeforeMount(() => {
     initFilters();
     checkLogin();
-    checkAdminPrevilage();
+    // checkAdminPrevilage();
 });
 // Fetch data from the API on component mount
 onMounted(() => {
@@ -98,7 +97,7 @@ const fetchData = () => {
         .post(apiUrl, {
             page: currentPage.value,
             limit: limit.value,
-            keyword: keyword.value,
+            keyword: keyword.value
             // searchBy: selectedSearchBy,
         })
         .then((response) => {
@@ -108,7 +107,7 @@ const fetchData = () => {
             const startIndex = (currentPage.value - 1) * limit.value + 1;
             const transaksiNasabahData = data.list.map((item, index) => ({
                 ...item,
-                No: startIndex + index,
+                No: startIndex + index
             }));
 
             datas.value = transaksiNasabahData;
@@ -223,14 +222,14 @@ const formatDateTime = (dateTimeString) => {
         year: 'numeric',
         hour: '2-digit',
         minute: 'numeric',
-        hour12: true,
+        hour12: true
     };
     const dateTime = new Date(dateTimeString);
     return dateTime.toLocaleString('id-ID', options);
 };
 
 const getStatusText = (status) => {
-    return status === 'D' ? 'Debit' : (status === 'K' ? 'Kredit' : '');
+    return status === 'D' ? 'Debit' : status === 'K' ? 'Kredit' : '';
 };
 
 const getKeteranganText = (keterangan) => {
@@ -259,10 +258,9 @@ const search = () => {
 };
 
 const clearInput = () => {
-    keyword.value = "";
+    keyword.value = '';
     fetchData();
-}
-
+};
 </script>
 
 <template>
@@ -282,12 +280,11 @@ const clearInput = () => {
                 </Toolbar> -->
 
                 <div v-if="isLoading" class="text-center mt-4">
-                    <i class="pi pi-spin pi-spinner" style="font-size: 2rem;"></i>
+                    <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
                 </div>
 
                 <!-- Tabel data -->
-                <DataTable ref="dt" :value="datas" v-model:selection="selectedDatas" dataKey="id" responsiveLayout="scroll"
-                    :rowHover="true" v-else>
+                <DataTable ref="dt" :value="datas" v-model:selection="selectedDatas" dataKey="id" responsiveLayout="scroll" :rowHover="true" v-else>
                     <template #header>
                         <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
                             <h5 class="m-0">Transaksi Nasabah</h5>
@@ -308,15 +305,13 @@ const clearInput = () => {
                             {{ slotProps.data.No }}
                         </template>
                     </Column>
-                    <Column field="norek" header="Nomor Rekening" :sortable="false"
-                        headerStyle="width20%; min-width:10rem;">
+                    <Column field="norek" header="Nomor Rekening" :sortable="false" headerStyle="width20%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Nomor Rekening</span>
                             {{ slotProps.data.norek }}
                         </template>
                     </Column>
-                    <Column field="tanggal" header="Tanggal Transaksi" :sortable="false"
-                        headerStyle="width:20%; min-width:10rem;">
+                    <Column field="tanggal" header="Tanggal Transaksi" :sortable="false" headerStyle="width:20%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Tanggal Transaksi</span>
                             {{ formatDateTime(slotProps.data.tanggal) }}
@@ -328,22 +323,19 @@ const clearInput = () => {
                             {{ getStatusText(slotProps.data.status) }}
                         </template>
                     </Column>
-                    <Column field="status_ket" header="Keterangan" :sortable="false"
-                        headerStyle="width:20%; min-width:10rem;">
+                    <Column field="status_ket" header="Keterangan" :sortable="false" headerStyle="width:20%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Keterangan</span>
                             {{ getKeteranganText(slotProps.data.status_ket) }}
                         </template>
                     </Column>
-                    <Column field="norek_dituju" header="Rekening Tujuan" :sortable="false"
-                        headerStyle="width:20%; min-width:10rem;">
+                    <Column field="norek_dituju" header="Rekening Tujuan" :sortable="false" headerStyle="width:20%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Rekening Tujuan</span>
                             {{ slotProps.data.norek_dituju !== null ? slotProps.data.norek_dituju : '-' }}
                         </template>
                     </Column>
-                    <Column field="no_tlp" header="Nomor Telepon" :sortable="false"
-                        headerStyle="width:20%; min-width:10rem;">
+                    <Column field="no_tlp" header="Nomor Telepon" :sortable="false" headerStyle="width:20%; min-width:10rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">Nomor Telepon</span>
                             {{ slotProps.data.no_tlp !== null ? slotProps.data.no_tlp : '-' }}
@@ -358,40 +350,39 @@ const clearInput = () => {
                         </template>
                     </Column> -->
                     <template #empty>
-                        <div class="p-datatable-emptymessage">
-                            Tidak ada hasil yang ditemukan.
-                        </div>
+                        <div class="p-datatable-emptymessage">Tidak ada hasil yang ditemukan.</div>
                     </template>
                 </DataTable>
                 <div v-if="!isLoading">
-                    <Paginator :rows="limit" :totalRecords="totalElements" v-if="showPaginator"
+                    <Paginator
+                        :rows="limit"
+                        :totalRecords="totalElements"
+                        v-if="showPaginator"
                         :rowsPerPageOptions="[10, 20, 30]"
                         template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
-                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords}" @page="handlePageChange">
+                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords}"
+                        @page="handlePageChange"
+                    >
                     </Paginator>
                 </div>
 
                 <!-- Dialog untuk tambah dan edit data -->
-                <Dialog v-model:visible="productDialog" :style="{ width: '450px' }" header="Detail Pelanggan" :modal="true"
-                    class="p-fluid">
+                <Dialog v-model:visible="productDialog" :style="{ width: '450px' }" header="Detail Pelanggan" :modal="true" class="p-fluid">
                     <!-- <img :src="'demo/images/product/' + product.image" :alt="product.image" v-if="product.image" width="150"
                         class="mt-0 mx-auto mb-5 block shadow-2" /> -->
                     <div class="field">
                         <label for="idPelanggan">ID</label>
-                        <InputText id="idPelanggan" v-model.trim="product.idPelanggan" required="true" autofocus
-                            :class="{ 'p-invalid': submitted && !product.idPelanggan }" />
+                        <InputText id="idPelanggan" v-model.trim="product.idPelanggan" required="true" autofocus :class="{ 'p-invalid': submitted && !product.idPelanggan }" />
                         <small class="p-invalid" v-if="submitted && !product.idPelanggan">ID harus di Isi.</small>
                     </div>
                     <div class="field">
                         <label for="nama">Nama</label>
-                        <InputText id="nama" v-model.trim="product.nama" required="true" autofocus
-                            :class="{ 'p-invalid': submitted && !product.nama }" />
+                        <InputText id="nama" v-model.trim="product.nama" required="true" autofocus :class="{ 'p-invalid': submitted && !product.nama }" />
                         <small class="p-invalid" v-if="submitted && !product.nama">Nama harus di Isi.</small>
                     </div>
                     <div class="field">
                         <label for="noTelp">No Telpon</label>
-                        <InputText id="noTelp" v-model.trim="product.noTelp" required="true" autofocus
-                            :class="{ 'p-invalid': submitted && !product.noTelp }" />
+                        <InputText id="noTelp" v-model.trim="product.noTelp" required="true" autofocus :class="{ 'p-invalid': submitted && !product.noTelp }" />
                         <small class="p-invalid" v-if="submitted && !product.noTelp">No Telpon harus di Isi.</small>
                     </div>
                     <div class="field">
@@ -408,7 +399,10 @@ const clearInput = () => {
                 <Dialog v-model:visible="deleteProductDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
                     <div class="flex align-items-center justify-content-center">
                         <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-                        <span v-if="product">Are you sure you want to delete <b>{{ product.name }}</b>?</span>
+                        <span v-if="product"
+                            >Are you sure you want to delete <b>{{ product.name }}</b
+                            >?</span
+                        >
                     </div>
                     <template #footer>
                         <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteProductDialog = false" />
@@ -432,7 +426,7 @@ const clearInput = () => {
 </template>
 
 <style scoped lang="scss">
-.p-datatable .p-datatable-tbody>tr>td {
+.p-datatable .p-datatable-tbody > tr > td {
     height: 70px;
 }
 

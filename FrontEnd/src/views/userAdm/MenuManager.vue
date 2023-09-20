@@ -40,7 +40,7 @@ const productService = new ProductService();
 onBeforeMount(() => {
     initFilters();
     checkLogin();
-    checkAdminPrevilage();
+    // checkAdminPrevilage();
 });
 onMounted(() => {
     fetch('/demo/data/icons.json', { headers: { 'Cache-Control': 'no-cache' } })
