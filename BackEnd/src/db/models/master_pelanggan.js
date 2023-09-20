@@ -26,5 +26,23 @@ module.exports = (sequelize, DataTypes) => {
     modelName: 'master_pelanggan',
     underscored: true,
   });
+  
+  master_pelanggan.beforeDestroy(async (masterPelanggan, options) => {
+    const id_pelanggan = masterPelanggan.id;
+  
+    try {
+      await sequelize.models.transaksi_telkom.destroy({
+        where: { id_pelanggan },
+        ...options,
+      });
+  
+      await sequelize.models.history_telkom.destroy({
+        where: { id_pelanggan },
+        ...options,
+      });
+    } catch (error) {
+      console.error('Gagal menghapus data terkait:', error);
+    }
+  });
   return master_pelanggan;
 };
