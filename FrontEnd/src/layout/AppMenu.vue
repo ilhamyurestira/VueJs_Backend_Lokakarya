@@ -56,9 +56,9 @@ const model = ref([
     {
         label: 'Bank Admin',
         items: [
-            { label: 'Master Bank', icon: 'fa fa-fw fa-solid fa-building-columns', to: { name: 'masterBank' } },
-            { label: 'Transaksi Nasabah', icon: 'fa fa-fw fa-solid fa-money-bill-transfer', to: { name: 'transaksiNasabah' } },
-            { label: 'Histori Nasabah', icon: 'fa fa-fw fa-solid fa-clock-rotate-left', to: { name: 'historyBank' } }
+            { label: 'Master Bank', icon: 'fa fa-fw fa-solid fa-building-columns', to: '/masterBank' },
+            { label: 'Transaksi Nasabah', icon: 'fa fa-fw fa-solid fa-money-bill-transfer', to: '/transaksiNasabah' },
+            { label: 'Histori Nasabah', icon: 'fa fa-fw fa-solid fa-clock-rotate-left', to: '/historyBank' }
         ]
     },
     {
