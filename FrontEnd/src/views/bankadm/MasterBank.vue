@@ -32,7 +32,7 @@ const submitted = ref(false);
 onBeforeMount(() => {
     initFilters();
     checkLogin();
-    checkAdminPrevilage();
+    // checkAdminPrevilage();
 });
 // Fetch data from the API on component mount
 onMounted(() => {

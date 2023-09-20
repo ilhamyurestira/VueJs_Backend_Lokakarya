@@ -37,7 +37,7 @@ const statuses = ref([
 onBeforeMount(() => {
     initFilters();
     checkLogin();
-    checkAdminPrevilage();
+    // checkAdminPrevilage();
 });
 // Fetch data from the API on component mount
 onMounted(() => {
@@ -62,7 +62,7 @@ const checkLogin = () => {
 
 const checkAdminPrevilage = () => {
     const previlage = JSON.parse(localStorage.getItem('userPrevilage'));
-    // console.log(previlage);
+    console.log(previlage);
     if (!previlage) {
         router.push({ name: 'accessDenied' });
     } else if (previlage.roleId !== 2 || previlage.roleId !== 8) {
