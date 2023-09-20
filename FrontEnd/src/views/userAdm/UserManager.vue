@@ -596,7 +596,7 @@ const initFilters = () => {
                         <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
                         <span v-if="user"
                             >Are you sure you want to delete user: <b>{{ user.username }}</b> ? <br />
-                            <small>Please enter the confirmation text below (lower case only)</small></span
+                            <small>Please type 'confirm delete user' (case sensitive) to confirm.</small></span
                         >
                     </div>
                     <div class="flex align-items-center mt-4 justify-content-center">
