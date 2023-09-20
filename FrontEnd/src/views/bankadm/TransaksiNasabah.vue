@@ -1,5 +1,4 @@
 <script setup>
-import { FilterMatchMode } from 'primevue/api';
 import { ref, onMounted, onBeforeMount } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
@@ -27,18 +26,11 @@ const isBankUser = ref(false);
 const isUnassignedUser = ref(false);
 
 const datas = ref([]);
-const apiUrl = 'http://localhost:8000/api/v1/transaksiNasabah'; // Replace with your API URL
-const productDialog = ref(false);
-const deleteProductDialog = ref(false);
-const deleteDatasDialog = ref(false);
-const product = ref({});
+const apiUrl = 'http://localhost:8000/api/v1/transaksiNasabah';
 const selectedDatas = ref(null);
 const dt = ref(null);
-const filters = ref({});
-const submitted = ref(false);
 
 onBeforeMount(() => {
-    initFilters();
     checkLogin();
     // checkAdminPrevilage();
 });
@@ -85,10 +77,6 @@ const setAccess = (id) => {
             isUnassignedUser.value = true;
             break;
     }
-};
-
-const formatCurrency = (value) => {
-    return value.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' });
 };
 
 const fetchData = () => {
@@ -147,95 +135,6 @@ const fetchData = () => {
         });
 };
 
-const openNew = () => {
-    product.value = {};
-    submitted.value = false;
-    productDialog.value = true;
-};
-
-const hideDialog = () => {
-    productDialog.value = false;
-    submitted.value = false;
-};
-
-const saveProduct = () => {
-    submitted.value = true;
-    if (product.value.name && product.value.name.trim() && product.value.price) {
-        if (product.value.id) {
-            product.value.inventoryStatus = product.value.inventoryStatus.value ? product.value.inventoryStatus.value : product.value.inventoryStatus;
-            datas.value[findIndexById(product.value.id)] = product.value;
-            toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Updated', life: 3000 });
-        } else {
-            product.value.id = createId();
-            product.value.code = createId();
-            product.value.image = 'product-placeholder.svg';
-            product.value.inventoryStatus = product.value.inventoryStatus ? product.value.inventoryStatus.value : 'INSTOCK';
-            datas.value.push(product.value);
-            toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Created', life: 3000 });
-        }
-        productDialog.value = false;
-        product.value = {};
-    }
-};
-
-const editProduct = (editProduct) => {
-    product.value = { ...editProduct };
-    console.log(product);
-    productDialog.value = true;
-};
-
-const confirmDeleteProduct = (editProduct) => {
-    product.value = editProduct;
-    deleteProductDialog.value = true;
-};
-
-const deleteProduct = () => {
-    datas.value = datas.value.filter((val) => val.id !== product.value.id);
-    deleteProductDialog.value = false;
-    product.value = {};
-    toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Deleted', life: 3000 });
-};
-
-const findIndexById = (id) => {
-    let index = -1;
-    for (let i = 0; i < datas.value.length; i++) {
-        if (datas.value[i].id === id) {
-            index = i;
-            break;
-        }
-    }
-    return index;
-};
-
-const createId = () => {
-    let id = '';
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    for (let i = 0; i < 5; i++) {
-        id += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return id;
-};
-
-const exportCSV = () => {
-    dt.value.exportCSV();
-};
-
-const confirmDeleteSelected = () => {
-    deleteDatasDialog.value = true;
-};
-const deleteSelectedDatas = () => {
-    datas.value = datas.value.filter((val) => !selectedDatas.value.includes(val));
-    deleteDatasDialog.value = false;
-    selectedDatas.value = null;
-    toast.add({ severity: 'success', summary: 'Successful', detail: 'datas Deleted', life: 3000 });
-};
-
-const initFilters = () => {
-    filters.value = {
-        global: { value: null, matchMode: FilterMatchMode.CONTAINS }
-    };
-};
-
 const formatDateTime = (dateTimeString) => {
     if (!dateTimeString) return '';
     const options = {
@@ -274,15 +173,6 @@ const handlePageChange = (event) => {
     fetchData(); // Ambil data untuk halaman baru
 };
 
-const search = () => {
-    fetchData();
-    data.value = {};
-};
-
-const clearInput = () => {
-    keyword.value = '';
-    fetchData();
-};
 </script>
 
 <template>
@@ -290,16 +180,6 @@ const clearInput = () => {
         <div class="col-12">
             <div class="card">
                 <Toast />
-                <!-- Button nambah data baru -->
-                <!-- <Toolbar class="mb-4">
-                    <template v-slot:start>
-                        <div class="my-2">
-                            <Button label="Tambah Rekening" icon="pi pi-plus" class="p-button-success mr-2"
-                                @click="openNew" />
-                        </div>
-                    </template>
-
-                </Toolbar> -->
 
                 <div v-if="isLoading" class="text-center mt-4">
                     <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
@@ -312,13 +192,6 @@ const clearInput = () => {
                         <template #header>
                             <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
                                 <h5 class="m-0">Transaksi Nasabah</h5>
-                                <!-- <span class="block mt-2 md:mt-0 p-input-icon-left">
-                                <i class="pi pi-search" />
-                                <InputText v-model="keyword" @keydown.enter="search"
-                                    placeholder="Cari status, keterangan..." />
-                                <Button icon="pi pi-times" @click="clearInput" severity="secondary" v-if="keyword" text
-                                    class="clear-icon" />
-                            </span> -->
                             </div>
                         </template>
 
@@ -370,14 +243,6 @@ const clearInput = () => {
                                 {{ slotProps.data.no_tlp !== null ? slotProps.data.no_tlp : '-' }}
                             </template>
                         </Column>
-                        <!-- <Column header="Action" headerStyle="width:20%;min-width:10rem;">
-                        <template #body="slotProps">
-                            <Button icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2"
-                                @click="editProduct(slotProps.data)" />
-                            <Button icon="pi pi-trash" class="p-button-rounded p-button-warning mt-2"
-                                @click="confirmDeleteProduct(slotProps.data)" />
-                        </template>
-                    </Column> -->
                         <template #empty>
                             <div class="p-datatable-emptymessage">Tidak ada hasil yang ditemukan.</div>
                         </template>
@@ -388,64 +253,6 @@ const clearInput = () => {
                         currentPageReportTemplate="Showing {first} to {last} of {totalRecords}" @page="handlePageChange">
                     </Paginator>
 
-                    <!-- Dialog untuk tambah dan edit data -->
-                    <Dialog v-model:visible="productDialog" :style="{ width: '450px' }" header="Detail Pelanggan"
-                        :modal="true" class="p-fluid">
-                        <!-- <img :src="'demo/images/product/' + product.image" :alt="product.image" v-if="product.image" width="150"
-                        class="mt-0 mx-auto mb-5 block shadow-2" /> -->
-                        <div class="field">
-                            <label for="idPelanggan">ID</label>
-                            <InputText id="idPelanggan" v-model.trim="product.idPelanggan" required="true" autofocus
-                                :class="{ 'p-invalid': submitted && !product.idPelanggan }" />
-                            <small class="p-invalid" v-if="submitted && !product.idPelanggan">ID harus di Isi.</small>
-                        </div>
-                        <div class="field">
-                            <label for="nama">Nama</label>
-                            <InputText id="nama" v-model.trim="product.nama" required="true" autofocus
-                                :class="{ 'p-invalid': submitted && !product.nama }" />
-                            <small class="p-invalid" v-if="submitted && !product.nama">Nama harus di Isi.</small>
-                        </div>
-                        <div class="field">
-                            <label for="noTelp">No Telpon</label>
-                            <InputText id="noTelp" v-model.trim="product.noTelp" required="true" autofocus
-                                :class="{ 'p-invalid': submitted && !product.noTelp }" />
-                            <small class="p-invalid" v-if="submitted && !product.noTelp">No Telpon harus di Isi.</small>
-                        </div>
-                        <div class="field">
-                            <label for="alamat">Alamat</label>
-                            <Textarea id="alamat" v-model="product.alamat" required="true" rows="3" cols="20" />
-                        </div>
-                        <template #footer>
-                            <Button label="Cancel" icon="pi pi-times" class="p-button-text" @click="hideDialog" />
-                            <Button label="Save" icon="pi pi-check" class="p-button-text" @click="saveProduct" />
-                        </template>
-                    </Dialog>
-
-                    <!-- Dialog untuk yakin hapus data -->
-                    <Dialog v-model:visible="deleteProductDialog" :style="{ width: '450px' }" header="Confirm"
-                        :modal="true">
-                        <div class="flex align-items-center justify-content-center">
-                            <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-                            <span v-if="product">Are you sure you want to delete <b>{{ product.name }}</b>?</span>
-                        </div>
-                        <template #footer>
-                            <Button label="No" icon="pi pi-times" class="p-button-text"
-                                @click="deleteProductDialog = false" />
-                            <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteProduct" />
-                        </template>
-                    </Dialog>
-
-                    <Dialog v-model:visible="deleteDatasDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
-                        <div class="flex align-items-center justify-content-center">
-                            <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-                            <span v-if="product">Are you sure you want to delete the selected datas?</span>
-                        </div>
-                        <template #footer>
-                            <Button label="No" icon="pi pi-times" class="p-button-text"
-                                @click="deleteDatasDialog = false" />
-                            <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteSelectedDatas" />
-                        </template>
-                    </Dialog>
                 </div>
             </div>
         </div>

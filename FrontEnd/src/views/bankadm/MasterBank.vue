@@ -1,5 +1,4 @@
 <script setup>
-import { FilterMatchMode } from 'primevue/api';
 import { ref, onMounted, onBeforeMount } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
@@ -33,11 +32,9 @@ const deleteDialog = ref(false);
 const data = ref({});
 const selectedDatas = ref(null);
 const dt = ref(null);
-const filters = ref({});
 const submitted = ref(false);
 
 onBeforeMount(() => {
-    initFilters();
     checkLogin();
     // checkAdminPrevilage();
 });
@@ -239,10 +236,6 @@ const deleteRekeningById = (id) => {
         });
 };
 
-const exportCSV = () => {
-    dt.value.exportCSV();
-};
-
 const search = () => {
     fetchData();
     data.value = {};
@@ -253,11 +246,6 @@ const clearInput = () => {
     fetchData();
 };
 
-const initFilters = () => {
-    filters.value = {
-        global: { value: null, matchMode: FilterMatchMode.CONTAINS }
-    };
-};
 </script>
 
 <template>
