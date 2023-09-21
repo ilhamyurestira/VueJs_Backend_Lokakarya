@@ -104,7 +104,7 @@ export default {
       // Menghilangkan karakter "Rp." dan "," dari input jumlah tarik dana
   const formattedJumlah = this.jumlahSetor.replace(/[^\d]/g, '');
 // Konversi ke tipe data angka
-  const jumlahSetor = parseInt(formattedJumlah, 10);
+  this.jumlahSetor = parseInt(formattedJumlah, 10);
 
       if (!this.jumlahSetor || isNaN(this.jumlahSetor)) {
         this.jumlahSetorError = true;
