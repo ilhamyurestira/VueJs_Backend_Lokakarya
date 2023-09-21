@@ -59,6 +59,8 @@ export default {
         };
     },
     onBeforeMount() {
+        //does the credentials check before view output is rendered
+
         checkLogin();
     },
     methods: {
@@ -74,6 +76,7 @@ export default {
             }
         },
         async checkLogin() {
+            //checks if the user has login credentials
             const Token = JSON.parse(localStorage.getItem('token'));
             if (!Token) {
                 router.push({ name: 'login' });

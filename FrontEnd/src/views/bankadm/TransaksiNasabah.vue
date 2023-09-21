@@ -32,7 +32,6 @@ const dt = ref(null);
 
 onBeforeMount(() => {
     checkLogin();
-    // checkAdminPrevilage();
 });
 // Fetch data from the API on component mount
 onMounted(() => {
