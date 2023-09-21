@@ -18,23 +18,21 @@ onMounted(() => {
 
 const checkAccess = () => {
     const current = JSON.parse(localStorage.getItem('token'));
-    // console.log(current);
     currentAccess.value = current;
-    // console.log(currentAccess.value);
-    switch (currentAccess.value.roleId) {
-        case 1:
+    switch (currentAccess.value.previllages) {
+        case 'User Admin':
             isUserAdmin.value = true;
             break;
-        case 2:
+        case 'Bank Admin':
             isBankAdmin.value = true;
             break;
-        case 3:
+        case 'Telp Admin':
             isTelpAdmin.value = true;
             break;
-        case 4:
+        case 'Nasabah':
             isBankUser.value = true;
             break;
-        case 8:
+        case 'Developer':
             isDeveloper.value = true;
             break;
         default:

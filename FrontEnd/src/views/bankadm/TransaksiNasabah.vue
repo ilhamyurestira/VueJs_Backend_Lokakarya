@@ -41,8 +41,7 @@ onMounted(() => {
 
 const checkLogin = () => {
     const Token = JSON.parse(localStorage.getItem('token'));
-    setAccess(Token.roleId);
-    // console.log(Token);
+    setAccess(Token.previllages);
     if (!Token) {
         router.push({ name: 'login' });
     } else if (Token.expiry < now.getTime()) {
@@ -56,21 +55,21 @@ const checkLogin = () => {
     }
 };
 
-const setAccess = (id) => {
-    switch (id) {
-        case 1:
+const setAccess = (access) => {
+    switch (access) {
+        case 'User Admin':
             isUserAdmin.value = true;
             break;
-        case 2:
+        case 'Bank Admin':
             isBankAdmin.value = true;
             break;
-        case 3:
+        case 'Telp Admin':
             isTelpAdmin.value = true;
             break;
-        case 4:
+        case 'Nasabah':
             isBankUser.value = true;
             break;
-        case 8:
+        case 'Developer':
             isDeveloper.value = true;
             break;
         default:
@@ -80,7 +79,6 @@ const setAccess = (id) => {
 };
 
 const fetchData = () => {
-
     // let searchValue = keyword.value;
     // let selectedSearchBy = 'status';
 
@@ -112,7 +110,6 @@ const fetchData = () => {
             // searchBy: selectedSearchBy,
         })
         .then((response) => {
-
             isLoading.value = false;
             const responseData = response.data;
             const data = responseData.data;
@@ -172,7 +169,6 @@ const handlePageChange = (event) => {
     currentPage.value = event.page + 1; // Event.page dimulai dari 0, tambahkan 1
     fetchData(); // Ambil data untuk halaman baru
 };
-
 </script>
 
 <template>
@@ -187,8 +183,7 @@ const handlePageChange = (event) => {
 
                 <div v-else>
                     <!-- Tabel data -->
-                    <DataTable ref="dt" :value="datas" v-model:selection="selectedDatas" dataKey="id"
-                        responsiveLayout="scroll" :rowHover="true">
+                    <DataTable ref="dt" :value="datas" v-model:selection="selectedDatas" dataKey="id" responsiveLayout="scroll" :rowHover="true">
                         <template #header>
                             <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
                                 <h5 class="m-0">Transaksi Nasabah</h5>
@@ -202,15 +197,13 @@ const handlePageChange = (event) => {
                                 {{ slotProps.data.No }}
                             </template>
                         </Column>
-                        <Column field="norek" header="Nomor Rekening" :sortable="false"
-                            headerStyle="width20%; min-width:10rem;" bodyStyle="height: 70px;">
+                        <Column field="norek" header="Nomor Rekening" :sortable="false" headerStyle="width20%; min-width:10rem;" bodyStyle="height: 70px;">
                             <template #body="slotProps">
                                 <span class="p-column-title">Nomor Rekening</span>
                                 {{ slotProps.data.norek }}
                             </template>
                         </Column>
-                        <Column field="tanggal" header="Tanggal Transaksi" :sortable="false"
-                            headerStyle="width:20%; min-width:10rem;">
+                        <Column field="tanggal" header="Tanggal Transaksi" :sortable="false" headerStyle="width:20%; min-width:10rem;">
                             <template #body="slotProps">
                                 <span class="p-column-title">Tanggal Transaksi</span>
                                 {{ formatDateTime(slotProps.data.tanggal) }}
@@ -222,22 +215,19 @@ const handlePageChange = (event) => {
                                 {{ getStatusText(slotProps.data.status) }}
                             </template>
                         </Column>
-                        <Column field="status_ket" header="Keterangan" :sortable="false"
-                            headerStyle="width:20%; min-width:10rem;">
+                        <Column field="status_ket" header="Keterangan" :sortable="false" headerStyle="width:20%; min-width:10rem;">
                             <template #body="slotProps">
                                 <span class="p-column-title">Keterangan</span>
                                 {{ getKeteranganText(slotProps.data.status_ket) }}
                             </template>
                         </Column>
-                        <Column field="norek_dituju" header="Rekening Tujuan" :sortable="false"
-                            headerStyle="width:20%; min-width:10rem;">
+                        <Column field="norek_dituju" header="Rekening Tujuan" :sortable="false" headerStyle="width:20%; min-width:10rem;">
                             <template #body="slotProps">
                                 <span class="p-column-title">Rekening Tujuan</span>
                                 {{ slotProps.data.norek_dituju !== null ? slotProps.data.norek_dituju : '-' }}
                             </template>
                         </Column>
-                        <Column field="no_tlp" header="Nomor Telepon" :sortable="false"
-                            headerStyle="width:20%; min-width:10rem;">
+                        <Column field="no_tlp" header="Nomor Telepon" :sortable="false" headerStyle="width:20%; min-width:10rem;">
                             <template #body="slotProps">
                                 <span class="p-column-title">Nomor Telepon</span>
                                 {{ slotProps.data.no_tlp !== null ? slotProps.data.no_tlp : '-' }}
@@ -247,12 +237,16 @@ const handlePageChange = (event) => {
                             <div class="p-datatable-emptymessage">Tidak ada hasil yang ditemukan.</div>
                         </template>
                     </DataTable>
-                    <Paginator :rows="limit" :totalRecords="totalElements" v-if="showPaginator"
+                    <Paginator
+                        :rows="limit"
+                        :totalRecords="totalElements"
+                        v-if="showPaginator"
                         :rowsPerPageOptions="[10, 20, 30]"
                         template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
-                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords}" @page="handlePageChange">
+                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords}"
+                        @page="handlePageChange"
+                    >
                     </Paginator>
-
                 </div>
             </div>
         </div>
