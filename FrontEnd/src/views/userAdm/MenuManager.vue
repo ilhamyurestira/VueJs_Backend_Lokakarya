@@ -141,30 +141,30 @@ const createNew = () => {
                 const data = response.data;
                 if (response.status === 201) {
                     hideCreationDialog();
+                    fetchData();
                     toast.add({
                         severity: 'success',
                         summary: 'Sukses',
                         detail: `${data}`
                     });
-                    fetchData();
                 } else {
+                    fetchData();
                     toast.add({
                         severity: 'error',
                         summary: `Error ${response.status}`,
                         detail: `${data}`,
                         life: 3000
                     });
-                    fetchData();
                 }
             })
             .catch((error) => {
+                fetchData();
                 toast.add({
                     severity: 'error',
                     summary: `Error ${error.response.status}`,
                     detail: `Menu gagal dibuat`,
                     life: 3000
                 });
-                fetchData();
             });
         menu.value = {};
     }
@@ -220,13 +220,13 @@ const editSelected = () => {
             .put(`${apiUrl}/${menu.value.id}`, newData)
             .then((response) => {
                 if (response.status === 200) {
+                    editConfirmationDialog.value = false;
+                    hideEditDialog();
                     toast.add({
                         severity: 'success',
                         summary: 'Sukses',
                         detail: `Menu: ${currentName} telah berhasil diubah.`
                     });
-                    editConfirmationDialog.value = false;
-                    hideEditDialog();
                 } else {
                     toast.add({
                         severity: 'error',
@@ -235,7 +235,7 @@ const editSelected = () => {
                         life: 3000
                     });
                 }
-                check.value.password = null;
+                // check.value.password = null;
             })
             .catch((error) => {
                 toast.add({
@@ -244,7 +244,7 @@ const editSelected = () => {
                     detail: `Menu: ${menu.value.nama} gagal dibubah`,
                     life: 3000
                 });
-                check.value.password = null;
+                // check.value.password = null;
             });
         fetchData();
     }
@@ -267,14 +267,15 @@ const deleteItem = () => {
         .delete(`${apiUrl}/${menu.value.id}`)
         .then((response) => {
             const data = response.data;
-            toast.add({ severity: 'success', summary: 'Successful', detail: `${data}`, life: 3000 });
+            fetchData();
             menu.value = {};
+            toast.add({ severity: 'success', summary: 'Successful', detail: `${data}`, life: 3000 });
         })
         .catch((error) => {
+            fetchData();
             console.error('Error fetching data:', error);
             toast.add({ severity: 'error', summary: `Error ${error.response.status}`, detail: `Failed to delete menu`, life: 3000 });
         });
-    fetchData();
 };
 
 const initFilters = () => {

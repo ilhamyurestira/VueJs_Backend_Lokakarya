@@ -126,13 +126,13 @@ const createRole = () => {
                 const data = response.data;
                 if (response.status === 201) {
                     hideCreateRoleDialog();
+                    fetchData();
                     toast.add({
                         severity: 'success',
                         summary: 'Sukses',
                         detail: `${data}`,
                         life: 3000
                     });
-                    fetchData();
                 } else {
                     toast.add({
                         severity: 'error',
@@ -205,14 +205,14 @@ const editSelected = () => {
             .then((response) => {
                 if (response.status === 200) {
                     hideEditRoleDialog();
+                    editRoleDialog.value = false;
+                    fetchData();
                     toast.add({
                         severity: 'success',
                         summary: 'Sukses',
                         detail: `Role: ${currentName} telah berhasil diubah.`,
                         life: 3000
                     });
-                    editRoleDialog.value = false;
-                    fetchData();
                 } else {
                     toast.add({
                         severity: 'error',
@@ -222,17 +222,17 @@ const editSelected = () => {
                     });
                     fetchData();
                 }
-                check.value.password = null;
+                // check.value.password = null;
             })
             .catch((error) => {
+                fetchData();
+                // check.value.password = null;
                 toast.add({
                     severity: 'error',
                     summary: `Error ${response.status}`,
                     detail: `Role: ${role.value.nama} gagal dibubah`,
                     life: 3000
                 });
-                fetchData();
-                check.value.password = null;
             });
     }
 };
@@ -254,14 +254,14 @@ const deleteItem = () => {
         .delete(`${apiUrl}/${role.value.id}`)
         .then((response) => {
             const data = response.data;
-            toast.add({ severity: 'success', summary: 'Sukses', detail: `${data}`, life: 3000 });
-            role.value = {};
             fetchData();
+            role.value = {};
+            toast.add({ severity: 'success', summary: 'Sukses', detail: `${data}`, life: 3000 });
         })
         .catch((error) => {
             console.error('Error fetching data:', error);
-            toast.add({ severity: 'error', summary: `Error ${error.response.status}`, detail: `${error.response.data}`, life: 3000 });
             fetchData();
+            toast.add({ severity: 'error', summary: `Error ${error.response.status}`, detail: `${error.response.data}`, life: 3000 });
         });
 };
 

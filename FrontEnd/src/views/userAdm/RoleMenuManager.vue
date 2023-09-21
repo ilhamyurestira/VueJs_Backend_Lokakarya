@@ -162,31 +162,31 @@ const createItem = () => {
                 const data = response.data;
                 if (response.status === 201) {
                     hideCreationDialog();
+                    fetchMainData();
                     toast.add({
                         severity: 'success',
                         summary: 'Sukses',
                         detail: `${data}`,
                         life: 3000
                     });
-                    fetchMainData();
                 } else {
+                    fetchMainData();
                     toast.add({
                         severity: 'error',
                         summary: `Error ${response.status}`,
                         detail: `${response.data}`,
                         life: 3000
                     });
-                    fetchMainData();
                 }
             })
             .catch((error) => {
+                fetchMainData();
                 toast.add({
                     severity: 'error',
                     summary: `Error ${error.response.status}`,
                     detail: `${error.response.data}`,
                     life: 3000
                 });
-                fetchMainData();
             });
     }
     roleMenu.value = {};
@@ -247,15 +247,17 @@ const editItem = () => {
             .put(`${apiUrl}/${roleMenu.value.id}`, newData)
             .then((response) => {
                 if (response.status === 200) {
+                    editConfirmationDialog.value = false;
+                    editSelectedDialog.value = false;
+                    fetchMainData();
+                    role.value = {};
                     toast.add({
                         severity: 'success',
                         summary: 'Sukses',
                         detail: `Role: ${currentName} telah berhasil diubah.`
                     });
-                    editConfirmationDialog.value = false;
-                    editSelectedDialog.value = false;
-                    role.value = {};
                 } else {
+                    fetchMainData();
                     toast.add({
                         severity: 'error',
                         summary: `Error ${response.status}`,
@@ -266,6 +268,7 @@ const editItem = () => {
                 }
             })
             .catch((error) => {
+                fetchMainData();
                 toast.add({
                     severity: 'error',
                     summary: `Error ${error.response.status}`,
@@ -274,8 +277,7 @@ const editItem = () => {
                 });
                 editConfirmationDialog.value = true;
             });
-        check.value.password = null;
-        fetchMainData();
+        // check.value.password = null;
     }
 };
 
@@ -295,14 +297,15 @@ const deleteItem = () => {
     axios
         .delete(`${apiUrl}/${roleMenu.value.id}`)
         .then((response) => {
-            toast.add({ severity: 'success', summary: 'Successful', detail: `Role ${roleMenu.value.nama} has been deleted successfully`, life: 3000 });
+            fetchMainData();
             roleMenu.value = {};
+            toast.add({ severity: 'success', summary: 'Successful', detail: `Role ${roleMenu.value.nama} has been deleted successfully`, life: 3000 });
         })
         .catch((error) => {
+            fetchMainData();
             console.error('Error fetching data:', error);
             toast.add({ severity: 'error', summary: 'Error', detail: `Failed to delete role (errcode: ${error.response.status})`, life: 3000 });
         });
-    fetchMainData();
 };
 
 const confirmDeleteSelected = () => {
@@ -316,16 +319,17 @@ const deleteSelectedProducts = () => {
         axios
             .delete(`${apiUrl}/${item.id}`)
             .then((response) => {
-                toast.add({ severity: 'success', summary: 'Successful', detail: `Role ${roleMenu.value.nama} has been deleted successfully`, life: 3000 });
+                deleteMultipleConfirmationDialog.value = false;
+                selectedItems.value = null;
+                fetchMainData();
+                toast.add({ severity: 'success', summary: 'Successful', detail: `Selected items has been deleted successfully`, life: 3000 });
             })
             .catch((error) => {
+                fetchMainData();
                 console.error(error);
                 toast.add({ severity: 'error', summary: `Error ${error.response.status}`, detail: `${error.response.data}` });
             });
     });
-    deleteMultipleConfirmationDialog.value = false;
-    selectedItems.value = null;
-    toast.add({ severity: 'success', summary: 'Successful', detail: 'Products Deleted', life: 3000 });
 };
 
 const initFilters = () => {

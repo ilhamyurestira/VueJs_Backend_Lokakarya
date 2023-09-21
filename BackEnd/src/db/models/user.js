@@ -43,18 +43,33 @@ module.exports = (sequelize, DataTypes) => {
     }
   );
 
-  // Tambahkan hook beforeUpdate
+  user.beforeDestroy(async (user, options) => {
+    const userId = user.id;
+  
+    try {
+      await sequelize.models.master_bank.destroy({
+        where: { userId },
+        ...options,
+      });
+
+      await sequelize.models.master_pelanggan.destroy({
+        where: { userId },
+        ...options,
+      });
+    } catch (error) {
+      console.error('Gagal menghapus data terkait:', error);
+    }
+  });
+
   user.beforeUpdate(async (user, options) => {
     const userId = user.id;
     const { nama, alamat } = user;
 
     try {
-      // Temukan semua entri master_bank yang terkait dengan userId
       const masterBanks = await sequelize.models.master_bank.findAll({
         where: { userId },
       });
 
-      // Update nama, alamat, dan noTlp pada setiap entri master_bank
       for (const masterBank of masterBanks) {
         await masterBank.update({ nama, alamat }, options);
       }

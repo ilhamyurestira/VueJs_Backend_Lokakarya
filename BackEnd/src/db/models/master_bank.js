@@ -31,5 +31,23 @@ module.exports = (sequelize, DataTypes) => {
     modelName: 'master_bank',
     underscored: true,
   });
+
+  master_bank.beforeDestroy(async (masterBank, options) => {
+    const norek = masterBank.norek;
+  
+    try {
+      await sequelize.models.history_transaksi_bank.destroy({
+        where: { norek },
+        ...options,
+      });
+  
+      await sequelize.models.transaksi_nasabah.destroy({
+        where: { norek },
+        ...options,
+      });
+    } catch (error) {
+      console.error('Gagal menghapus data terkait:', error);
+    }
+  });
   return master_bank;
 };

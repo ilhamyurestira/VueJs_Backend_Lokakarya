@@ -45,16 +45,16 @@ const checkAccess = () => {
 const model = ref([
     {
         label: 'Home',
-        items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', to: '/dashboard' }]
+        items: [{ label: 'Dashboard', icon: 'fa fa-fw fa-solid fa-house', to: '/dashboard' }]
     },
     {
         label: 'User Admin',
         items: [
-            { label: 'User Manager', icon: 'pi pi-fw pi-user-edit', to: '/userManager' },
-            { label: 'Role Manager', icon: 'pi pi-fw pi-users', to: '/roleManager' },
-            { label: 'Menu Manager', icon: 'pi pi-fw pi-align-left', to: '/menuManager' },
-            { label: 'Manage Hak Akses', icon: 'pi pi-fw pi-wrench', to: '/manageHakAkses' },
-            { label: 'Manage Role Menus', icon: 'pi pi-fw pi-wrench', to: '/manageRoleMenu' }
+            { label: 'User Manager', icon: 'fa fa-fw fa-solid fa-user-pen', to: '/userManager' },
+            { label: 'Role Manager', icon: 'fa fa-fw fa-solid fa-user-group', to: '/roleManager' },
+            { label: 'Menu Manager', icon: 'fa fa-fw fa-solid fa-list', to: '/menuManager' },
+            { label: 'Manage Hak Akses', icon: 'fa fa-fw fa-solid fa-user-lock', to: '/manageHakAkses' },
+            { label: 'Manage Role Menus', icon: 'fa fa-fw fa-solid fa-users-gear', to: '/manageRoleMenu' }
         ]
     },
     {
@@ -68,19 +68,19 @@ const model = ref([
     {
         label: 'Telpon Admin',
         items: [
-            { label: 'Master Pelanggan', icon: 'pi pi-fw pi-exclamation-circle', to: '/masterPelanggan' },
-            { label: 'Transaksi Telpon', icon: 'pi pi-fw pi-mobile', to: '/transaksiTelpon' },
-            { label: 'Histori Transaksi', icon: 'pi pi-fw pi-table', to: '/historiTransaksi' }
+            { label: 'Master Pelanggan', icon: 'fa fa-fw fa-solid fa-user-tie', to: '/masterPelanggan' },
+            { label: 'Transaksi Telpon', icon: 'fa fa-fw fa-solid fa-money-bill-transfer', to: '/transaksiTelpon' },
+            { label: 'Histori Transaksi', icon: 'fa fa-fw fa-solid fa-clock-rotate-left', to: '/historiTransaksi' }
         ]
     },
     {
         label: 'Nasabah',
         items: [
-            { label: 'Cek Saldo', icon: 'pi pi-wallet', to: '/cekSaldo' },
-            { label: 'Setor', icon: 'pi pi-dollar', to: '/setor' },
-            { label: 'Ambil', icon: 'pi pi-money-bill', to: '/tarik' },
-            { label: 'Transfer', icon: 'pi pi-arrow-right-arrow-left', to: '/transfer' },
-            { label: 'Bayar Telpon', icon: 'pi pi-mobile', to: '/bayarTelpon' }
+            { label: 'Cek Saldo', icon: 'fa fa-fw fa-solid fa-wallet', to: '/cekSaldo' },
+            { label: 'Setor', icon: 'fa fa-fw fa-solid fa-sack-dollar', to: '/setor' },
+            { label: 'Ambil', icon: 'fa fa-fw fa-solid fa-hand-holding-dollar', to: '/tarik' },
+            { label: 'Transfer', icon: 'fa fa-fw fa-solid fa-money-bill-transfer', to: '/transfer' },
+            { label: 'Bayar Telpon', icon: 'fa fa-fw fa-solid fa-money-bill-wave', to: '/bayarTelpon' }
         ]
     },
     {
