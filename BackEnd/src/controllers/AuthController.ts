@@ -50,64 +50,96 @@ class AuthController {
         return res.status(400).send('username belum diisi');
       } else if (!password) {
         return res.status(400).send('password belum diisi');
-      } else {
+      }
         //check for username in database
         const user = await db.user.findOne({
           where: { username },
         });
-        if (user) {
-          const compare = await Authentication.passwordCompare(
-            password,
-            user.password
-          );
-          if (compare) {
-            const token = Authentication.generateToken(
-              user.id,
-              username,
-              user.password
-            );
-            const hakAkses = await db.hak_akses.findOne({
-              where: { userId: user.id },
-            });
-            console.log(hakAkses);
-            const access = {
-              token: token,
-              roleId: hakAkses.roleId,
-              userId: hakAkses.userId,
-            };
-            console.log(access);
-            return res.status(200).json({
-              access,
-            });
-          }
-          return res.status(401).send('Authentication failed, Wrong Password');
-        } else if (!user) {
-          const noRek: number = parseInt(username);
-          const nasabah = await db.master_bank.findOne({
-            where: { norek: noRek },
-          });
-          const alternate = await db.user.findOne({
-            where: { id: nasabah.userId },
-          });
-          const compare = await Authentication.passwordCompare(
-            password,
-            alternate.password
-          );
-          if (compare) {
-            const token = Authentication.generateToken(
-              alternate.id,
-              username,
-              alternate.password
-            );
-            return res.status(200).send({
-              token,
-            });
-          }
-          return res.status(401).send('Authentication failed, Wrong Password');
-        } else {
+        if (!user) {
           return res.status(404).send('User not found');
         }
+        const compare = await Authentication.passwordCompare(
+          password,
+          user.password
+        );
+        if (compare) {
+          const token = Authentication.generateToken(
+            user.id,
+            username,
+            user.password
+          );
+          const hakAkses = await db.hak_akses.findOne({
+            where: { userId: user.id },include: [
+              { model: db.role, attributes: ['nama'] },
+            ],
+          });
+          console.log(hakAkses);
+          const access = {
+            token: token,
+            previllage: hakAkses.role.nama,
+            userId: hakAkses.userId,
+          };
+          console.log(access);
+          return res.status(200).json({
+            access,
+          });
+        }
+        return res.status(401).send('Authentication failed, Wrong Password');
+    } catch (err) {
+      console.log(err);
+      return res.status(500).send('Login authentication error');
+    }
+  };
+
+  loginByNoRek = async (req: Request, res: Response): Promise<Response> => {
+    // cari data user by username
+    try {
+      const { username, password } = req.body;
+
+      if (!username) {
+        return res.status(400).send('username belum diisi');
+      } else if (!password) {
+        return res.status(400).send('password belum diisi');
       }
+        //check for username in database
+      const noRek: number = parseInt(username);
+      const nasabah = await db.master_bank.findOne({
+        where: { norek: noRek },
+      });
+      const user = await db.user.findOne({
+        where: { id: nasabah.userId },
+      });
+      if (!user) {
+        return res.status(404).send('user nasabah tidak dapat ditemukan')
+      }
+      const compare = await Authentication.passwordCompare(
+        password,
+        user.password
+      );
+      if (compare) {
+        const token = Authentication.generateToken(
+          user.id,
+          user.username,
+          user.password
+        );
+        const hakAkses = await db.hak_akses.findOne({
+          where: { userId: user.id }, include: [
+            { model: db.role, attributes: ['nama'] },
+          ],
+        });
+        console.log(hakAkses);
+        const access = {
+          token: token,
+          previllage: hakAkses.role.nama,
+          userId: hakAkses.userId,
+        };
+        console.log(access);
+        return res.status(200).json({
+          access,
+        });
+      }
+      return res.status(401).send('Authentication failed, Wrong Password');
+
     } catch (err) {
       console.log(err);
       return res.status(500).send('Login authentication error');

@@ -15,6 +15,11 @@ const router = createRouter({
             component: () => import('@/views/pages/auth/Login.vue')
         },
         {
+            path: '/nasabah',
+            name: 'loginnasabah',
+            component: () => import('@/views/pages/auth/LoginNasabah.vue')
+        },
+        {
             path: '/auth/denied',
             name: 'accessDenied',
             component: () => import('@/views/pages/auth/Access.vue')

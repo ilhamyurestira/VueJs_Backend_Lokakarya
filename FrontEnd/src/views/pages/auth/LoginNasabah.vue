@@ -1,4 +1,5 @@
 <script setup>
+'use strict';
 import { useLayout } from '@/layout/composables/layout';
 import { ref, computed, onMounted, onBeforeMount } from 'vue';
 import { useRouter } from 'vue-router';
@@ -9,7 +10,7 @@ const { layoutConfig } = useLayout();
 const router = useRouter();
 const now = new Date();
 
-const username = ref('');
+const norek = ref('');
 const password = ref('');
 const checked = ref(false);
 const message = ref([]);
@@ -27,33 +28,33 @@ onBeforeMount(() => {
 });
 
 const checkRemember = () => {
-    const lastUser = localStorage.getItem('user');
+    const lastUser = localStorage.getItem('noRek');
     checked.value = true;
     if (lastUser) {
-        username.value = lastUser;
+        norek.value = lastUser;
     }
 };
 
 const checkLogin = () => {
     const cekToken = localStorage.getItem('token');
     if (!cekToken) {
-        router.push({ name: 'login' });
+        router.push({ name: 'loginnasabah' });
     }
 };
 
-const goToNasabah = () => {
-    router.push({ name: 'loginnasabah' });
+const goToLogin = () => {
+    router.push({ name: 'login' });
 };
 
 const tryLogin = () => {
     submitted.value = true;
-    if (username.value.length > 0 && password.value.length >= 6) {
+    if (norek.value.length === 7 && password.value.length >= 6) {
         const userLoginData = {
-            username: username.value,
+            username: norek.value,
             password: password.value
         };
         axios
-            .post(`${apiUrl}/login`, userLoginData)
+            .post(`${apiUrl}/loginNoRek`, userLoginData)
             .then((response) => {
                 password.value = null;
                 const resData = response.data;
@@ -68,7 +69,7 @@ const tryLogin = () => {
                     localStorage.setItem('token', JSON.stringify(data));
                     router.push({ name: 'dashboard' });
                 }
-                message.value = [{ severity: 'error', detail: 'Login Failed', content: 'Invalid username or password', id: count.value++ }];
+                message.value = [{ severity: 'error', detail: 'Login Failed', content: 'Invalid Account Number or password', id: count.value++ }];
             })
             .catch((error) => {
                 console.error(error);
@@ -76,10 +77,10 @@ const tryLogin = () => {
             });
     }
     if (checked.value === true) {
-        localStorage.setItem('user', username.value);
+        localStorage.setItem('noRek', norek.value);
     } else {
-        username.value = null;
-        localStorage.removeItem('user');
+        norek.value = null;
+        localStorage.removeItem('noRek');
     }
 };
 </script>
@@ -92,16 +93,25 @@ const tryLogin = () => {
                 <div class="w-full surface-card py-8 px-5 sm:px-8" style="border-radius: 53px">
                     <div class="text-center mb-5">
                         <!-- <img src="/demo/images/login/avatar.png" alt="Image" height="50" class="mb-3" /> -->
-                        <div class="text-900 text-3xl font-medium mb-3">Bank Crud</div>
+                        <div class="text-900 text-3xl font-medium mb-3">Bank Crud Nasabah</div>
                         <span class="text-600 font-medium">Sign in to continue</span>
                     </div>
 
                     <div>
                         <div class="field mt-0 mb-5">
-                            <label for="username" class="block text-900 text-xl font-medium mb-2">Username</label>
-                            <InputText id="username" type="text" placeholder="Username" class="w-full md:w-30rem mb-1" style="padding: 1rem" v-model.trim="username" :class="{ 'p-invalid': submitted && (!username || username === '') }" />
+                            <label for="norek" class="block text-900 text-xl font-medium mb-2">Nomor Rekening</label>
+                            <InputText
+                                id="norek"
+                                type="text"
+                                placeholder="No. Rekening"
+                                class="w-full md:w-30rem mb-1"
+                                style="padding: 1rem"
+                                v-model.trim="norek"
+                                :class="{ 'p-invalid': (submitted && (!norek || norek === '')) || (norek && (norek.length < 7 || norek.length > 7)) }"
+                            />
                             <br />
-                            <small class="p-invalid" v-if="submitted && (!username || username === '')">Please enter your Username or no.Rekening.</small>
+                            <small class="p-invalid" v-if="submitted && (!norek || norek === '')">Please enter your Username or no.Rekening.</small>
+                            <small class="p-invlid" v-if="norek && (norek.length < 7 || norek.length > 7)">Please enter a valid 7 digit Account number</small>
                         </div>
 
                         <div class="field mt-0 mb-3">
@@ -116,8 +126,7 @@ const tryLogin = () => {
                                 <Checkbox v-model="checked" id="rememberme1" binary class="mr-2"></Checkbox>
                                 <label for="rememberme1">Remember me</label>
                             </div>
-                            <!-- <Button label="Login by No.Rekening" class="p-button-link" @click="goToNasabah" /> -->
-                            <a @click="goToNasabah" class="font-medium no-underline ml-2 text-right cursor-pointer" style="color: var(--primary-color)">Login by No. Rekening?</a>
+                            <a @click="goToLogin" class="font-medium no-underline ml-2 text-right cursor-pointer" style="color: var(--primary-color)">Login by Username?</a>
                         </div>
 
                         <Button label="Sign In" class="w-full p-3 text-xl" @click="tryLogin"></Button>
