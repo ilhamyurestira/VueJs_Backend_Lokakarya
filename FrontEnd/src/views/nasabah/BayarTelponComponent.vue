@@ -107,29 +107,7 @@ export default {
 
                 console.log(response); // Log respons dari server
 
-                if (response.status === 404) {
-                    // Menangani kasus tidak ada tagihan
-                    const responseData = response.data;
-                    if (responseData && responseData.message) {
-                        Swal.fire({
-                            icon: 'error',
-                            text: responseData.message,
-                            customClass: {
-                                container: 'custom-class'
-                            },
-                            appendTo: 'body'
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            text: error.response.data.message,
-                            customClass: {
-                                container: 'custom-class'
-                            },
-                            appendTo: 'body'
-                        });
-                    }
-                } else {
+                
                     // Memperbarui tagihan dan menampilkan modal pembayaran
                     this.tagihan = response.data.tagihan;
                     this.accountInfo = {
@@ -140,9 +118,31 @@ export default {
                         tagihanTelpon: response.data.tagihanTelpon
                     };
                     this.showPaymentModal = true;
-                }
             } catch (error) {
                 console.error(error);
+                if (error.response.status === 404) {
+                    // Menangani kasus tidak ada tagihan
+                    const responseData = error.data;
+                    if (responseData && responseData.message) {
+                        Swal.fire({
+                            icon: 'error',
+                            text: error.response.data,
+                            customClass: {
+                                container: 'custom-class'
+                            },
+                            appendTo: 'body'
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            text: error.response.data,
+                            customClass: {
+                                container: 'custom-class'
+                            },
+                            appendTo: 'body'
+                        });
+                    }
+                } else {
                 Swal.fire({
                     icon: 'error',
                     text: error.response.data.message,
@@ -152,8 +152,8 @@ export default {
                     appendTo: 'body'
                 });
             }
-        },
-
+        }
+      },
         async bayarTagihan() {
             if (!this.tagihan) {
                 Swal.fire({

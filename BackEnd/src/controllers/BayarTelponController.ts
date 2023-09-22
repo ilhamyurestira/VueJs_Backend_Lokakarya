@@ -42,7 +42,7 @@ class BayarTelponController implements IController {
       });
 
       if (!transaksiBelumDibayar) {
-        return res.status(404).json({ message: 'Tidak ada tagihan telpon yang harus dibayar.', tagihan: 0 });
+        return res.status(405).json({ message: 'Tidak ada tagihan telpon yang harus dibayar.', tagihan: 0 });
       }
 
       return res.status(200).json({
