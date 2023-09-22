@@ -107,7 +107,7 @@ export default {
       } else {
         Swal.fire({
           icon: 'error',
-          text: error.response.data.message,
+          text: error.response.data,
           customClass: {
             container: 'custom-class'
           },
@@ -130,7 +130,7 @@ export default {
     console.error(error);
     Swal.fire({
       icon: 'error',
-      text: error.response.data.message,
+      text: error.response.data,
       customClass: {
         container: 'custom-class'
       },
