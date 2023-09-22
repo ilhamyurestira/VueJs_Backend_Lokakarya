@@ -11,8 +11,18 @@ const router = createRouter({
         },
         {
             path: '/',
-            name: 'login',
-            component: () => import('@/views/pages/auth/Login.vue')
+            children: [
+                {
+                    path: '/',
+                    name: 'login',
+                    component: () => import('@/views/pages/auth/Login.vue')
+                },
+                {
+                    path: '/nasabah',
+                    name: 'loginnasabah',
+                    component: () => import('@/views/pages/auth/LoginNasabah.vue')
+                }
+            ]
         },
         {
             path: '/auth/denied',

@@ -47,17 +47,24 @@ module.exports = (sequelize, DataTypes) => {
     const userId = user.id;
   
     try {
-      await sequelize.models.master_bank.destroy({
+      const masterBanks = await sequelize.models.master_bank.findAll({
         where: { userId },
-        ...options,
       });
+  
+      for (const masterBank of masterBanks) {
+        await masterBank.destroy(options);
+      }
 
-      await sequelize.models.master_pelanggan.destroy({
+      const masterPelanggans = await sequelize.models.master_pelanggan.findAll({
         where: { userId },
-        ...options,
       });
+  
+      for (const masterPelanggan of masterPelanggans) {
+        await masterPelanggan.destroy(options);
+      }
+      
     } catch (error) {
-      console.error('Gagal menghapus data terkait:', error);
+      console.error('Gagal menghapus data master_bank:', error);
     }
   });
 

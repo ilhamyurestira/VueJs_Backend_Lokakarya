@@ -55,7 +55,7 @@ onMounted(() => {
 
 const checkLogin = () => {
     const Token = JSON.parse(localStorage.getItem('token'));
-    setAccess(Token.roleId);
+    setAccess(Token.previllages);
     if (!Token) {
         router.push({ name: 'login' });
     } else if (Token.expiry < now.getTime()) {
@@ -69,21 +69,21 @@ const checkLogin = () => {
     }
 };
 
-const setAccess = (id) => {
-    switch (id) {
-        case 1:
+const setAccess = (access) => {
+    switch (access) {
+        case 'User Admin':
             isUserAdmin.value = true;
             break;
-        case 2:
+        case 'Bank Admin':
             isBankAdmin.value = true;
             break;
-        case 3:
+        case 'Telp Admin':
             isTelpAdmin.value = true;
             break;
-        case 4:
+        case 'Nasabah':
             isBankUser.value = true;
             break;
-        case 8:
+        case 'Developer':
             isDeveloper.value = true;
             break;
         default:
