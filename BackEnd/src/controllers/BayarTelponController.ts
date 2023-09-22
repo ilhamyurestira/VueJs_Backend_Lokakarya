@@ -51,7 +51,9 @@ class BayarTelponController implements IController {
         nomorRekening: nomorRekening,
         namaPemilikRekening: pemilikRekening.nama,
         saldoPemilikRekening: pemilikRekening.saldo,
-        noTelp: pemilikRekening.noTlp
+        noTelp: pemilikRekening.noTlp,
+        bulanTagihan: transaksiBelumDibayar.bulan_tagihan,
+        tahunTagihan: transaksiBelumDibayar.tahun_tagihan
       });
     } catch (err) {
       console.error(err);
